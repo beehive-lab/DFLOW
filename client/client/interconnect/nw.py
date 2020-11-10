@@ -14,9 +14,9 @@ def send(host, port, data):
         s.sendall(data)
 
 
-def receive(host, port):
+def receive(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind((host, port))
+        sock.bind(('', port))
         sock.listen()
         conn, addr = sock.accept()
         with conn:
@@ -27,5 +27,3 @@ def receive(host, port):
                 if not data:
                     break
                 conn.sendall(data)
-
-
