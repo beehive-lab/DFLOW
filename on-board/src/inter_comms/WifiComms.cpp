@@ -6,7 +6,7 @@ int receive(int port) {
     int addrlen = sizeof(address);
     int opt = 1;
     char buffer[1024] = {0};
-    sockfd = socket(AF_INET, SOCK_STREAM, 0));
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == 0) {
         perror("Socket Connection Failed");
         exit(EXIT_FAILURE);
@@ -22,7 +22,7 @@ int receive(int port) {
 
     listen(sockfd, 3);
 
-    new_socket = accept(sockfd, (struct sockaddr *) &address), (socklen_t* )&addrlen);
+    new_socket = accept(sockfd, ((struct sockaddr *) &address), (socklen_t* )&addrlen);
 
     int values = read(new_socket, buffer, 1024);
     printf("%s", buffer);
@@ -36,7 +36,7 @@ int send(int port, char data[1024]) {
     int addrlen = sizeof(address);
     int opt = 1;
     char buffer[1024] = {0};
-    sockfd = socket(AF_INET, SOCK_STREAM, 0));
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == 0) {
         perror("Socket Connection Failed");
         exit(EXIT_FAILURE);
@@ -52,7 +52,7 @@ int send(int port, char data[1024]) {
 
     listen(sockfd, 3);
 
-    new_socket = accept(sockfd, (struct sockaddr *) &address), (socklen_t* )&addrlen);
+    new_socket = accept(sockfd, ((struct sockaddr *) &address), (socklen_t* )&addrlen);
 
     send(new_socket, data, strlen(data), 0);
 

@@ -1,8 +1,9 @@
 #include <iostream>
+#include "WifiComms.h"
 
+using namespace std;
 
-int main()
-{
-  std::cout<<"Hello DFLOW world!"<<std::endl;
-  return 1;
+int main() {
+    cout << "Hello DFLOW world!" << endl;
+    return 0;
 }

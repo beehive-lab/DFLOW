@@ -10,6 +10,6 @@
 
 int receive(int port);
 
-int send(int host, int port, char data[1024]);
+int send(int port, char data[1024]);
 
 #endif
