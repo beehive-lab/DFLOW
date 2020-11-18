@@ -1,15 +1,22 @@
 #ifndef DFLOW_WIFICOMMS_H
 #define DFLOW_WIFICOMMS_H
 
-#include <unistd.h>
-#include <stdio.h>
 #include <sys/socket.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <poll.h>
 
-int receive(int port);
+extern int other_socket;
 
-int send(int port, char data[1024]);
+int receive();
+
+int send(char data[1024]);
+
+int polling();
+
+int connect(int port);
 
 #endif
