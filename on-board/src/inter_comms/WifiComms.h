@@ -11,12 +11,12 @@
 
 extern int other_socket;
 
-int receive();
+extern int this_socket;
 
 int send(char data[1024]);
 
 int polling();
 
-int connect(int port);
+int listen_to_connection(int port);
 
 #endif
