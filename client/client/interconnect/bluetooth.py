@@ -1,30 +1,41 @@
-import bluetooth
+import socket
+
+from .commlink import CommLink
 
 
-def scan() -> []:
-    return bluetooth.discover_devices(
-        duration=8,
-        lookup_names=True,
-        flush_cache=True,
-        lookup_class=False
-    )
+class BluetoothLink(CommLink):
 
+    def __init__(self, mac_addr: str, port: int):
+        self.host: str = mac_addr
+        self.port: int = port
+        self.sock: socket.socket = self._create_socket()
 
-def send(adr: str, port: int, data: any):
-    bd_addr = adr
-    port = port
-    sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-    sock.connect((bd_addr, port))
-    sock.send(data)
-    sock.close()
+    def _create_socket(self):
+        return socket.socket(
+            socket.AF_BLUETOOTH,
+            socket.SOCK_STREAM,
+            socket.BTPROTO_RFCOMM
+        )
 
+    def __enter__(self):
+        return self
 
-def receive(port: int) -> any:
-    server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-    server_sock.bind(("", port))
-    server_sock.listen(1)
-    client_sock, address = server_sock.accept()
-    data = client_sock.recv(1024)
-    client_sock.close()
-    server_sock.close()
-    return data
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        self.sock.close()
+
+    def connect(self):
+        self.sock.connect((self.mac_addr, self.port))
+
+    def reconnect(self):
+        self.sock.close()
+        self.sock = self._create_socket()
+        self.connect()
+
+    def disconnect(self):
+        self.sock.close()
+
+    def send(self, data: bytes):
+        self.sock.sendall(data)
+
+    def receive(self) -> bytes:
+        return self.sock.recv(1024)

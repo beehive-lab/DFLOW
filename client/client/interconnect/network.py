@@ -1,11 +1,6 @@
 import socket
-import select
 
 from .commlink import CommLink
-
-# Commonly used flag sets
-READ_ONLY = select.POLLIN | select.POLLPRI | select.POLLHUP | select.POLLERR
-READ_WRITE = READ_ONLY | select.POLLOUT
 
 
 class NetworkLink(CommLink):
