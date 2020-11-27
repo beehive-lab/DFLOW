@@ -1,52 +1,40 @@
 #include "WifiComms.h"
 #include <cstring>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <cstdlib>
+#include <iostream>
+#include <unistd.h>
 
 using namespace std;
 
-int other_socket;
 
-int this_socket;
+int WifiComms::send(char *data) {
 
-int send(char *data) {
-    int status = send(other_socket, data, strlen(data), 0);
+    cout << "Sending: " << data;
 
-    if (status == -1) {
-        int connect_status = listen_to_connection(8080);
-        if (connect_status == -1) {
-            cerr << "Error connecting to the socket" << endl;
-            exit(1);
-        }
-
-        send(other_socket, data, strlen(data), 0);
-    }
+    ::send(other_socket, data, strlen(data), 0);
 
     return 0;
 }
 
-int polling() {
+int WifiComms::receive(char buffer[1024]) {
 
-    struct pollfd poll_fd[1];
-
-    poll_fd[0].fd = other_socket;
-    poll_fd[0].events = POLLIN;
-
-//    poll(poll_fd, 1, -1);
-
-    char buffer[1024];
-//    if (poll_fd[0].revents & POLLIN) {
     recv(other_socket, buffer, 1024, 0);
-//    }
 
     cout << buffer << endl;
 
-    send(buffer);
+    return 0;
+}
 
-    // do something with the data. send it further.
+int WifiComms::disconnect() {
+
+    close(this_socket);
 
     return 0;
 }
 
-int listen_to_connection(int port) {
+int WifiComms::listen_to_connection(int port) {
     struct addrinfo hints{};
     struct addrinfo *server_info;
 
@@ -76,12 +64,6 @@ int listen_to_connection(int port) {
         exit(1);
     }
 
-//    int yes = 1;
-//    if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, 1) == -1) {
-//        cerr<<"Port could not be reused";
-//        exit(1);
-//    }
-
     int listen_status = listen(socket_fd, 1);
     if (listen_status == -1) {
         cerr << "Error listening to the port" << endl;
@@ -100,4 +82,9 @@ int listen_to_connection(int port) {
     other_socket = new_socket_fd;
 
     return 0;
+}
+
+WifiComms::WifiComms() {
+    this_socket = -1;
+    other_socket = -1;
 }

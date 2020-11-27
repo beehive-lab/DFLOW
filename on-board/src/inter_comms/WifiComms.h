@@ -1,22 +1,24 @@
 #ifndef DFLOW_WIFICOMMS_H
 #define DFLOW_WIFICOMMS_H
 
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <poll.h>
+#include "Communications.h"
 
-extern int other_socket;
+class WifiComms: public Communications {
+public:
+    WifiComms();
 
-extern int this_socket;
+    int send(char *data) override;
 
-int send(char data[1024]);
+    int receive(char buffer[1024]) override;
 
-int polling();
+    int disconnect() override;
 
-int listen_to_connection(int port);
+    int listen_to_connection(int port) override;
+
+private:
+    int other_socket;
+
+    int this_socket;
+};
 
 #endif
