@@ -30,6 +30,7 @@ int WifiComms::receive(char buffer[1024]) {
 int WifiComms::disconnect() {
 
     close(this_socket);
+    close(other_socket);
 
     return 0;
 }
