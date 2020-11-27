@@ -5,9 +5,9 @@ from .commlink import CommLink
 
 class BluetoothLink(CommLink):
 
-    def __init__(self, mac_addr: str, port: int):
-        self.host: str = mac_addr
-        self.port: int = port
+    def __init__(self, mac_addr: str, channel: int):
+        self.mac_addr: str = mac_addr
+        self.channel: int = channel
         self.sock: socket.socket = self._create_socket()
 
     def _create_socket(self):
@@ -24,7 +24,7 @@ class BluetoothLink(CommLink):
         self.sock.close()
 
     def connect(self):
-        self.sock.connect((self.mac_addr, self.port))
+        self.sock.connect((self.mac_addr, self.channel))
 
     def reconnect(self):
         self.sock.close()

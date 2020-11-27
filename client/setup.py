@@ -1,7 +1,5 @@
 import socket
 
-from client.interconnect.network import NetworkLink
-
 
 def receive(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -46,11 +44,17 @@ def receive_bluetooth(port):
         client.close()
         s.close()
 
+
 # receive_bluetooth(3)
 # receive(8888)
 
 
-with NetworkLink('localhost', 8888) as commlink:
-    commlink.connect()
-    commlink.send(b'data')
-    commlink.disconnect()
+# with NetworkLink('localhost', 8888) as commlink:
+#     commlink.connect()
+#     commlink.send(b'data')
+#     commlink.disconnect()
+
+# with BluetoothLink('1C:4D:70:7D:41:45', 4) as commlink:
+#     commlink.connect()
+#     commlink.send(b'test')
+#     commlink.disconnect()
