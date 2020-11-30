@@ -3,13 +3,13 @@
 
 #include "Communications.h"
 
-class WifiComms: public Communications {
+class WifiComms : public Communications {
 public:
-    WifiComms();
+    explicit WifiComms(bool logging);
 
     int send(char *data) override;
 
-    int receive(char buffer[1024]) override;
+    int receive(char buffer[BUFFER_SIZE]) override;
 
     int disconnect() override;
 
@@ -19,6 +19,8 @@ private:
     int other_socket;
 
     int this_socket;
+
+    bool logging;
 };
 
 #endif
