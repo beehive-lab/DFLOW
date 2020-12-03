@@ -1,11 +1,11 @@
-#ifndef DFLOW_WIFICOMMS_H
-#define DFLOW_WIFICOMMS_H
+#ifndef DFLOW_BLUETOOTHCOMMS_H
+#define DFLOW_BLUETOOTHCOMMS_H
 
 #include "Communications.h"
 
-class WifiComms : public Communications {
+class BluetoothComms: public Communications {
 public:
-    explicit WifiComms(bool logging);
+    explicit BluetoothComms(bool logging);
 
     int send(char *data) override;
 
@@ -16,11 +16,12 @@ public:
     int listen_to_connection(int port) override;
 
 private:
-    int client_socket_fd;
-
     int server_socket_fd;
+
+    int client_socket_fd;
 
     bool logging;
 };
+
 
 #endif

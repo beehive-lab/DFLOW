@@ -11,16 +11,18 @@ using namespace std;
 
 int WifiComms::send(char *data) {
 
-    cout << "Sending: " << data;
+    if (logging) {
+        cout << "Sending: " << data;
+    }
 
-    ::send(other_socket, data, strlen(data), 0);
+    ::send(client_socket_fd, data, strlen(data), 0);
 
     return 0;
 }
 
 int WifiComms::receive(char buffer[BUFFER_SIZE]) {
 
-    recv(other_socket, buffer, 1024, 0);
+    recv(client_socket_fd, buffer, 1024, 0);
 
     cout << buffer << endl;
 
@@ -29,7 +31,7 @@ int WifiComms::receive(char buffer[BUFFER_SIZE]) {
 
 int WifiComms::disconnect() {
 
-    int status = close(this_socket);
+    int status = close(server_socket_fd);
 
     if (status == -1) {
         if (logging) {
@@ -38,7 +40,7 @@ int WifiComms::disconnect() {
         exit(1);
     }
 
-    status = close(other_socket);
+    status = close(client_socket_fd);
 
     if (status == -1) {
         if (logging) {
@@ -76,7 +78,7 @@ int WifiComms::listen_to_connection(int port) {
         exit(1);
     }
 
-    this_socket = socket_fd;
+    server_socket_fd = socket_fd;
 
     int bind_status = bind(socket_fd, server_info->ai_addr, server_info->ai_addrlen);
     if (bind_status == -1) {
@@ -105,13 +107,13 @@ int WifiComms::listen_to_connection(int port) {
         exit(1);
     }
 
-    other_socket = new_socket_fd;
+    client_socket_fd = new_socket_fd;
 
     return 0;
 }
 
 WifiComms::WifiComms(bool logging) {
     this->logging = logging;
-    this_socket = -1;
-    other_socket = -1;
+    server_socket_fd = -1;
+    client_socket_fd = -1;
 }
