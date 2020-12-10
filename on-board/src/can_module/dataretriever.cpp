@@ -9,7 +9,13 @@
 #include <exception>
 #include <ios>
 
-bool dretriever::listenExampleMessage(std::string cantools_line)
+dretriever::dretriever()
+{
+  dretriever::example_message = CAN_example_message();
+  dretriever::example_message.reset();
+}
+
+bool dretriever::assignExampleMessage(std::string cantools_line)
 {
   if(cantools_line.find("Enable") != std::string::npos)
   {
@@ -31,9 +37,6 @@ bool dretriever::listenExampleMessage(std::string cantools_line)
 }
 
 void dretriever::listentemp(int *pip){
-  
-  dretriever::example_message = CAN_example_message();
-  dretriever::example_message.reset();
 
   redi::ipstream candump_stream("candump vcan0"); 
   std::string candump_line;
@@ -57,7 +60,7 @@ void dretriever::listentemp(int *pip){
         message_type = 0;
       
       if(message_type == 0)
-        if(listenExampleMessage(cantools_line))
+        if(assignExampleMessage(cantools_line))
         { 
           write(pip[1], dretriever::example_message.encodeForPipe(), 100);
           dretriever::example_message.reset();

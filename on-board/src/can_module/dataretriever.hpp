@@ -15,8 +15,9 @@ class dretriever
 {
     public:
         void listentemp(int *pip);
+        dretriever();
+        bool assignExampleMessage(std::string);
     private:
-        bool listenExampleMessage(std::string);
         CAN_example_message example_message;
 };
 #endif

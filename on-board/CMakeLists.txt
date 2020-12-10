@@ -59,6 +59,6 @@ target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads)
 
 
 #link against gtest or gtest_main as needed. Eg
-add_executable(TestCan test/canmoduletest.cpp src/can_module/canmodule.hpp src/can_module/canmodule.cpp)
+add_executable(TestCan test/canmoduletest.cpp src/can_module/canmodule.hpp src/can_module/canmodule.cpp src/can_module/dataretriever.hpp src/can_module/dataretriever.cpp)
 target_link_libraries(TestCan gtest_main)
 add_test(NAME canmoduletest COMMAND TestCan)
