@@ -11,13 +11,12 @@
 #define DATERETRIEVER_H
 
 
-class dretriever
+class dataRetriever
 {
     public:
-        void listentemp(int *pip);
-        dretriever();
-        bool assignExampleMessage(std::string);
-    private:
+        void listen(int *pip);
+        dataRetriever();
+        bool testing = false;
         CAN_example_message example_message;
 };
 #endif

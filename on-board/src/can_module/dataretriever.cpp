@@ -9,36 +9,19 @@
 #include <exception>
 #include <ios>
 
-dretriever::dretriever()
+//constructor
+dataRetriever::dataRetriever()
 {
-  dretriever::example_message = CAN_example_message();
-  dretriever::example_message.reset();
+  dataRetriever::example_message = CAN_example_message();
+  dataRetriever::example_message.reset();
 }
 
-bool dretriever::assignExampleMessage(std::string cantools_line)
+//listens for oncoming messages over vcan0 and encodes them
+void dataRetriever::listen(int *pip)
 {
-  if(cantools_line.find("Enable") != std::string::npos)
-  {
-    dretriever::example_message.setEnable(cantools_line);
-  }
-  if(cantools_line.find("AverageRadius") != std::string::npos)
-  {
-    dretriever::example_message.setRadius(cantools_line);
-  }
-  if(cantools_line.find("Temperature") != std::string::npos)
-  {
-    dretriever::example_message.setTemp(cantools_line);
-  }
-  if(dretriever::example_message.messageReady())
-  {
-    return true;
-  }
-  return false;
-}
-
-void dretriever::listentemp(int *pip){
-
+  //process stream to dump contents of vcan0
   redi::ipstream candump_stream("candump vcan0"); 
+
   std::string candump_line;
   
   int message_type;
@@ -46,26 +29,45 @@ void dretriever::listentemp(int *pip){
   if(!candump_stream)
     std::cerr<<"Error accessing candump proccess stream"<<std::endl;
 
+  //while there is input from candump
   while(std::getline(candump_stream, candump_line))
   {
+    //protocol for testing to replace candump output with a set message
+    if(testing)
+    {
+      candump_line = "  vcan0  000001F0   [8]  40 01 40 00 00 00 00 00";
+    }
+
+    //process stream to decode message from vcan0 using cantools
     redi::ipstream cantools_stream("echo '" + candump_line + "' | cantools decode /home/randra/Development/cantools-master/tests/files/dbc/motohawk.dbc ");
 
     if(!cantools_stream)
       std::cerr<<"Error accessing cantools proccess stream"<<std::endl;
     std::string cantools_line;
 
+    //while there is input from cantools
     while(std::getline(cantools_stream, cantools_line))
     {
+      //look for message types
+      //at the moment, we only have example_messages
       if(cantools_line.find("ExampleMessage") != std::string::npos)
         message_type = 0;
       
       if(message_type == 0)
-        if(assignExampleMessage(cantools_line))
+      {
+        //add lines to the example_message structure to populate values
+        example_message.addMessageLine(cantools_line);
+        //once message is ready, encode it and send it over the pipe
+        if(example_message.messageReady())
         { 
-          write(pip[1], dretriever::example_message.encodeForPipe(), 100);
-          dretriever::example_message.reset();
+          write(pip[1], example_message.encodeForPipe(), 100);
+          example_message.reset();
           break;
         }
+      }
     }
+    //protocol for testing to exist listener after one message
+    if(testing)
+      break;
   }
 }

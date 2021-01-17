@@ -8,8 +8,8 @@ using namespace std;
 
 void retrieve(int *pip)
 {
-    dretriever retriever = {};
-    retriever.listentemp(pip);
+    dataRetriever retriever = {};
+    retriever.listen(pip);
 }
 
 void listen(int *pip)

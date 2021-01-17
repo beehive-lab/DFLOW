@@ -1,21 +1,40 @@
 #include <canmodule.hpp>
 
-CAN_example_message::CAN_example_message()
+//check ilegal character when converting strings to floats
+bool check_illegal_characters(const std::string &str)
 {
-    enable_set = average_radius_set = temperature_set = false;
+    return str.find_first_not_of("0123456789. ") == std::string::npos;
 }
 
-void CAN_example_message::setEnable(std::string message)
+
+CAN_example_message::CAN_example_message()
+{
+    switch_value_set = average_radius_set = temperature_set = false;
+}
+
+//add a line from the candump and scan it, setting values accordingly
+void CAN_example_message::addMessageLine(std::string cantools_line)
+{
+  if(cantools_line.find("Enable") != std::string::npos)
+    CAN_example_message::setSwitchValue(cantools_line);
+  if(cantools_line.find("AverageRadius") != std::string::npos)
+    CAN_example_message::setRadius(cantools_line);
+  if(cantools_line.find("Temperature") != std::string::npos)
+    CAN_example_message::setTemp(cantools_line);
+}
+
+//set values based on lines
+void CAN_example_message::setSwitchValue(std::string message)
 { 
     if(message.find("Enabled")  != std::string::npos)
     {
-        CAN_example_message::enable = true;
-        CAN_example_message::enable_set = true; 
+        CAN_example_message::switch_value = true;
+        CAN_example_message::switch_value_set = true; 
     }
     else if(message.find("Disabled") != std::string::npos)
     {
-        CAN_example_message::enable = false;
-        CAN_example_message::enable_set = true; 
+        CAN_example_message::switch_value = false;
+        CAN_example_message::switch_value_set = true; 
     }
 }
 
@@ -24,8 +43,11 @@ void CAN_example_message::setRadius(std::string message)
     if(message.find(":") != std::string::npos)
     {
         message = message.substr(message.find(":") + 2,4);
-        CAN_example_message::average_radius = std::stof(message);
-        CAN_example_message::average_radius_set = true; 
+        if(check_illegal_characters(message))
+        {
+            CAN_example_message::average_radius = std::stof(message);
+            CAN_example_message::average_radius_set = true;
+        } 
     }   
 }
 
@@ -34,45 +56,60 @@ void CAN_example_message::setTemp(std::string message)
     if(message.find(":")  != std::string::npos)
     {
         message = message.substr(message.find(":") + 2,5);
-        CAN_example_message::temperature = std::stof(message);
-        CAN_example_message::temperature_set = true; 
+        if(check_illegal_characters(message))
+        {
+            CAN_example_message::temperature = std::stof(message);
+            CAN_example_message::temperature_set = true; 
+        }
     }   
 }
 
+//encode message for pipe transmision
 const char* CAN_example_message::encodeForPipe()
 {
     std::ostringstream os;
-    os << enable <<","<< average_radius << "," << temperature;
+    os << switch_value <<","<< average_radius << "," << temperature;
     std::string s = os.str();
     return s.c_str();
 }
 
+//decode message sent through pipe
 void CAN_example_message::decodeFromPipe(const char* coded_message)
 {
     std::string message = std::string(coded_message);
     if(message.size() > 1)
     {
-        int enable_val = std::stoi(message.substr(0,2));
-        if(enable_val)
-            CAN_example_message::enable = true;
+        unsigned first_comma = message.find_first_of(',');
+        unsigned second_comma = message.find_last_of(',');
+
+        std::string message_switch_val = message.substr(0,first_comma);
+        std::string message_average_radius = message.substr(first_comma + 1, second_comma - first_comma - 1);
+        std::string message_temperature = message.substr(second_comma + 1);
+
+        int switch_value_val = std::stoi(message_switch_val);
+        if(switch_value_val)
+            CAN_example_message::switch_value = true;
         else    
-            CAN_example_message::enable = false;
+            CAN_example_message::switch_value = false;
         
-        CAN_example_message::average_radius = std::stof(message.substr(2,3));
-        CAN_example_message::temperature = std::stof(message.substr(6));
-        enable_set = average_radius_set = temperature_set = true;
+
+        CAN_example_message::average_radius = std::stof(message_average_radius);
+        CAN_example_message::temperature = std::stof(message_temperature);
+        switch_value_set = average_radius_set = temperature_set = true;
     }
     
 }
 
+//check if all values of the message have been filled
 bool CAN_example_message::messageReady()
 {
-    return enable_set&temperature_set&average_radius_set;
+    return switch_value_set&temperature_set&average_radius_set;
 }
 
+//reset the values so the message structure can be reused
 void CAN_example_message::reset()
 {
-    enable_set = false;
+    switch_value_set = false;
     average_radius_set = false;
     temperature_set = false;
 }

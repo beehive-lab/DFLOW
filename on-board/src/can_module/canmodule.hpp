@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <sstream>
+#include <boost/lexical_cast.hpp>
 
 #ifndef canmodule_H
 #define canmodule_H
@@ -16,7 +17,7 @@ class CAN_example_message{
         /**
         * True/False
         */
-        bool enable;
+        bool switch_value;
 
         /**
         * Range: 0..50 (0..5 m)
@@ -30,19 +31,19 @@ class CAN_example_message{
         */
         float temperature;
 
-        bool enable_set,average_radius_set,temperature_set;
-
         CAN_example_message();
 
-        void setEnable(std::string);
-        void setRadius(std::string);
-        void setTemp(std::string);
         void reset();
         const char* encodeForPipe();
-        bool messageReady();
         void decodeFromPipe(const char*);
-        //std::string values_keywords[3] = {"Enable","AverageRadius","Temperature"};
-        //void parse_message(std::string message);
+        void addMessageLine(std::string);
+        bool messageReady();
+
+    private:
+        bool switch_value_set,average_radius_set,temperature_set;
+        void setSwitchValue(std::string);
+        void setRadius(std::string);
+        void setTemp(std::string);
 };
 
 
