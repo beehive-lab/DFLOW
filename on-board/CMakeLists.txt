@@ -44,12 +44,12 @@ endif()
 set(SOURCE_FILES src/main.cpp
                  src/can_module/canmodule.cpp
                  src/can_module/dataretriever.cpp
-                 src/can_module/pstream.h
+                 libs/can_module/pstream.h
                  src/config.cpp)
 
 set(HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/config.hpp)
 
-include_directories( src/can_module src/)
+include_directories( src/can_module src/ libs/can_module)
 
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(DFLOW_OnBoard ${SOURCE_FILES} ${HEADER_FILES})
@@ -61,7 +61,7 @@ target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads)
 set(TEST_SOURCE_FILES 
                  src/can_module/canmodule.cpp
                  src/can_module/dataretriever.cpp
-                 src/can_module/pstream.h
+                 libs/can_module/pstream.h
                  src/config.cpp)
 
 set(TEST_HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/config.hpp)
