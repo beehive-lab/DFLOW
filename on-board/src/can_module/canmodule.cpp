@@ -1,5 +1,18 @@
 #include <canmodule.hpp>
 
+std::string CAN_example_message::enum_to_string(ValueToken type) {
+   switch(type) {
+      case Switch:
+         return "Enable";
+      case AverageRadius:
+         return "AverageRadius";
+      case Temperature:
+         return "Temperature";
+      default:
+         return "";
+   }
+}
+
 //check ilegal character when converting strings to floats
 bool check_illegal_characters(const std::string &str)
 {
@@ -9,18 +22,24 @@ bool check_illegal_characters(const std::string &str)
 
 CAN_example_message::CAN_example_message()
 {
-    switch_value_set = average_radius_set = temperature_set = false;
+    switch_value_set_flag = average_radius_set_flag = temperature_set_flag = false;
 }
 
 //add a line from the candump and scan it, setting values accordingly
 void CAN_example_message::addMessageLine(std::string cantools_line)
 {
-  if(cantools_line.find("Enable") != std::string::npos)
+  if(cantools_line.find(enum_to_string(Switch)) != std::string::npos)
+  {
     CAN_example_message::setSwitchValue(cantools_line);
-  if(cantools_line.find("AverageRadius") != std::string::npos)
+  }
+  if(cantools_line.find(enum_to_string(AverageRadius)) != std::string::npos)
+  {
     CAN_example_message::setRadius(cantools_line);
-  if(cantools_line.find("Temperature") != std::string::npos)
+  }
+  if(cantools_line.find(enum_to_string(Temperature)) != std::string::npos)\
+  {
     CAN_example_message::setTemp(cantools_line);
+  }
 }
 
 //set values based on lines
@@ -28,13 +47,17 @@ void CAN_example_message::setSwitchValue(std::string message)
 { 
     if(message.find("Enabled")  != std::string::npos)
     {
+        //set switch value
         CAN_example_message::switch_value = true;
-        CAN_example_message::switch_value_set = true; 
+        //indicate that the value has been filled and it is ready for encoding
+        CAN_example_message::switch_value_set_flag = true; 
     }
     else if(message.find("Disabled") != std::string::npos)
     {
+        //set switch value
         CAN_example_message::switch_value = false;
-        CAN_example_message::switch_value_set = true; 
+        //indicate that the value has been filled and it is ready for encoding
+        CAN_example_message::switch_value_set_flag = true; 
     }
 }
 
@@ -46,7 +69,7 @@ void CAN_example_message::setRadius(std::string message)
         if(check_illegal_characters(message))
         {
             CAN_example_message::average_radius = std::stof(message);
-            CAN_example_message::average_radius_set = true;
+            CAN_example_message::average_radius_set_flag = true;
         } 
     }   
 }
@@ -59,7 +82,7 @@ void CAN_example_message::setTemp(std::string message)
         if(check_illegal_characters(message))
         {
             CAN_example_message::temperature = std::stof(message);
-            CAN_example_message::temperature_set = true; 
+            CAN_example_message::temperature_set_flag = true; 
         }
     }   
 }
@@ -88,14 +111,18 @@ void CAN_example_message::decodeFromPipe(const char* coded_message)
 
         int switch_value_val = std::stoi(message_switch_val);
         if(switch_value_val)
+        {
             CAN_example_message::switch_value = true;
+        }
         else    
+        {
             CAN_example_message::switch_value = false;
+        }
         
 
         CAN_example_message::average_radius = std::stof(message_average_radius);
         CAN_example_message::temperature = std::stof(message_temperature);
-        switch_value_set = average_radius_set = temperature_set = true;
+        switch_value_set_flag = average_radius_set_flag = temperature_set_flag = true;
     }
     
 }
@@ -103,13 +130,13 @@ void CAN_example_message::decodeFromPipe(const char* coded_message)
 //check if all values of the message have been filled
 bool CAN_example_message::messageReady()
 {
-    return switch_value_set&temperature_set&average_radius_set;
+    return switch_value_set_flag&temperature_set_flag&average_radius_set_flag;
 }
 
 //reset the values so the message structure can be reused
 void CAN_example_message::reset()
 {
-    switch_value_set = false;
-    average_radius_set = false;
-    temperature_set = false;
+    switch_value_set_flag = false;
+    average_radius_set_flag = false;
+    temperature_set_flag = false;
 }

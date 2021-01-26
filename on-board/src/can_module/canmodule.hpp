@@ -40,7 +40,10 @@ class CAN_example_message{
         bool messageReady();
 
     private:
-        bool switch_value_set,average_radius_set,temperature_set;
+        enum ValueToken {Switch, AverageRadius, Temperature};
+
+        std::string enum_to_string(ValueToken type);
+        bool switch_value_set_flag,average_radius_set_flag,temperature_set_flag;
         void setSwitchValue(std::string);
         void setRadius(std::string);
         void setTemp(std::string);

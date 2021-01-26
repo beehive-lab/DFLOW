@@ -1,4 +1,5 @@
 #include "dataretriever.hpp"
+#include "config.hpp"
 #include <ext/stdio_filebuf.h>
 #include <canmodule.hpp>
 #include <fcntl.h>
@@ -8,6 +9,7 @@
 #include <fstream>
 #include <exception>
 #include <ios>
+
 
 //constructor
 dataRetriever::dataRetriever()
@@ -27,7 +29,9 @@ void dataRetriever::listen(int *pip)
   int message_type;
 
   if(!candump_stream)
+  {
     std::cerr<<"Error accessing candump proccess stream"<<std::endl;
+  }
 
   //while there is input from candump
   while(std::getline(candump_stream, candump_line))
@@ -39,10 +43,12 @@ void dataRetriever::listen(int *pip)
     }
 
     //process stream to decode message from vcan0 using cantools
-    redi::ipstream cantools_stream("echo '" + candump_line + "' | cantools decode /home/randra/Development/cantools-master/tests/files/dbc/motohawk.dbc ");
+    redi::ipstream cantools_stream("echo '" + candump_line + "' | cantools decode " + dbc_file_path );
 
     if(!cantools_stream)
+    {
       std::cerr<<"Error accessing cantools proccess stream"<<std::endl;
+    }
     std::string cantools_line;
 
     //while there is input from cantools
@@ -51,7 +57,9 @@ void dataRetriever::listen(int *pip)
       //look for message types
       //at the moment, we only have example_messages
       if(cantools_line.find("ExampleMessage") != std::string::npos)
+      {
         message_type = 0;
+      }
       
       if(message_type == 0)
       {
@@ -68,6 +76,8 @@ void dataRetriever::listen(int *pip)
     }
     //protocol for testing to exist listener after one message
     if(testing)
+    {
       break;
+    }
   }
 }
