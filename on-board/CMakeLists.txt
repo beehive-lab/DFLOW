@@ -42,16 +42,31 @@ endif()
 #SET UP PROJECT
 # Add main.cpp file of project root directory as source file
 set(SOURCE_FILES src/main.cpp
-                 src/can_module/canmodule.c)
+                 src/can_module/canmodule.cpp
+                 src/can_module/dataretriever.cpp
+                 libs/can_module/pstream.h
+                 src/config.cpp)
 
-set(HEADER_FILES src/can_module/canmodule.h)
+set(HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/config.hpp)
 
-include_directories( src/can_module)
+include_directories( src/can_module src/ libs/can_module)
 
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(DFLOW_OnBoard ${SOURCE_FILES} ${HEADER_FILES})
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads)
+
+set(TEST_SOURCE_FILES 
+                 src/can_module/canmodule.cpp
+                 src/can_module/dataretriever.cpp
+                 libs/can_module/pstream.h
+                 src/config.cpp)
+
+set(TEST_HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/config.hpp)
+
 #link against gtest or gtest_main as needed. Eg
-add_executable(example test/exampletest.cpp src/can_module/canmodule.h src/can_module/canmodule.c)
-target_link_libraries(example gtest_main)
-add_test(NAME example_test COMMAND example)
+add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}) 
+target_link_libraries(TestCan gtest_main)
+add_test(NAME canmoduletest COMMAND TestCan)
