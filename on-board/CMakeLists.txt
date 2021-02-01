@@ -45,11 +45,15 @@ set(SOURCE_FILES src/main.cpp
                  src/can_module/canmodule.cpp
                  src/can_module/dataretriever.cpp
                  libs/can_module/pstream.h
-                 src/config.cpp)
+                 src/config.cpp
+                 src/inter_comms/WifiComms.cpp
+                 src/inter_comms/BluetoothComms.cpp)
 
-set(HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/config.hpp)
+set(HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/config.hpp
+                 src/inter_comms/WifiComms.h
+                 src/inter_comms/BluetoothComms.h)
 
-include_directories( src/can_module src/ libs/can_module)
+include_directories( src/can_module src/ libs/can_module src/inter_comms)
 
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(DFLOW_OnBoard ${SOURCE_FILES} ${HEADER_FILES})
@@ -70,3 +74,4 @@ set(TEST_HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.
 add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}) 
 target_link_libraries(TestCan gtest_main)
 add_test(NAME canmoduletest COMMAND TestCan)
+

@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <thread>
 #include <canmodule.hpp>
+#include <WifiComms.h>
+#include <BluetoothComms.g>
 
 using namespace std;
 
