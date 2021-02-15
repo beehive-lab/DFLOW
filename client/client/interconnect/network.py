@@ -39,5 +39,5 @@ class NetworkLink(CommLink):
     def send(self, data: bytes) -> None:
         self._sock.sendall(data)
 
-    def receive(self) -> bytes:
-        return self._sock.recv(1024)
+    def receive(self, buffer_size: int = 1024) -> bytes:
+        return self._sock.recv(buffer_size)

@@ -40,5 +40,5 @@ class BluetoothLink(CommLink):
     def send(self, data: bytes) -> None:
         self.sock.sendall(data)
 
-    def receive(self) -> bytes:
-        return self.sock.recv(1024)
+    def receive(self, buffer_size: int = 1024) -> bytes:
+        return self.sock.recv(buffer_size)

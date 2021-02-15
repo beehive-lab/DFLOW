@@ -23,5 +23,5 @@ class CommLink(ABC):
         pass
 
     @abstractmethod
-    def receive(self) -> bytes:
+    def receive(self, buffer_size: int = 1024) -> bytes:
         pass
