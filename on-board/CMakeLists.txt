@@ -66,12 +66,18 @@ set(TEST_SOURCE_FILES
                  src/can_module/canmodule.cpp
                  src/can_module/dataretriever.cpp
                  libs/can_module/pstream.h
+        src/inter_comms/WifiComms.cpp
+        src/inter_comms/BluetoothComms.cpp
                  src/config.cpp)
 
-set(TEST_HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/config.hpp)
+set(TEST_HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/inter_comms/WifiComms.h src/inter_comms/BluetoothComms.h src/config.hpp)
+
+
 
 #link against gtest or gtest_main as needed. Eg
-add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}) 
+add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
+add_executable(TestComms test/communicationstest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
 target_link_libraries(TestCan gtest_main)
+target_link_libraries(TestComms gtest_main)
+target_link_libraries(TestComms gmock_main)
 add_test(NAME canmoduletest COMMAND TestCan)
-

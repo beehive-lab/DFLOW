@@ -8,11 +8,16 @@
 
 using namespace std;
 
-BluetoothComms::BluetoothComms(bool logging, int channel) {
+BluetoothComms::BluetoothComms(bool logging, int channel) : BluetoothComms() {
     this->logging = logging;
+    this->channel = channel;
+}
+
+BluetoothComms::BluetoothComms() {
+    this->logging = false;
     server_socket_fd = -1;
     client_socket_fd = -1;
-    this->channel = channel;
+    this->channel = 0;
 }
 
 int BluetoothComms::send(char *data) {

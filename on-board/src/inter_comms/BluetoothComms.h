@@ -7,6 +7,8 @@ class BluetoothComms: public Communications {
 public:
     explicit BluetoothComms(bool logging, int channel);
 
+    explicit BluetoothComms();
+
     int send(char *data) override;
 
     int receive(char buffer[BUFFER_SIZE]) override;
