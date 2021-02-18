@@ -34,7 +34,7 @@ class NetworkLinkTestCase(unittest.TestCase):
         self._mock_create_default_context = (
             patch('ssl.create_default_context').start()
         )
-        self.addCleanup(patch.stopall())
+        self.addCleanup(patch.stopall)
 
         # Create a mock socket instance and make sure it is returned by the
         # mock socket constructor.
