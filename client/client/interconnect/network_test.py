@@ -140,18 +140,9 @@ class NetworkLinkTestCase(unittest.TestCase):
         # Create a manager mock that we can use to verify the order of
         # calls is correct.
         mock_call_manager = MagicMock()
-        mock_call_manager.attach_mock(
-            self._mock_socket_constructor,
-            'create'
-        )
-        mock_call_manager.attach_mock(
-            self._mock_ssl_socket.connect,
-            'connect'
-        )
-        mock_call_manager.attach_mock(
-            self._mock_ssl_socket.close,
-            'close'
-        )
+        mock_call_manager.attach_mock(self._mock_socket_constructor, 'create')
+        mock_call_manager.attach_mock(self._mock_ssl_socket.connect, 'connect')
+        mock_call_manager.attach_mock(self._mock_ssl_socket.close, 'close')
 
         # Create the network link and call connect() then disconnect.
         network_link = NetworkLink(
