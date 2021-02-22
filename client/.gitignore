@@ -1,0 +1,11 @@
+# Ignore pycharm files.
+.idea/*
+
+# Ignore python virtual environment.
+venv/*
+
+# Ignore code coverage reports.
+.coverage
+
+# Ignore pycache folder.
+__pycache__
