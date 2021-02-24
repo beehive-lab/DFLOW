@@ -47,13 +47,15 @@ set(SOURCE_FILES src/main.cpp
                  libs/can_module/pstream.h
                  src/config.cpp
                  src/inter_comms/WifiComms.cpp
-                 src/inter_comms/BluetoothComms.cpp)
+                 src/inter_comms/BluetoothComms.cpp
+                src/crypto/SymmetricEncryption.cpp)
 
 set(HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/config.hpp
                  src/inter_comms/WifiComms.h
-                 src/inter_comms/BluetoothComms.h)
+                 src/inter_comms/BluetoothComms.h
+                src/crypto/SymmetricEncryption.h)
 
-include_directories( src/can_module src/ libs/can_module src/inter_comms)
+include_directories( src/can_module src/ libs/can_module src/inter_comms src/crypto)
 
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(DFLOW_OnBoard ${SOURCE_FILES} ${HEADER_FILES})
@@ -61,6 +63,8 @@ add_executable(DFLOW_OnBoard ${SOURCE_FILES} ${HEADER_FILES})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads)
+find_package(OpenSSL REQUIRED)
+target_link_libraries(DFLOW_OnBoard PRIVATE OpenSSL::SSL)
 
 set(TEST_SOURCE_FILES 
                  src/can_module/canmodule.cpp
