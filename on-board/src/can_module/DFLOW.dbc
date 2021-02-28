@@ -1,0 +1,73 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_:
+
+
+BO_ 5 INTAKE_SENSORS: 8 Vector__XXX
+ SG_ AirTemperature : 8|11@1- (0.1,0) [-102.4|102.3] "" Vector__XXX
+ SG_ ThrottlePosition : 0|7@1+ (1,0) [0|100] "" Vector__XXX
+
+BO_ 4 TPM_MODULE: 8 Vector__XXX
+ SG_ TyrePressureRear : 16|9@1+ (0.01,0) [0|5.11] "" Vector__XXX
+ SG_ TyrePressureFront : 0|9@1+ (0.01,0) [0|5.11] "" Vector__XXX
+
+BO_ 3 ABS_MODULE: 8 Vector__XXX
+ SG_ MotorcycleSpeed : 40|9@1+ (1,0) [0|511] "" Vector__XXX
+ SG_ RearWheelSpeed : 24|10@1+ (10,0) [0|10230] "" Vector__XXX
+ SG_ FrontWheelSpeed : 8|10@1+ (10,0) [0|10230] "" Vector__XXX
+ SG_ BrakeRearActive : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BrakeFrontActive : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 2 CONFIGURABLE_MODES: 8 Vector__XXX
+ SG_ ABSMode : 8|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ TCMode : 3|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ ThottleResponseMode : 0|3@1+ (1,0) [0|7] "" Vector__XXX
+
+BO_ 1 IMU_SENSOR: 8 Vector__XXX
+ SG_ LeanAngle : 0|11@1- (0.1,0) [-100|100] "" Vector__XXX
+
+BO_ 0 ENGINE_SENSORS: 8 Vector__XXX
+ SG_ BatteryVoltage : 32|8@1+ (0.1,0) [0|16] "" Vector__XXX
+ SG_ OilPressure : 56|8@1+ (0.01,0) [0|2.55] "" Vector__XXX
+ SG_ GearPosition : 12|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ WaterTemperature : 16|11@1- (0.1,50) [-52.4|152.3] "" Vector__XXX
+ SG_ EngineSpeed : 0|11@1+ (10,0) [0|20470] "" Vector__XXX
+
+
+
+BA_DEF_  "BusType" STRING ;
+BA_DEF_DEF_  "BusType" "CAN";
+

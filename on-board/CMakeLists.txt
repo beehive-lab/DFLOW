@@ -85,3 +85,12 @@ target_link_libraries(TestCan gtest_main)
 target_link_libraries(TestComms gtest_main)
 target_link_libraries(TestComms gmock_main)
 add_test(NAME canmoduletest COMMAND TestCan)
+
+
+set(TESTING_SOURCE
+        src/can_module/python_linker.cpp
+        src/can_module/python_module.py)
+add_executable(TESTING ${TESTING_SOURCE})
+find_package(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
+target_link_libraries(TESTING  ${PYTHON_LIBRARIES})
