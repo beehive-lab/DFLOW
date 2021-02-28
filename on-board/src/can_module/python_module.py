@@ -11,9 +11,41 @@ class CAN_Decoder:
         can.rc['interface'] = 'socketcan'
         can.rc['channel'] = 'vcan0'
         self.can_bus = can.interface.Bus()
+        self.engine_message = self.database.get_message_by_name('ENGINE_SENSORS')
+        self.imu_message = self.database.get_message_by_name('IMU_SENSOR')
+        self.intake_message = self.database.get_message_by_name('INTAKE_SENSORS')
+        self.abs_message = self.database.get_message_by_name('ABS_MODULE')
+        self.tpm_message = self.database.get_message_by_name('TPM_MODULE')
         
-    def get_example_message(self):
-        self.example_message = self.database.get_message_by_name('ExampleMessage')
+    def get_message(self):
         message = self.can_bus.recv()
-        decoded = self.database.decode_message(self.example_message.frame_id, message.data)
-        return decoded["AverageRadius"]
+        if(message.arbitration_id == self.imu_message.frame_id):
+            decoded = self.database.decode_message(self.imu_message.frame_id, message.data)
+            for key in decoded:
+                    decoded[key] = str(decoded[key])
+            decoded["MessageType"] = "IMUSensor"
+            return decoded
+        elif(message.arbitration_id == self.intake_message.frame_id):
+            decoded = self.database.decode_message(self.intake_message.frame_id, message.data)
+            for key in decoded:
+                    decoded[key] = str(decoded[key])
+            decoded["MessageType"] = "IntakeSensors"
+            return decoded
+        elif(message.arbitration_id == self.abs_message.frame_id):
+            decoded = self.database.decode_message(self.abs_message.frame_id, message.data)
+            for key in decoded:
+                    decoded[key] = str(decoded[key])
+            decoded["MessageType"] = "ABSModule"
+            return decoded
+        elif(message.arbitration_id == self.tpm_message.frame_id):
+            decoded = self.database.decode_message(self.tpm_message.frame_id, message.data)
+            for key in decoded:
+                    decoded[key] = str(decoded[key])
+            decoded["MessageType"] = "TPMModule"
+            return decoded
+        elif(message.arbitration_id == self.engine_message.frame_id):
+            decoded = self.database.decode_message(self.engine_message.frame_id, message.data)
+            for key in decoded:
+                    decoded[key] = str(decoded[key])
+            decoded["MessageType"] = "EngineSensors"
+            return decoded
