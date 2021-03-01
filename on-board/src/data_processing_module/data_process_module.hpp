@@ -3,8 +3,11 @@
 #include <pipes.hpp>
 #include <vector>
 #include <stdio.h>
+#include <unistd.h>
 #include <time.h>
 #include <numeric>
+#include <fcntl.h>
+#include <future>
 
 #ifndef data_process_module_H
 #define data_process_module_H
@@ -20,7 +23,7 @@ class dataProcessing
 {
     public:
         dataProcessing(int *input_pipe, int, int, int);
-        void setPipes(std::vector<Pipes>, std::vector<int>);
+        void setPipes(std::vector<Pipes>, std::vector<int>,std::future<void>);
     private:
         float compute_float_buffer_output(boost::circular_buffer<float>,int);
         bool compute_boolean_buffer_output(boost::circular_buffer<bool>,int);

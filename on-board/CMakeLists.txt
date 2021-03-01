@@ -72,18 +72,29 @@ set(TEST_SOURCE_FILES
                 libs/can_module/pstream.h
        src/inter_comms/WifiComms.cpp
        src/inter_comms/BluetoothComms.cpp
-                src/config.cpp)
+                src/config.cpp
+                src/data_processing_module/data_process_module.cpp
+                src/data_processing_module/pipes.cpp
+        )
  
-set(TEST_HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/inter_comms/WifiComms.h src/inter_comms/BluetoothComms.h src/config.hpp)
+set(TEST_HEADER_FILES src/can_module/canmodule.hpp
+                        src/can_module/dataretriever.hpp 
+                        src/inter_comms/WifiComms.h 
+                        src/inter_comms/BluetoothComms.h 
+                        src/config.hpp
+                        src/data_processing_module/data_process_module.hpp
+                        src/data_processing_module/pipes.hpp)
  
  
  
 #link against gtest or gtest_main as needed. Eg
 add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
 add_executable(TestComms test/communicationstest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
+add_executable(TestDataProcessing test/dataprocessingtest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
 target_link_libraries(TestCan gtest_main)
 target_link_libraries(TestComms gtest_main)
 target_link_libraries(TestComms gmock_main)
+target_link_libraries(TestDataProcessing gtest_main)
 add_test(NAME canmoduletest COMMAND TestCan)
 
 

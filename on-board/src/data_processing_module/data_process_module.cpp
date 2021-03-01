@@ -14,6 +14,7 @@ dataProcessing::dataProcessing(int *input_pipe, int tick_interval, int interval,
     dataProcessing::average_radius_buffer = boost::circular_buffer<float>(buffer_size);
     dataProcessing::switch_buffer = boost::circular_buffer<bool>(buffer_size);
     dataProcessing::can_stream = input_pipe[0];
+    dataProcessing::tick_interval = tick_interval;
     dataProcessing::time_interval = interval;
     dataProcessing::last_time = time(0);
 }
@@ -122,26 +123,34 @@ int dataProcessing::compute_int_buffer_output(boost::circular_buffer<int> buffer
         
 }
 
-void dataProcessing::setPipes(std::vector<Pipes> pipe_vector, std::vector<int> data_mode_vector)
+void dataProcessing::setPipes(std::vector<Pipes> pipe_vector, std::vector<int> data_mode_vector,std::future<void> futureObj)
 {
     dataProcessing::last_time = time(0);
     dataProcessing::last_tick_time = time(0);
     CAN_example_message received_message = CAN_example_message();
     char can_output_string[200];
-    while(true)
+    int retval = fcntl(can_stream,F_SETFL,fcntl(can_stream,F_GETFL) | O_NONBLOCK);
+    while(futureObj.wait_for(std::chrono::milliseconds(1))== std::future_status::timeout)
     {
-        read(can_stream,can_output_string,200);
+        ssize_t r = read(can_stream,can_output_string,200);
+        if(r>0)
+        {
         received_message.decodeFromPipe(can_output_string);
-        if(difftime(time(0),last_tick_time) >= tick_interval)
+        }
+        else
+        {
+            usleep(1000);
+        }
+        if(difftime(time(0),last_tick_time) >= tick_interval && received_message.messageReady())
         {
             dataProcessing::temperature_buffer.push_back(received_message.temperature);
             dataProcessing::average_radius_buffer.push_back(received_message.average_radius);
             dataProcessing::switch_buffer.push_back(received_message.switch_value);
+            last_tick_time = time(0);
         }
         if(difftime(time(0),last_time) >= time_interval)
         {
             last_time = time(0);
-
             if(data_mode_vector[TEMPERATURE_PIPE] == FULL_BUFFER)
             {
                 float* linearized_temperature_buffer = temperature_buffer.linearize();
