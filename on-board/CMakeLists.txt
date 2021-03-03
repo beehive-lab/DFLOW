@@ -57,7 +57,7 @@ set(HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp s
                src/inter_comms/WifiComms.h
                src/inter_comms/BluetoothComms.h)
  
-include_directories( src/can_module src/ libs/can_module src/inter_comms src/data_processing_module)
+include_directories( src/can_module src/ libs/can_module src/inter_comms src/data_processing_module src/can_module/messages)
  
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(DFLOW_OnBoard ${SOURCE_FILES} ${HEADER_FILES})
@@ -100,7 +100,22 @@ add_test(NAME canmoduletest COMMAND TestCan)
 
 set(TESTING_SOURCE
         src/can_module/python_linker.cpp
-        src/can_module/python_module.py)
+        src/can_module/python_module.py
+        src/can_module/can_interface.cpp
+        src/can_module/can_interface.hpp
+        src/can_module/messages/engine_sensors_message.cpp
+        src/can_module/messages/engine_sensors_message.hpp
+        src/can_module/messages/intake_sensors_message.cpp
+        src/can_module/messages/intake_sensors_message.hpp
+        src/can_module/messages/abs_module_message.cpp
+        src/can_module/messages/abs_module_message.hpp
+        src/can_module/messages/configurable_modes_message.cpp
+        src/can_module/messages/configurable_modes_message.hpp
+        src/can_module/messages/imu_sensor_message.cpp
+        src/can_module/messages/imu_sensor_message.hpp
+        src/can_module/messages/tpm_module_message.cpp
+        src/can_module/messages/tpm_module_message.hpp)
+CONFIGURE_FILE(src/can_module/python_module.py build/python_module.py COPYONLY)
 add_executable(TESTING ${TESTING_SOURCE})
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})

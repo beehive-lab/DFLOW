@@ -4,6 +4,7 @@ import os
 from binascii import hexlify
 import cantools
 import can
+import time
 
 class CAN_Decoder:
     def __init__(self,DBC_FILE_PATH):
@@ -16,6 +17,7 @@ class CAN_Decoder:
         self.intake_message = self.database.get_message_by_name('INTAKE_SENSORS')
         self.abs_message = self.database.get_message_by_name('ABS_MODULE')
         self.tpm_message = self.database.get_message_by_name('TPM_MODULE')
+        self.config_mode_message = self.database.get_message_by_name("CONFIGURABLE_MODES")
         
     def get_message(self):
         message = self.can_bus.recv()
@@ -49,3 +51,15 @@ class CAN_Decoder:
                     decoded[key] = str(decoded[key])
             decoded["MessageType"] = "EngineSensors"
             return decoded
+        elif(Message.arbitration_id == self.config_mode_message.frame_id):
+            decoded = self.database.decode_message(self.config_mode_message.frame_id, message.data)
+            for key in decoded:
+                    decoded[key] = str(decoded[key])
+            decoded["MessageType"] = "ConfigurableMode"
+            return decoded
+
+    def send_config_message(self, abs_mode, tc_mode, throttle_response_mode):
+        data = self.config_mode_message.encode({"ABSMode": abs_mode, "TCMode": tc_mode, "ThrottleResponseMode": throttle_response_mode})
+        message = can.Message(arbitration_id = self.config_mode_message.frame_id, data = data)
+        self.can_bus.send(message)
+        time.sleep(0.1)
