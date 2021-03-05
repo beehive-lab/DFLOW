@@ -91,37 +91,37 @@ void CAN_Interface::setListener(std::vector<Pipes> output_pipes)
 
                     IMUSensorMessage imu_message;
                     imu_message.set_from_map(my_map);
-                    std::cout<<"Read imu message"<<std::endl;
+                    write(output_pipes[IMU_MESSAGE_PIPE].rdwr[WRITE], &imu_message.data, sizeof(imu_message.data));
                 }
                 else if(my_map["MessageType"]== "EngineSensors")
                 {
                     EngineSensorsMessage engine_message;
                     engine_message.set_from_map(my_map);
-                    std::cout<<"Read eng message"<<std::endl;
+                    write(output_pipes[ENGINE_MESSAGE_PIPE].rdwr[WRITE], &engine_message.data, sizeof(engine_message.data));
                 }
                 else if(my_map["MessageType"]== "ABSModule")
                 {
                     ABSModuleMessage abs_message;
                     abs_message.set_from_map(my_map);
-                    std::cout<<"Read abs message"<<std::endl;
+                    write(output_pipes[ABS_MESSAGE_PIPE].rdwr[WRITE], &abs_message.data, sizeof(abs_message.data));
                 }
                 else if(my_map["MessageType"]== "TPMModule")
                 {
                     TPMModuleMessage tpm_message;
                     tpm_message.set_from_map(my_map);
-                    std::cout<<"Read tpm message"<<std::endl;
+                    write(output_pipes[TPM_MESSAGE_PIPE].rdwr[WRITE], &tpm_message.data, sizeof(tpm_message.data));
                 }
                 else if(my_map["MessageType"]== "IntakeSensors")
                 {
                     IntakeSensorsMessage intake_message;
                     intake_message.set_from_map(my_map);
-                    std::cout<<"Read itk message"<<std::endl;
+                    write(output_pipes[INTAKE_MESSAGE_PIPE].rdwr[WRITE], &intake_message.data, sizeof(intake_message.data));
                 }
                 else if(my_map["MessageType"]== "ConfigurableMode")
                 {
                     ConfigurableModesMessage config_message;
                     config_message.set_from_map(my_map);
-                    std::cout<<"Read cfg message"<<std::endl;
+                    write(output_pipes[CONFIG_MESSAGE_PIPE].rdwr[WRITE], &config_message.data, sizeof(config_message.data));
                 }
             }
         }
@@ -139,11 +139,6 @@ void CAN_Interface::sendConfigMessage(ConfigurableModesMessage message)
     PyObject* python_can_class;
     python_can_class = CAN_Interface::instantiatePythonClass();
 
-
-    /*pArgs = PyTuple_New(3);
-    PyTuple_SetItem(pArgs, 0, PyLong_FromLong(message.data.abs_mode));
-    PyTuple_SetItem(pArgs, 1, PyLong_FromLong(message.data.tc_mode));
-    PyTuple_SetItem(pArgs, 2, PyLong_FromLong(message.data.throttle_response_mode));*/
     PyObject *pValue;
     pValue = PyObject_CallMethod(python_can_class, "send_config_message","(iii)",message.data.abs_mode,message.data.tc_mode, message.data.throttle_response_mode);
 
@@ -151,7 +146,4 @@ void CAN_Interface::sendConfigMessage(ConfigurableModesMessage message)
         Py_DECREF(pValue);
     else
         PyErr_Print();
-
-    //PyObject_CallMethod(python_can_class, "send_config_message","()"); 
-
 }
