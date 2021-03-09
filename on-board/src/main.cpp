@@ -8,7 +8,7 @@
 
 using namespace std;
 
-
+//first release prototype
 void retrieve(int *pip)
 {
     dataRetriever retriever = {};

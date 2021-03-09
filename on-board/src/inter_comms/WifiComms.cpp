@@ -239,9 +239,13 @@ int WifiComms::establish_connection(int port) {
     return 0;
 }
 
-WifiComms::WifiComms(bool logging) {
+WifiComms::WifiComms(bool logging) : WifiComms() {
     this->logging = logging;
+}
+
+WifiComms::WifiComms() {
+    this->logging = false;
     server_socket_fd = -1;
     client_socket_fd = -1;
     server_info = nullptr;
-}
+};

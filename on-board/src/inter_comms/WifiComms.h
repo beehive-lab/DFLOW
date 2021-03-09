@@ -7,6 +7,8 @@ class WifiComms : public Communications {
 public:
     explicit WifiComms(bool logging);
 
+    explicit WifiComms();
+
     int send(char *data) override;
 
     int receive(char buffer[BUFFER_SIZE]) override;
