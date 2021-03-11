@@ -44,6 +44,6 @@ int main() {
 
     first.join();
     second.join();
-    
+
     return 0;
 }

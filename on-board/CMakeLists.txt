@@ -62,6 +62,9 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads)
 
+find_package(OpenSSL REQUIRED)
+target_link_libraries(DFLOW_OnBoard PRIVATE OpenSSL::SSL)
+
 set(TEST_SOURCE_FILES 
                  src/can_module/canmodule.cpp
                  src/can_module/dataretriever.cpp
