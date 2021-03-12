@@ -2,6 +2,7 @@
 #define DFLOW_BLUETOOTHCOMMS_H
 
 #include "Communications.h"
+#include "WifiComms.h"
 
 class BluetoothComms: public Communications {
 public:
@@ -33,6 +34,10 @@ private:
     bool logging;
 
     int channel;
+
+    SSL *ssl;
+
+    SSL_CTX *context;
 };
 
 
