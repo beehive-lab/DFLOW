@@ -18,6 +18,7 @@ const int OIL_PRESSURE_PIPE         =14;
 const int GEAR_POSITION_PIPE        =15;
 const int WATER_TEMPERATURE_PIPE    =16;
 const int ENGINE_SPEED_PIPE         =17;
+const int TIMESTAMP_PIPE            =18;
 
 const int INTAKE_MESSAGE_PIPE       =0;
 const int ABS_MESSAGE_PIPE          =1;

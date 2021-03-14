@@ -2,6 +2,7 @@
 #include "pipes.hpp"
 #include "configurable_modes_message.hpp"
 
+//test project for Python embedding
 int main()
 {
     std::vector<Pipes> test_vector;

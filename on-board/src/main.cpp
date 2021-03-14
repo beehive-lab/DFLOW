@@ -2,9 +2,9 @@
 #include <unistd.h>
 #include <string>
 #include <thread>
+#include <ctime>
 #include <numeric>
-#include <canmodule.hpp>
-#include "can_interface.hpp"
+#include "can_module.hpp"
 #include <pipes.hpp>
 #include <WifiComms.h>
 #include <BluetoothComms.h>
@@ -13,25 +13,31 @@
 using namespace std;
 
 //second release prototype
+
+//vectors holding the multiple pipes
 std::vector<Pipes> can_pipes_vector;
 std::vector<Pipes> processed_pipes_vector;
 
-void retrieve()
+//set can module
+void retrieve(std::shared_future<void> futureObj)
 {
-  CAN_Interface can_interface = CAN_Interface(std::string("./DFLOW.dbc"),std::string("notusedatthemom"));
-  can_interface.setListener(can_pipes_vector);
+  CAN_Module can_module = CAN_Module(std::string("./DFLOW.dbc"),std::string("notusedatthemom"));
+  can_module.setListener(can_pipes_vector, futureObj);
 }
 
-void set_data_processing_module(std::future<void> futureObj)
+//set data processing module
+void set_data_processing_module(std::shared_future<void> futureObj)
 {
+  //each entry in the data modes vector determines what the output of the data processing pipe represents
   std::vector<int> data_modes{AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
-                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,DO_NOT_COMPUTE,DO_NOT_COMPUTE,DO_NOT_COMPUTE,AVERAGE_OF_BUFFER,
-                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER};
-  //dataProcessing processing_module = dataProcessing(pip,1,5,3);
-  //processing_module.setPipes(pipe_vector,data_modes);
+                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,DO_NOT_COMPUTE,DO_NOT_COMPUTE,DO_NOT_COMPUTE,
+                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
+                              AVERAGE_OF_BUFFER};
   dataProcessing processing_module = dataProcessing(can_pipes_vector, processed_pipes_vector, data_modes, 1, 3, 3);
-  processing_module.startProcessing(std::move(futureObj));
+  processing_module.startProcessing(futureObj);
 }
+
+//UNUSED FOR NOW UNTIL INTER_COMS IS FINISHED
 /*void inter_coms_send(int *pip)
 {
   //CAN_example_message received_message = CAN_example_message();
@@ -51,20 +57,22 @@ void set_data_processing_module(std::future<void> futureObj)
   }
 }*/
 
-void inter_coms_send_temp_from_dprocess()
+//set up listener to check data processing output
+void check_data_from_dprocess()
 {
- // WifiComms wifi_socket = WifiComms(true);
-//  wifi_socket.establish_connection(8080);
-  //char wifi_buffer[1024];
+  //values
   float air_temperature,tyre_pressure_front,tyre_pressure_rear,lean_angle, battery_voltage,oil_pressure,water_temperature;
   int throttle_position,motorcycle_speed,rear_wheel_speed,front_wheel_speed,rear_brake_active,front_brake_active,abs_mode,tc_mode,throttle_response_mode,gear_position,engine_speed;
+  time_t time_recveived;
+
+  //FOR NON_BLOCKING READS
   //for(int i=0;i<18;i++)
   //      int retval = fcntl(processed_pipes_vector[i].rdwr[READ],F_SETFL,fcntl(processed_pipes_vector[i].rdwr[READ],F_GETFL) | O_NONBLOCK);
+ 
   while(true)
   {
-      //std::ostringstream oss_temp;
-      //std::ostringstream oss_radius;
-      //std::ostringstream oss_switch;
+      read(processed_pipes_vector[TIMESTAMP_PIPE].rdwr[READ],&time_recveived,sizeof(time_t));
+      std::cout<<std::endl<<"MESSAGES AT TIMESTAMP: "<<ctime(&time_recveived)<<std::endl;
       read(processed_pipes_vector[AIR_TEMPERATURE_PIPE].rdwr[READ],&air_temperature,sizeof(float));
       std::cout<<"air temp "<<air_temperature<<std::endl;
       read(processed_pipes_vector[THROTTLE_POSITION_PIPE].rdwr[READ],&throttle_position,sizeof(int));
@@ -80,10 +88,11 @@ void inter_coms_send_temp_from_dprocess()
       read(processed_pipes_vector[FRONT_WHEEL_SPEED_PIPE].rdwr[READ],&front_wheel_speed,sizeof(int));
       std::cout<<"front whe speed "<<front_wheel_speed<<std::endl;
       read(processed_pipes_vector[BRAKE_REAR_ACTIVE_PIPE].rdwr[READ],&rear_brake_active,sizeof(int));
+      std::cout<<"brake re active "<<rear_brake_active<<std::endl;
+      read(processed_pipes_vector[BRAKE_FRONT_ACTIVE_PIPE].rdwr[READ],&front_brake_active,sizeof(int));
       std::cout<<"brake fr active "<<front_brake_active<<std::endl;
-      //read(processed_pipes_vector[BRAKE_FRONT_ACTIVE_PIPE].rdwr[READ],&front_brake_active,sizeof(int));
-      //std::cout<<"brake re active "<<rear_brake_active<<std::endl;
-      /*//read(processed_pipes_vector[ABS_MODE_PIPE].rdwr[READ],&abs_mode,sizeof(int));
+      //DISABLED BECAUSE THERE ARE NO SENT CONFIG MESSAGES
+      //read(processed_pipes_vector[ABS_MODE_PIPE].rdwr[READ],&abs_mode,sizeof(int));
       //read(processed_pipes_vector[TC_MODE_PIPE].rdwr[READ],&tc_mode,sizeof(int));
       //read(processed_pipes_vector[THROTTLE_RESPONSE_MODE_PIPE].rdwr[READ],&throttle_response_mode,sizeof(int));
       read(processed_pipes_vector[LEAN_ANGLE_PIPE].rdwr[READ],&lean_angle,sizeof(float));
@@ -97,51 +106,36 @@ void inter_coms_send_temp_from_dprocess()
       read(processed_pipes_vector[WATER_TEMPERATURE_PIPE].rdwr[READ],&water_temperature,sizeof(float));
       std::cout<<"water temp "<<water_temperature<<std::endl;
       read(processed_pipes_vector[ENGINE_SPEED_PIPE].rdwr[READ],&engine_speed,sizeof(int));
-      
-      //std::cout<<"abs mode "<<abs_mode<<std::endl;
-      //std::cout<<"tc mode "<<tc_mode<<std::endl;
-      //std::cout<<"tr resp mode "<<throttle_response_mode<<std::endl;
-      std::cout<<"eng speed "<<engine_speed<<std::endl;
-*/
-      /*std::copy(std::begin(temperature_buffer_linearized), std::end(temperature_buffer_linearized),
-          std::ostream_iterator<float>(oss_temp, ";"));
-      std::string message_string = std::string();
-      message_string = "Received message with data: temperature = " + oss_temp.str();
-      std::copy(std::begin(average_radius_buffer_linearized), std::end(average_radius_buffer_linearized),
-          std::ostream_iterator<float>(oss_radius, ";"));
-      message_string = message_string + " average radius: " + oss_radius.str();
-      std::copy(std::begin(switch_buffer_linearized), std::end(switch_buffer_linearized),
-          std::ostream_iterator<bool>(oss_switch, ";"));
-      message_string = message_string + " switch: " + oss_switch.str();
-      std::cout<<message_string<< std::endl;
-   //   wifi_socket.receive(wifi_buffer);
-   //   if(strcmp(wifi_buffer,"Listening") == 0)
-    //      wifi_socket.send((char*)message_string.c_str());*/
+
   }
 }
 
 
 int main() {
 
+  //create exit signal to stop listeners on threads
   std::promise<void> exitSignal;
   std::future<void> futureObj = exitSignal.get_future();
+  std::shared_future<void> shrdFutureObj = futureObj.share();
   
+  //initialize can pipes and data_proccesing pipes
   for(int i = 0; i<6; i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       can_pipes_vector.push_back(new_pipe);
   }
-  for(int i = 0; i<18;i++)
+  for(int i = 0; i<19;i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       processed_pipes_vector.push_back(new_pipe);
   }
 
-  std::thread first(retrieve);
-  std::thread second(set_data_processing_module,std::move(futureObj));
-  std::thread third(inter_coms_send_temp_from_dprocess);
+  //create threads
+  std::thread first(retrieve,shrdFutureObj);
+  std::thread second(set_data_processing_module,shrdFutureObj);
+  std::thread third(check_data_from_dprocess);
   first.join();
   second.join();
   third.join();

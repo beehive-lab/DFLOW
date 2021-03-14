@@ -4,7 +4,7 @@
 #include <vector>
 #include <stdio.h>
 #include <unistd.h>
-#include <time.h>
+#include <ctime>
 #include <numeric>
 #include <fcntl.h>
 #include <future>
@@ -25,22 +25,25 @@ extern const int SUM_OF_BUFFER;
 extern const int FULL_BUFFER;
 extern const int DO_NOT_COMPUTE;
 
+//this is the dataProcessing class that comprises the functionality of the data processing module
 class dataProcessing
 {
     public:
         dataProcessing(std::vector<Pipes>,std::vector<Pipes>, std::vector<int>, int, int, int);
-        void startProcessing(std::future<void>);
+        void startProcessing(std::shared_future<void>);
     private:
         void readCanPipes();
-        void pushBackSignals();
+        void pushBackSignals(time_t);
 
         float compute_float_buffer_output(boost::circular_buffer<float>,int);
         bool compute_boolean_buffer_output(boost::circular_buffer<bool>,int);
         int compute_int_buffer_output(boost::circular_buffer<int>,int);
+        time_t compute_time_buffer_output(boost::circular_buffer<time_t>,int);
 
         void sendBooleanData(boost::circular_buffer<bool>,int);
         void sendIntegerData(boost::circular_buffer<int>,int);
         void sendFloatData(boost::circular_buffer<float>,int);
+        void sendTimeData(boost::circular_buffer<time_t>,int);
 
         time_t last_time;
         time_t last_tick_time;
@@ -68,6 +71,7 @@ class dataProcessing
         boost::circular_buffer<int>     gear_position_buffer;
         boost::circular_buffer<float>   water_temperature_buffer;
         boost::circular_buffer<int>     engine_speed_buffer;
+        boost::circular_buffer<time_t>  time_stamp_buffer;
 
         EngineSensorsMessage    received_engine_message;
         IntakeSensorsMessage    received_intake_message;

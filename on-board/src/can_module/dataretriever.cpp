@@ -10,6 +10,8 @@
 #include <exception>
 #include <ios>
 
+//UNUSED, WILL BE REMOVED BEFORE RELEASE
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 //constructor
 dataRetriever::dataRetriever()

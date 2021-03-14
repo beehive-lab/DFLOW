@@ -1,5 +1,6 @@
 #include <data_process_module.hpp>
 
+//global variables definig data output modes
 const int AVERAGE_OF_BUFFER=0;
 const int MAX_OF_BUFFER=1;
 const int MIN_OF_BUFFER=2;
@@ -7,9 +8,10 @@ const int SUM_OF_BUFFER=3;
 const int FULL_BUFFER=4;
 const int DO_NOT_COMPUTE=5;
 
-
+//constructor
 dataProcessing::dataProcessing(std::vector<Pipes> can_pipes_vector, std::vector<Pipes> output_pipe_vector, std::vector<int> data_mode_vector, int tick_interval, int interval, int buffer_size)
 {
+    //set up pipes and intervals
     dataProcessing::can_pipes_vector = can_pipes_vector;
     dataProcessing::output_pipe_vector = output_pipe_vector;
     dataProcessing::data_mode_vector = data_mode_vector;
@@ -17,6 +19,7 @@ dataProcessing::dataProcessing(std::vector<Pipes> can_pipes_vector, std::vector<
     dataProcessing::time_interval = interval;
     dataProcessing::last_time = time(0);
 
+    //intialise buffers
     dataProcessing::air_temperature_buffer     =boost::circular_buffer<float>(buffer_size);
     dataProcessing::throttle_position_buffer   =boost::circular_buffer<int>(buffer_size);
     dataProcessing::tyre_pressure_front_buffer =boost::circular_buffer<float>(buffer_size);
@@ -35,9 +38,49 @@ dataProcessing::dataProcessing(std::vector<Pipes> can_pipes_vector, std::vector<
     dataProcessing::gear_position_buffer       =boost::circular_buffer<int>(buffer_size);
     dataProcessing::water_temperature_buffer   =boost::circular_buffer<float>(buffer_size);
     dataProcessing::engine_speed_buffer        =boost::circular_buffer<int>(buffer_size);
+    dataProcessing::time_stamp_buffer          =boost::circular_buffer<time_t>(buffer_size);
 
 }
 
+//compute ouput of different type buffers based on data mode(taken from data_index - which is the global variable defining the respective pipe)
+
+//for time
+time_t dataProcessing::compute_time_buffer_output(boost::circular_buffer<time_t> buffer,int data_index)
+{
+    switch (dataProcessing::data_mode_vector[data_index]){
+        case AVERAGE_OF_BUFFER:
+        {
+            return std::accumulate(buffer.begin(), buffer.end(),0.0)/buffer.size();
+        }
+        case SUM_OF_BUFFER:
+        {
+            return std::accumulate(buffer.begin(), buffer.end(),0.0);
+        }
+        case MAX_OF_BUFFER:
+        {
+            time_t *linearized_buffer = buffer.linearize();
+            time_t max;
+            for(int i = 0; i< buffer.size(); i++)
+                if(linearized_buffer[i]>max)
+                    max = linearized_buffer[i];
+            return max;
+        }
+        case MIN_OF_BUFFER:
+        {
+            time_t *linearized_buffer = buffer.linearize();
+            time_t min;
+            for(int i = 0; i< buffer.size(); i++)
+                if(linearized_buffer[i]<min)
+                    min = linearized_buffer[i];
+            return min;
+        }
+        default:
+            return 0;
+    }
+        
+}
+
+//for floats
 float dataProcessing::compute_float_buffer_output(boost::circular_buffer<float> buffer,int data_index)
 {
     switch (dataProcessing::data_mode_vector[data_index]){
@@ -73,6 +116,7 @@ float dataProcessing::compute_float_buffer_output(boost::circular_buffer<float> 
         
 }
 
+//for booleans
 bool dataProcessing::compute_boolean_buffer_output(boost::circular_buffer<bool> buffer,int data_index)
 {
     switch (dataProcessing::data_mode_vector[data_index]){
@@ -107,6 +151,7 @@ bool dataProcessing::compute_boolean_buffer_output(boost::circular_buffer<bool> 
         
 }
 
+//for ints
 int dataProcessing::compute_int_buffer_output(boost::circular_buffer<int> buffer,int data_index)
 {
     switch (dataProcessing::data_mode_vector[data_index]){
@@ -142,8 +187,10 @@ int dataProcessing::compute_int_buffer_output(boost::circular_buffer<int> buffer
         
 }
 
+//helper function that reads the can pipes for incoming messages
 void dataProcessing::readCanPipes()
 {
+    //temporary messages to hold data
     EngineSensorsMessage    temp_engine_message;
     IntakeSensorsMessage    temp_intake_message;
     TPMModuleMessage        temp_tpm_message;
@@ -151,6 +198,7 @@ void dataProcessing::readCanPipes()
     ConfigurableModesMessage temp_config_message;
     IMUSensorMessage        temp_imu_message;
 
+    //perform non-blocking reads
     ssize_t intake_r = read(can_pipes_vector[INTAKE_MESSAGE_PIPE].rdwr[READ],&temp_intake_message.data,sizeof(temp_intake_message.data));
     ssize_t tpm_r = read(can_pipes_vector[TPM_MESSAGE_PIPE].rdwr[READ],&temp_tpm_message.data,sizeof(temp_tpm_message.data));
     ssize_t abs_r = read(can_pipes_vector[ABS_MESSAGE_PIPE].rdwr[READ],&temp_abs_message.data,sizeof(temp_abs_message.data));
@@ -158,6 +206,7 @@ void dataProcessing::readCanPipes()
     ssize_t imu_r = read(can_pipes_vector[IMU_MESSAGE_PIPE].rdwr[READ],&temp_imu_message.data,sizeof(temp_imu_message.data));
     ssize_t engine_r = read(can_pipes_vector[ENGINE_MESSAGE_PIPE].rdwr[READ],&temp_engine_message.data,sizeof(temp_engine_message.data));
 
+    //if read was succesful set current in-module messages
     if(intake_r>0)
     {
         received_intake_message.data = temp_intake_message.data;
@@ -184,7 +233,9 @@ void dataProcessing::readCanPipes()
     }
 }
 
-void dataProcessing::pushBackSignals()
+//helper function that pushes back the current module signals to the buffers
+//takes the current time as parameter to set the timestamp buffer
+void dataProcessing::pushBackSignals(time_t time)
 {
     dataProcessing::air_temperature_buffer.push_back(received_intake_message.data.air_temperature);    
     dataProcessing::throttle_position_buffer.push_back(received_intake_message.data.throttle_position);
@@ -209,8 +260,14 @@ void dataProcessing::pushBackSignals()
     dataProcessing::gear_position_buffer.push_back(received_engine_message.data.gear_position);
     dataProcessing::water_temperature_buffer.push_back(received_engine_message.data.water_temperature);
     dataProcessing::engine_speed_buffer.push_back(received_engine_message.data.engine_speed);
+
+    dataProcessing::time_stamp_buffer.push_back(time);
 }
 
+
+//helper functions for sending data based on type, either as full buffers or as computed output
+
+//for ints
 void dataProcessing::sendIntegerData(boost::circular_buffer<int> buffer, int data_index)
 {
     if(data_mode_vector[data_index] == FULL_BUFFER)
@@ -225,6 +282,7 @@ void dataProcessing::sendIntegerData(boost::circular_buffer<int> buffer, int dat
     }
 }
 
+//for floats
 void dataProcessing::sendFloatData(boost::circular_buffer<float> buffer, int data_index)
 {
     if(data_mode_vector[data_index] == FULL_BUFFER)
@@ -239,6 +297,7 @@ void dataProcessing::sendFloatData(boost::circular_buffer<float> buffer, int dat
     }
 }
 
+//for bools
 void dataProcessing::sendBooleanData(boost::circular_buffer<bool> buffer, int data_index)
 {
     if(data_mode_vector[data_index] == FULL_BUFFER)
@@ -253,33 +312,46 @@ void dataProcessing::sendBooleanData(boost::circular_buffer<bool> buffer, int da
     }
 }
 
-void dataProcessing::startProcessing(std::future<void> futureObj)
+//for time
+void dataProcessing::sendTimeData(boost::circular_buffer<time_t> buffer, int data_index)
 {
+    if(data_mode_vector[data_index] == FULL_BUFFER)
+    {
+        time_t* linearized_buffer = buffer.linearize();
+        write(output_pipe_vector[data_index].rdwr[WRITE], linearized_buffer, buffer.size()*sizeof(time_t));   
+    }
+    else if(data_mode_vector[data_index] != DO_NOT_COMPUTE)
+    {
+        time_t output = compute_time_buffer_output(buffer, data_index);
+        write(output_pipe_vector[data_index].rdwr[WRITE], &output, sizeof(time_t));
+    }
+}
+
+//start the module, must be given a shared future object to receive the stop signal 
+void dataProcessing::startProcessing(std::shared_future<void> futureObj)
+{
+
+    //set times to current time
     dataProcessing::last_time = time(0);
     dataProcessing::last_tick_time = time(0);
 
+    //make can output pipes non-blocking
     for(int i=0;i<6;i++)
         int retval = fcntl(can_pipes_vector[i].rdwr[READ],F_SETFL,fcntl(can_pipes_vector[i].rdwr[READ],F_GETFL) | O_NONBLOCK);
+
+    
     while(futureObj.wait_for(std::chrono::milliseconds(1))== std::future_status::timeout)
     {
-        /*ssize_t r = read(can_stream,can_output_string,200);
-        if(r>0)
-        {
-        received_message.decodeFromPipe(can_output_string);
-        }
-        else
-        {
-            usleep(1000);
-        }*/
-
         dataProcessing::readCanPipes();
 
+        //if the tick interval has passed push back signals to buffer
         if(difftime(time(0),last_tick_time) >= tick_interval)
         {
-            dataProcessing::pushBackSignals();
+            dataProcessing::pushBackSignals(time(0));
             last_tick_time = time(0);
         }
 
+        //if the time interval has passed send data to pipes
         if(difftime(time(0),last_time) >= time_interval)
         {
             last_time = time(0);
@@ -313,12 +385,11 @@ void dataProcessing::startProcessing(std::future<void> futureObj)
             dataProcessing::sendIntegerData(gear_position_buffer,GEAR_POSITION_PIPE);
             dataProcessing::sendFloatData(water_temperature_buffer,WATER_TEMPERATURE_PIPE);
             dataProcessing::sendIntegerData(engine_speed_buffer,ENGINE_SPEED_PIPE);
+
+            dataProcessing::sendTimeData(time_stamp_buffer,TIMESTAMP_PIPE);
         }
     }
 }
 
 
-
-
-uint8_t *message_pointer = NULL;
 

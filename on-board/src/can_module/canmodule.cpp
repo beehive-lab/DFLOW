@@ -1,5 +1,7 @@
 #include <canmodule.hpp>
 
+//UNUSED, WILL BE REMOVED BEFORE RELEASE
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 std::string CAN_example_message::enum_to_string(ValueToken type) {
    switch(type) {
       case Switch:

@@ -4,6 +4,7 @@
 #ifndef PIPES_H
 #define PIPES_H
 
+//global variables defining pipe indexes
 extern const int AIR_TEMPERATURE_PIPE;
 extern const int THROTTLE_POSITION_PIPE;
 extern const int TYRE_PRESSURE_FRONT_PIPE;
@@ -22,6 +23,7 @@ extern const int OIL_PRESSURE_PIPE;
 extern const int GEAR_POSITION_PIPE;
 extern const int WATER_TEMPERATURE_PIPE;
 extern const int ENGINE_SPEED_PIPE;
+extern const int TIMESTAMP_PIPE;
 
 extern const int INTAKE_MESSAGE_PIPE;
 extern const int ABS_MESSAGE_PIPE;

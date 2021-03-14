@@ -43,8 +43,11 @@ endif()
 # Add main.cpp file of project root directory as source file
 set(CANMODULE_SOURCE
         src/can_module/python_module.py
-        src/can_module/can_interface.cpp
+        src/can_module/can_python_interface.cpp
+        src/can_module/can_python_interface.hpp
         src/can_module/can_interface.hpp
+        src/can_module/can_module.cpp
+        src/can_module/can_module.hpp
         src/can_module/messages/engine_sensors_message.cpp
         src/can_module/messages/engine_sensors_message.hpp
         src/can_module/messages/intake_sensors_message.cpp
@@ -84,42 +87,67 @@ target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads PUBLIC ${PYTHON_LIB
 
  
 set(TEST_SOURCE_FILES
-                src/can_module/canmodule.cpp
-                src/can_module/dataretriever.cpp
+                src/can_module/can_python_interface.cpp
+                src/can_module/can_module.cpp
+                src/can_module/messages/intake_sensors_message.cpp
                 libs/can_module/pstream.h
-       src/inter_comms/WifiComms.cpp
-       src/inter_comms/BluetoothComms.cpp
+                src/inter_comms/WifiComms.cpp
+                src/inter_comms/BluetoothComms.cpp
                 src/config.cpp
                 src/data_processing_module/data_process_module.cpp
                 src/data_processing_module/pipes.cpp
         )
  
-set(TEST_HEADER_FILES src/can_module/canmodule.hpp
-                        src/can_module/dataretriever.hpp 
+set(CAN_TEST_HEADER_FILES src/can_module/can_python_interface.hpp
+                        src/can_module/can_interface.hpp
+                        src/can_module/can_module.hpp
+                        src/can_module/messages/intake_sensors_message.hpp
                         src/inter_comms/WifiComms.h 
                         src/inter_comms/BluetoothComms.h 
                         src/config.hpp
                         src/data_processing_module/data_process_module.hpp
                         src/data_processing_module/pipes.hpp)
  
+set(DATAP_TEST_FILES 
+                        src/config.cpp
+                        src/data_processing_module/data_process_module.cpp
+                        src/data_processing_module/pipes.cpp
+                        src/inter_comms/WifiComms.h 
+                        src/inter_comms/BluetoothComms.h 
+                        src/config.hpp
+                        src/data_processing_module/data_process_module.hpp
+                        src/data_processing_module/pipes.hpp
+                        src/can_module/messages/engine_sensors_message.cpp
+                        src/can_module/messages/engine_sensors_message.hpp
+                        src/can_module/messages/intake_sensors_message.cpp
+                        src/can_module/messages/intake_sensors_message.hpp
+                        src/can_module/messages/abs_module_message.cpp
+                        src/can_module/messages/abs_module_message.hpp
+                        src/can_module/messages/configurable_modes_message.cpp
+                        src/can_module/messages/configurable_modes_message.hpp
+                        src/can_module/messages/imu_sensor_message.cpp
+                        src/can_module/messages/imu_sensor_message.hpp
+                        src/can_module/messages/tpm_module_message.cpp
+                        src/can_module/messages/tpm_module_message.hpp)
+ 
  
  
 #link against gtest or gtest_main as needed. Eg
-add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
+add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES} ${CANMODULE_SOURCE})
 add_executable(TestComms test/communicationstest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
-add_executable(TestDataProcessing test/dataprocessingtest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
-target_link_libraries(TestCan gtest_main)
+add_executable(TestDataProcessing test/dataprocessingtest.cpp ${DATAP_TEST_FILES})
+target_link_libraries(TestCan PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
 target_link_libraries(TestComms gtest_main)
 target_link_libraries(TestComms gmock_main)
-target_link_libraries(TestDataProcessing gtest_main)
+target_link_libraries(TestDataProcessing PUBLIC gtest_main gmock_main)
 add_test(NAME canmoduletest COMMAND TestCan)
 
 
 set(TESTING_SOURCE
         src/can_module/python_linker.cpp
         src/can_module/python_module.py
-        src/can_module/can_interface.cpp
-        src/can_module/can_interface.hpp
+        src/can_module/can_python_interface.cpp
+        src/can_module/can_python_interface.hpp
         src/can_module/messages/engine_sensors_message.cpp
         src/can_module/messages/engine_sensors_message.hpp
         src/can_module/messages/intake_sensors_message.cpp
