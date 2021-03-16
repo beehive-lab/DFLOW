@@ -2,7 +2,7 @@
 #define DFLOW_BLUETOOTHCOMMS_H
 
 #include "Communications.h"
-#include "WifiComms.h"
+#include "openssl/ssl.h"
 
 class BluetoothComms: public Communications {
 public:
@@ -38,6 +38,8 @@ private:
     SSL *ssl;
 
     SSL_CTX *context;
+
+    int load_certificates(SSL_CTX * context, char * certificate_file, char * key_file, char * ca_file);
 };
 
 

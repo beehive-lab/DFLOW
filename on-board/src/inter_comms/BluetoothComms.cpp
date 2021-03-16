@@ -230,7 +230,7 @@ int BluetoothComms::accept_connection() {
     }
 }
 
-int load_certificates(SSL_CTX * context, char * certificate_file, char * key_file, char * ca_file) {
+int BluetoothComms::load_certificates(SSL_CTX * context, char * certificate_file, char * key_file, char * ca_file) {
     try {
         if (SSL_CTX_use_certificate_file(context, certificate_file, SSL_FILETYPE_PEM) <= 0) {
             ERR_print_errors_fp(stderr);
