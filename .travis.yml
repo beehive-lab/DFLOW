@@ -45,6 +45,6 @@ matrix:
       # Check versions of gcc, g++ and cmake
       - gcc -v && g++ -v && cmake --version
       - cmake .
-      - cmake --build . -t TestComms TestCan
+      - cmake --build .
       - ./TestCan && ./TestComms 
 
