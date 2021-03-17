@@ -1,0 +1,18 @@
+matrix:
+  include:
+    language: python
+
+    python: 3.8.5
+
+    before_install:
+      - cd client
+
+    # Install requirements
+    install:
+      - pip install -r requirements.txt
+
+    # Run tests
+    script:
+      - coverage run -m unittest discover -s tests -p "*_test.py"
+      - coverage report --fail-under=70
+      - flake8 client/

@@ -5,6 +5,11 @@ from unittest.mock import patch, MagicMock, call
 from client.interconnect.bluetooth import BluetoothLink
 
 
+@unittest.skipIf(
+    not hasattr(socket, 'AF_BLUETOOTH'),
+    'Skipping as the current python distribution does not support '
+    'bluetooth sockets.'
+)
 class BluetoothLinkTestCase(unittest.TestCase):
     """
     A suite of tests surrounding the BluetoothLink class.
