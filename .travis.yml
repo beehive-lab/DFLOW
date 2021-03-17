@@ -36,6 +36,7 @@ matrix:
           
     before_install:
       - cd on-board
+      - pip install cantools
 
     # Run tests
     script:
@@ -49,5 +50,5 @@ matrix:
       - gcc -v && g++ -v && cmake --version
       - cmake .
       - cmake --build .
-      - ./TestCan && ./TestComms 
+      - ./TestCan && ./TestComms && ./TestDataProcessing
 
