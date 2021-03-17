@@ -28,7 +28,7 @@ matrix:
 
     # Install requirements
     install:
-      - python -m pip install cantools
+      - python3 -m pip install cantools
 
     language: cpp
 
