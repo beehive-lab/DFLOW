@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)  # CMake version check
+cmake_minimum_required(VERSION 3.12)  # CMake version check
 project(DFLOW)               # Create project "simple_example"
 set(CMAKE_CXX_STANDARD 14)            # Enable c++14 standard
  
@@ -43,8 +43,8 @@ endif()
 # Add main.cpp file of project root directory as source file
 set(CANMODULE_SOURCE
         src/can_module/python_module.py
-        src/can_module/can_python_interface.cpp
-        src/can_module/can_python_interface.hpp
+        src/can_module/pycan_interface.cpp
+        src/can_module/pycan_interface.hpp
         src/can_module/can_interface.hpp
         src/can_module/can_module.cpp
         src/can_module/can_module.hpp
@@ -87,18 +87,16 @@ target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads PUBLIC ${PYTHON_LIB
 
  
 set(TEST_SOURCE_FILES
-                src/can_module/can_python_interface.cpp
+                src/can_module/pycan_interface.cpp
                 src/can_module/can_module.cpp
                 src/can_module/messages/intake_sensors_message.cpp
                 libs/can_module/pstream.h
-                src/inter_comms/WifiComms.cpp
-                src/inter_comms/BluetoothComms.cpp
                 src/config.cpp
                 src/data_processing_module/data_process_module.cpp
                 src/data_processing_module/pipes.cpp
         )
  
-set(CAN_TEST_HEADER_FILES src/can_module/can_python_interface.hpp
+set(CAN_TEST_HEADER_FILES src/can_module/pycan_interface.hpp
                         src/can_module/can_interface.hpp
                         src/can_module/can_module.hpp
                         src/can_module/messages/intake_sensors_message.hpp
@@ -129,12 +127,21 @@ set(DATAP_TEST_FILES
                         src/can_module/messages/imu_sensor_message.hpp
                         src/can_module/messages/tpm_module_message.cpp
                         src/can_module/messages/tpm_module_message.hpp)
+
+set(COMMS_TEST_FILES 
+                        src/config.cpp
+                        src/inter_comms/WifiComms.h 
+                        src/inter_comms/BluetoothComms.h 
+                        src/config.hpp
+                        src/inter_comms/WifiComms.cpp
+                        src/inter_comms/BluetoothComms.cpp
+)
  
  
  
 #link against gtest or gtest_main as needed. Eg
 add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES} ${CANMODULE_SOURCE})
-add_executable(TestComms test/communicationstest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
+add_executable(TestComms test/communicationstest.cpp ${COMMS_TEST_FILES})
 add_executable(TestDataProcessing test/dataprocessingtest.cpp ${DATAP_TEST_FILES})
 target_link_libraries(TestCan PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
 target_link_libraries(TestComms gtest_main)
@@ -143,23 +150,6 @@ target_link_libraries(TestDataProcessing PUBLIC gtest_main gmock_main)
 add_test(NAME canmoduletest COMMAND TestCan)
 
 
-set(TESTING_SOURCE
-        src/can_module/python_linker.cpp
-        src/can_module/python_module.py
-        src/can_module/can_python_interface.cpp
-        src/can_module/can_python_interface.hpp
-        src/can_module/messages/engine_sensors_message.cpp
-        src/can_module/messages/engine_sensors_message.hpp
-        src/can_module/messages/intake_sensors_message.cpp
-        src/can_module/messages/intake_sensors_message.hpp
-        src/can_module/messages/abs_module_message.cpp
-        src/can_module/messages/abs_module_message.hpp
-        src/can_module/messages/configurable_modes_message.cpp
-        src/can_module/messages/configurable_modes_message.hpp
-        src/can_module/messages/imu_sensor_message.cpp
-        src/can_module/messages/imu_sensor_message.hpp
-        src/can_module/messages/tpm_module_message.cpp
-        src/can_module/messages/tpm_module_message.hpp)
-CONFIGURE_FILE(src/can_module/python_module.py build/python_module.py COPYONLY)
-add_executable(TESTING ${TESTING_SOURCE})
-target_link_libraries(TESTING  ${PYTHON_LIBRARIES})
+CONFIGURE_FILE(src/can_module/python_module.py python_module.py COPYONLY)
+CONFIGURE_FILE(src/can_module/DFLOW.dbc DFLOW.dbc COPYONLY)
+

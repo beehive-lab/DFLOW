@@ -1,6 +1,5 @@
 #include "can_interface.hpp"
 #include "can_module.hpp"
-#include "dataretriever.hpp"
 #include "intake_sensors_message.hpp"
 #include "configurable_modes_message.hpp"
 #include <string>
@@ -17,8 +16,8 @@ namespace {
 
 class MockCAN_Python_Interface : public CAN_Interface{
  public:
-  MOCK_METHOD(void, instantiatePythonClass, (std::string str1, std::string str2), (override));
-  MOCK_METHOD((std::map<std::string,std::string>), getMessageFromPythonModule, (), (override));
+  MOCK_METHOD(void, initializeInterface, (std::string str1, std::string str2), (override));
+  MOCK_METHOD((std::map<std::string,std::string>), getMessageMap, (), (override));
   MOCK_METHOD(void, sendMessage, ((std::map<std::string,std::string>) msg_map), (override));
 };
 
@@ -33,12 +32,12 @@ void process_set_helper(std::vector<Pipes>can_pipes_vector,std::shared_future<vo
     test_map.insert(std::pair<std::string,std::string>(std::string("AirTemperature"),std::string("10.1")));
     test_map.insert(std::pair<std::string,std::string>(std::string("ThrottlePosition"),std::string("35")));
 
-    CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"));
     MockCAN_Python_Interface can_interface;
-    EXPECT_CALL(can_interface, instantiatePythonClass(std::string("./DFLOW"),std::string("test"))).Times(1);
-    EXPECT_CALL(can_interface, getMessageFromPythonModule()).WillRepeatedly(testing::Return(test_map));
+    EXPECT_CALL(can_interface, initializeInterface(std::string("./DFLOW"),std::string("test"))).Times(1);
+    EXPECT_CALL(can_interface, getMessageMap()).WillRepeatedly(testing::Return(test_map));
+    CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"),&can_interface);
 
-    can_module.setInterface(&can_interface);
+    //can_module.setInterface(&can_interface);
     can_module.setListener(can_pipes_vector,futureObj);
     
 }
@@ -68,14 +67,16 @@ TEST_F(ModuleTest, TestListener) {
 
 TEST_F(ModuleTest,TestSender)
 {
-  CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"));
   MockCAN_Python_Interface can_interface;
   ConfigurableModesMessage test_message;
   test_message.data.abs_mode = 1;
   test_message.data.tc_mode = 2;
   test_message.data.throttle_response_mode = 3;
+  EXPECT_CALL(can_interface,initializeInterface(std::string("./DFLOW"),std::string("test"))).Times(1);
   EXPECT_CALL(can_interface,sendMessage(test_message.get_message_map())).Times(1);
-  can_module.setInterface(&can_interface);
+  CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"),&can_interface);
+
+  //can_module.setInterface(&can_interface);
   can_module.sendConfigMessage(test_message);
 }
 
@@ -87,7 +88,7 @@ TEST_F(PythonInterfaceTest,TestPythonInitialisation)
 {
   CAN_Python_Interface python_interface;
   EXPECT_FALSE(python_interface.checkClassInstantiated());
-  python_interface.instantiatePythonClass(std::string("./DFLOW.dbc"),std::string("test"));
+  python_interface.initializeInterface(std::string("./DFLOW.dbc"),std::string("test"));
   EXPECT_TRUE(python_interface.checkClassInstantiated());
 }
 

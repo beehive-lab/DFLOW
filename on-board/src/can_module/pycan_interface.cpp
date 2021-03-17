@@ -1,7 +1,7 @@
-#include "can_python_interface.hpp"
+#include "pycan_interface.hpp"
 
 
-void CAN_Python_Interface::instantiatePythonClass(std::string dbc_file_path, std::string python_file_path)
+void CAN_Python_Interface::initializeInterface(std::string dbc_file_path, std::string python_file_path)
 {
     // Initializes the Python interpreter
     Py_Initialize();
@@ -58,7 +58,7 @@ void CAN_Python_Interface::instantiatePythonClass(std::string dbc_file_path, std
 
 } 
 
-std::map<std::string, std::string> CAN_Python_Interface::getMessageFromPythonModule()
+std::map<std::string, std::string> CAN_Python_Interface::getMessageMap()
 {
     //check there is a class instantiated
     if(CAN_Python_Interface::python_can_class == nullptr)

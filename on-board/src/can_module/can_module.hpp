@@ -4,7 +4,7 @@
 #include<map>
 #include<future>
 #include"can_interface.hpp"
-#include"can_python_interface.hpp"
+#include"pycan_interface.hpp"
 #include"pipes.hpp"
 #include"engine_sensors_message.hpp"
 #include"tpm_module_message.hpp"
@@ -19,14 +19,14 @@
 //this is the class providing the functionality for the CAN MODULE
 class CAN_Module{
     public:
-        CAN_Module(std::string,std::string);
+        CAN_Module(std::string,std::string,CAN_Interface* = NULL);
         void setListener(std::vector<Pipes>, std::shared_future<void>);
         void sendConfigMessage(ConfigurableModesMessage);
-        void setInterface(CAN_Interface*);
+        //void setInterface(CAN_Interface*);
     private:
         std::string dbc_file_path;
         std::string python_file_path;
-        CAN_Interface* python_module;
+        CAN_Interface* interface_module;
 };
 
 #endif

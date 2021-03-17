@@ -1,4 +1,3 @@
-#include "canmodule.hpp"
 #include "data_process_module.hpp"
 #include "pipes.hpp"
 #include <string>

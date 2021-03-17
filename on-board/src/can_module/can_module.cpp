@@ -1,32 +1,37 @@
 #include "can_module.hpp"
 
 //constructor
-CAN_Module::CAN_Module(std::string dbc_file_path, std::string python_file_path)
+CAN_Module::CAN_Module(std::string dbc_file_path, std::string python_file_path, CAN_Interface* set_interface)
 {
     CAN_Module::dbc_file_path = dbc_file_path;
     CAN_Module::python_file_path = python_file_path;
-    CAN_Module::python_module = new CAN_Python_Interface();
+    if(set_interface == NULL)
+        CAN_Module::interface_module = new CAN_Python_Interface();
+    else
+        CAN_Module::interface_module = set_interface;
 }
 
-//sets a different interface (for testing/mocking purposes)
+//CAN_Module::CAN_Module(std::string dbc_file_path, std::string python_file_path, CAN_Interface* set_interface = NULL)
+
+/*//sets a different interface (for testing/mocking purposes)
 void CAN_Module::setInterface(CAN_Interface *set_interface)
 {
     //free memory from previous module
-    delete python_module;
-    CAN_Module::python_module = set_interface;
-}
+    delete interface_module;
+    CAN_Module::interface_module = set_interface;
+}*/
 
 //will set the listener for the can_module, outputing to the given pipes
 //the shared future parameter is designed to stop the listener so that the program can exit properly
 void CAN_Module::setListener(std::vector<Pipes> output_pipes, std::shared_future<void> futureObj)
 {
     //instantiate the python class that will handle the cantools library
-    python_module->instantiatePythonClass(CAN_Module::dbc_file_path,CAN_Module::python_file_path);
+    interface_module->initializeInterface(CAN_Module::dbc_file_path,CAN_Module::python_file_path);
 
     while(futureObj.wait_for(std::chrono::milliseconds(1))== std::future_status::timeout)
     {
         //get the message from the python class
-        std::map<std::string, std::string> message_map = python_module->getMessageFromPythonModule();
+        std::map<std::string, std::string> message_map = interface_module->getMessageMap();
 
         //check message type and write accordinglt
         if(message_map["MessageType"]== "IMUSensor")
@@ -75,8 +80,8 @@ void CAN_Module::setListener(std::vector<Pipes> output_pipes, std::shared_future
 void CAN_Module::sendConfigMessage(ConfigurableModesMessage message)
 {
     //instantiate python class
-    python_module->instantiatePythonClass(CAN_Module::dbc_file_path, CAN_Module::python_file_path);
+    interface_module->initializeInterface(CAN_Module::dbc_file_path, CAN_Module::python_file_path);
 
     //send config message
-    python_module->sendMessage(message.get_message_map());
+    interface_module->sendMessage(message.get_message_map());
 }
