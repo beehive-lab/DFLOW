@@ -18,18 +18,6 @@ matrix:
       - flake8 client/
 
   include:
-    sudo: true
-    language: python
-
-    python: 3.8.5
-
-    before_install:
-      - cd on-board/
-
-    # Install requirements
-    install:
-      - python3 -m pip install cantools
-
     language: cpp
 
     compiler: gcc
@@ -45,9 +33,13 @@ matrix:
           - cmake
           - boost1.67
           - libbluetooth-dev
+          - python-pip
           
     before_install:
       - cd on-board
+
+    install:
+      -pip install cantools
 
     # Run tests
     script:
