@@ -32,7 +32,8 @@ matrix:
           - g++-6
           - cmake
           - boost1.67
-
+          - libbluetooth-dev
+          
     before_install:
       - cd on-board
 
