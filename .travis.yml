@@ -18,6 +18,7 @@ matrix:
       - flake8 client/
 
   include:
+    sudo: true
     language: cpp
 
     compiler: gcc
@@ -33,14 +34,15 @@ matrix:
           - cmake
           - boost1.67
           - libbluetooth-dev
+          - python3-pip
           
     before_install:
       - cd on-board
     
      # Install requirements
     install:
-      - pip install --user -U pip
-      - pip install --user cantools
+      - pip3 install --user -U pip
+      - pip3 install --user cantools
 
     # Run tests
     script:
