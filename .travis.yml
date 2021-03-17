@@ -19,6 +19,17 @@ matrix:
 
   include:
     sudo: true
+    language: python
+
+    python: 3.8.5
+
+    before_install:
+      - cd client
+
+    # Install requirements
+    install:
+      - pip install cantools
+
     language: cpp
 
     compiler: gcc
@@ -34,15 +45,9 @@ matrix:
           - cmake
           - boost1.67
           - libbluetooth-dev
-          - python3-pip
           
     before_install:
       - cd on-board
-    
-     # Install requirements
-    install:
-      - pip3 install --user -U pip
-      - pip3 install --user cantools
 
     # Run tests
     script:
