@@ -19,6 +19,7 @@ matrix:
       - flake8 client/
 
   include:
+    sudo: false
     language: python
 
     python: 3.8.5
