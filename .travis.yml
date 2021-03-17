@@ -30,6 +30,7 @@ matrix:
           - gcc-6
           - g++-6
           - cmake
+          - boost1.75
 
     before_install:
       - cd on-board
