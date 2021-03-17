@@ -41,6 +41,7 @@ matrix:
     install:
       - pip install -U pip
       - pip install cantools
+      - export PYTHONPATH=$PYTHONPATH:$(pwd)
 
     # Run tests
     script:
