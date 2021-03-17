@@ -19,9 +19,9 @@ matrix:
       - flake8 client/
 
   include:
-    language: cpp
+    language: python
 
-    compiler: gcc
+    python: 3.8.5
 
     addons: 
       apt:
@@ -34,10 +34,12 @@ matrix:
           - cmake
           - boost1.67
           - libbluetooth-dev
-          - python-setuptools
           
     before_install:
       - cd on-board
+
+    install:
+      - pip install cantools
 
     # Run tests
     script:
