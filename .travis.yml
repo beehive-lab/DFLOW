@@ -36,8 +36,10 @@ matrix:
           
     before_install:
       - cd on-board
-      - /usr/bin/python -m pip install --upgrade pip
-      - pip3.7.1 install cantools
+    
+     # Install requirements
+    install:
+      - pip install cantools
 
     # Run tests
     script:
