@@ -24,11 +24,11 @@ matrix:
     python: 3.8.5
 
     before_install:
-      - cd client
+      - cd on-board/
 
     # Install requirements
     install:
-      - pip install cantools
+      - python -m pip install cantools
 
     language: cpp
 
