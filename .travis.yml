@@ -10,6 +10,7 @@ matrix:
     # Install requirements
     install:
       - pip install -r requirements.txt
+      - pip install cantools
 
     # Run tests
     script:
@@ -37,9 +38,6 @@ matrix:
           
     before_install:
       - cd on-board
-
-    install:
-      - pip install -U cantools
 
     # Run tests
     script:
