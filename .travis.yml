@@ -36,7 +36,7 @@ matrix:
           
     before_install:
       - cd on-board
-      - pip install cantools
+      - /usr/bin/python -m pip install --upgrade pip
 
     # Run tests
     script:
