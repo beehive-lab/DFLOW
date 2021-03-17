@@ -21,7 +21,7 @@ matrix:
   include:
     language: python
 
-    python: 3.8.5
+    python: 3.9.2
 
     addons: 
       apt:
