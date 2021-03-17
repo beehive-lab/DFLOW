@@ -19,7 +19,6 @@ matrix:
       - flake8 client/
 
   include:
-    sudo: false
     language: python
 
     python: 3.8.5
@@ -40,7 +39,7 @@ matrix:
       - cd on-board
 
     install:
-      - python -m pip install cantools==36.1
+      - sudo -H pip install cantools==36.1
 
     # Run tests
     script:
