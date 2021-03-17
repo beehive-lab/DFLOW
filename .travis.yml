@@ -1,0 +1,53 @@
+matrix:
+  include:
+    language: python
+
+    python: 3.8.5
+
+    before_install:
+      - cd client
+
+    # Install requirements
+    install:
+      - pip install -r requirements.txt
+
+    # Run tests
+    script:
+      - coverage run -m unittest discover -s tests -p "*_test.py"
+      - coverage report --fail-under=70
+      - flake8 client/
+
+  include:
+    language: cpp
+
+    compiler: gcc
+
+    addons: 
+      apt:
+        sources:
+          - sourceline: 'ppa:mhier/libboost-latest'
+          - ubuntu-toolchain-r-test
+        packages:
+          - gcc-6
+          - g++-6
+          - cmake
+          - boost1.67
+          - libbluetooth-dev
+          
+    before_install:
+      - cd on-board
+
+    # Run tests
+    script:
+      # Link gcc-6 and g++-6 to their standard commands
+      - ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+      - ln -s /usr/bin/g++-6 /usr/local/bin/g++
+      # Export CC and CXX to tell cmake which compiler to use
+      - export CC=/usr/bin/gcc-6
+      - export CXX=/usr/bin/g++-6
+      # Check versions of gcc, g++ and cmake
+      - gcc -v && g++ -v && cmake --version
+      - cmake .
+      - cmake --build .
+      - ./TestCan && ./TestComms 
+
