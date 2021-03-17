@@ -54,6 +54,6 @@ matrix:
       - gcc -v && g++ -v && cmake --version
       - cmake .
       - cmake --build .
-      - cantools 
+      - cantools --version
       - ./TestCan && ./TestComms && ./TestDataProcessing
 
