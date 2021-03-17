@@ -19,10 +19,9 @@
 //this is the class providing the functionality for the CAN MODULE
 class CAN_Module{
     public:
-        CAN_Module(std::string,std::string,CAN_Interface* = NULL);
+        CAN_Module(std::string,std::string,CAN_Interface* = new CAN_Python_Interface());
         void setListener(std::vector<Pipes>, std::shared_future<void>);
         void sendConfigMessage(ConfigurableModesMessage);
-        //void setInterface(CAN_Interface*);
     private:
         std::string dbc_file_path;
         std::string python_file_path;

@@ -5,21 +5,9 @@ CAN_Module::CAN_Module(std::string dbc_file_path, std::string python_file_path, 
 {
     CAN_Module::dbc_file_path = dbc_file_path;
     CAN_Module::python_file_path = python_file_path;
-    if(set_interface == NULL)
-        CAN_Module::interface_module = new CAN_Python_Interface();
-    else
-        CAN_Module::interface_module = set_interface;
+    CAN_Module::interface_module = set_interface;
 }
 
-//CAN_Module::CAN_Module(std::string dbc_file_path, std::string python_file_path, CAN_Interface* set_interface = NULL)
-
-/*//sets a different interface (for testing/mocking purposes)
-void CAN_Module::setInterface(CAN_Interface *set_interface)
-{
-    //free memory from previous module
-    delete interface_module;
-    CAN_Module::interface_module = set_interface;
-}*/
 
 //will set the listener for the can_module, outputing to the given pipes
 //the shared future parameter is designed to stop the listener so that the program can exit properly
