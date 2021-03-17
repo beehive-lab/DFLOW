@@ -2,7 +2,7 @@
 
 import os
 from binascii import hexlify
-import cantools
+#import cantools
 import can
 import time
 
