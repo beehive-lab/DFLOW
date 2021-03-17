@@ -41,7 +41,6 @@ matrix:
 
     install:
       - python -m pip install cantools==36.1
-      - export PYTHONPATH=$PYTHONPATH:$(pwd)
 
     # Run tests
     script:
