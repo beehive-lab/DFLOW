@@ -39,7 +39,8 @@ matrix:
     
      # Install requirements
     install:
-      - pip install cantools
+      - pip install --user -U pip
+      - pip install --user cantools
 
     # Run tests
     script:
