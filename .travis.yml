@@ -39,7 +39,7 @@ matrix:
       - cd on-board
 
     install:
-      -pip install cantools
+      - pip install cantools
 
     # Run tests
     script:
