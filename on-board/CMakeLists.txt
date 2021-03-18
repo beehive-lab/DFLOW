@@ -141,11 +141,12 @@ set(COMMS_TEST_FILES
  
 #link against gtest or gtest_main as needed. Eg
 add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES} ${CANMODULE_SOURCE})
+add_executable(TestPythonInterface test/pythoninterfacetest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES} ${CANMODULE_SOURCE})
 add_executable(TestComms test/communicationstest.cpp ${COMMS_TEST_FILES})
 add_executable(TestDataProcessing test/dataprocessingtest.cpp ${DATAP_TEST_FILES})
 target_link_libraries(TestCan PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
-target_link_libraries(TestComms gtest_main)
-target_link_libraries(TestComms gmock_main)
+target_link_libraries(TestPythonInterface PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
+target_link_libraries(TestComms PUBLIC gtest_main gmock_main)
 target_link_libraries(TestDataProcessing PUBLIC gtest_main gmock_main)
 add_test(NAME canmoduletest COMMAND TestCan)
 

@@ -8,8 +8,6 @@ void CAN_Python_Interface::initializeInterface(std::string dbc_file_path, std::s
     PyObject *module_name, *module, *dict, *python_class, *object;
 
     PyRun_SimpleString("import sys");
-    PyRun_SimpleString("import cantools");
-    PyRun_SimpleString("import can");
     PyRun_SimpleString("sys.path.append(\".\")");
 
     module_name = PyUnicode_FromString(

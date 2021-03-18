@@ -2,8 +2,8 @@
 
 import os
 from binascii import hexlify
-#import cantools
-#import can
+import cantools
+import can
 import time
 
 class CAN_Decoder:
