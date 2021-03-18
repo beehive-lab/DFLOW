@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <openssl/err.h>
+#include <pwd.h>
 
 using namespace std;
 
@@ -245,8 +246,8 @@ int BluetoothComms::load_certificates(SSL_CTX * context, char * certificate_file
             throw runtime_error("Private key doesn't match public key certificate");
         }
 
-        if (SSL_CTX_load_verify_locations(context, ca_file, NULL) <= 0) {
-            throw runtime_error("Error loading ca certificate");
+        if (SSL_CTX_load_verify_locations(context, ca_file, nullptr) <= 0) {
+            throw runtime_error("Error loading CA certificate");
         }
 
         return 0;
@@ -268,15 +269,26 @@ int BluetoothComms::establish_connection(int port) {
     if (!context) {
         return -1;
     }
+    const char *homedir;
 
-    load_certificates(
-            context,
-            const_cast<char *>("/home/osher/University/repos/test/test_certs/on-board/on-board.crt"),
-            const_cast<char *>("/home/osher/University/repos/test/test_certs/on-board/on-board.key"),
-            const_cast<char *>("/home/osher/University/repos/test/test_certs/rootCA/rootCA.crt")
-    );
+    if ((homedir = getenv("HOME")) == nullptr) {
+        homedir = getpwuid(getuid())->pw_dir;
+    }
 
-    int socket_creation_status = create_socket(port);
+    char on_board_cert[256], on_board_key[256], rootCA[256];
+
+    strcpy(on_board_cert, homedir);
+    strcat(on_board_cert, "/DFLOW/test_certs/on-board/on-board.crt");
+
+    strcpy(on_board_key, homedir);
+    strcat(on_board_key, "/DFLOW/test_certs/on-board/on-board.key");
+
+    strcpy(rootCA, homedir);
+    strcat(rootCA, "/DFLOW/test_certs/rootCA/rootCA.crt");
+
+    load_certificates(context, on_board_cert, on_board_key, rootCA);
+
+    int socket_creation_status = create_socket(channel);
     if (socket_creation_status == -1) {
         return -1;
     }
