@@ -10,7 +10,6 @@ matrix:
     # Install requirements
     install:
       - pip install -r requirements.txt
-      - pip install cantools
 
     # Run tests
     script:
@@ -37,6 +36,7 @@ matrix:
 
     # Run tests
     script:
+      - cd on-board
       # Link gcc-6 and g++-6 to their standard commands
       - ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
       - ln -s /usr/bin/g++-6 /usr/local/bin/g++
@@ -47,6 +47,5 @@ matrix:
       - gcc -v && g++ -v && cmake --version
       - cmake .
       - cmake --build .
-      - cantools --version
       - ./TestCan && ./TestComms && ./TestDataProcessing
 
