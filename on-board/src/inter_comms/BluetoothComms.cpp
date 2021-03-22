@@ -7,6 +7,7 @@
 #include <cstring>
 #include <openssl/err.h>
 #include <pwd.h>
+#include "filesystem"
 
 using namespace std;
 
@@ -285,6 +286,18 @@ int BluetoothComms::establish_connection(int port) {
 
     strcpy(rootCA, homedir);
     strcat(rootCA, "/DFLOW/test_certs/rootCA/rootCA.crt");
+
+    if (!filesystem::exists(on_board_cert)) {
+        throw runtime_error("Certificate file doesn't exist");
+    }
+
+    if (!filesystem::exists(on_board_key)) {
+        throw runtime_error("Private key file doesn't exist");
+    }
+
+    if (!filesystem::exists(rootCA)) {
+        throw runtime_error("CA certificate doesn't exist");
+    }
 
     load_certificates(context, on_board_cert, on_board_key, rootCA);
 
