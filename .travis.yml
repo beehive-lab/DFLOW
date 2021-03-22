@@ -21,8 +21,8 @@ jobs:
             - sourceline: 'ppa:mhier/libboost-latest'
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-6
-            - g++-6
+            - gcc-8
+            - g++-8
             - cmake
             - boost1.67
             - libbluetooth-dev
