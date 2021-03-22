@@ -66,13 +66,15 @@ set(SOURCE_FILES src/main.cpp
                 src/data_processing_module/data_process_module.cpp
                 src/data_processing_module/pipes.cpp
                 src/inter_comms/WifiComms.cpp
-                src/inter_comms/BluetoothComms.cpp)
+                src/inter_comms/BluetoothComms.cpp
+        src/inter_comms/Logic.cpp)
 
 set(HEADER_FILES  src/config.hpp
                src/data_processing_module/data_process_module.hpp
                src/data_processing_module/pipes.hpp
                src/inter_comms/WifiComms.h
-               src/inter_comms/BluetoothComms.h)
+               src/inter_comms/BluetoothComms.h
+        src/inter_comms/Logic.h)
 
 include_directories( src/can_module src/ libs/can_module src/inter_comms src/data_processing_module src/can_module/messages)
 
@@ -89,14 +91,12 @@ find_package(OpenSSL REQUIRED)
 target_link_libraries(DFLOW_OnBoard PRIVATE OpenSSL::SSL)
 
 set(TEST_SOURCE_FILES
-                 src/can_module/canmodule.cpp
-                 src/can_module/dataretriever.cpp
                  libs/can_module/pstream.h
         src/inter_comms/WifiComms.cpp
         src/inter_comms/BluetoothComms.cpp
                  src/config.cpp)
 
-set(TEST_HEADER_FILES src/can_module/canmodule.hpp src/can_module/dataretriever.hpp src/inter_comms/WifiComms.h src/inter_comms/BluetoothComms.h src/config.hpp)
+set(TEST_HEADER_FILES src/inter_comms/WifiComms.h src/inter_comms/BluetoothComms.h src/config.hpp)
 
 
 

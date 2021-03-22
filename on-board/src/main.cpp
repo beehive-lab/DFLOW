@@ -9,6 +9,7 @@
 #include <BluetoothComms.h>
 #include <data_process_module.hpp>
 #include <boost/circular_buffer.hpp>
+#include "Logic.h"
 using namespace std;
 
 //second release prototype
@@ -116,7 +117,7 @@ int main() {
   std::promise<void> exitSignal;
   std::future<void> futureObj = exitSignal.get_future();
   std::shared_future<void> shrdFutureObj = futureObj.share();
-  
+
   //initialize can pipes and data_proccesing pipes
   for(int i = 0; i<6; i++)
   {
@@ -134,9 +135,13 @@ int main() {
   //create threads
   std::thread first(retrieve,shrdFutureObj);
   std::thread second(set_data_processing_module,shrdFutureObj);
-  std::thread third(check_data_from_dprocess);
+//  std::thread third(check_data_from_dprocess);
   first.join();
   second.join();
-  third.join();
+//  third.join();
+
+    Logic logic(processed_pipes_vector);
+
+    logic.Wifi_logic(true, 8080);
    return 0;
 }
