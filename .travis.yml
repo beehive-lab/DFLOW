@@ -14,5 +14,5 @@ matrix:
     # Run tests
     script:
       - coverage run -m unittest discover -s tests -p "*_test.py"
-      - coverage report --fail-under=70
+      - coverage report --fail-under=60
       - flake8 client/
