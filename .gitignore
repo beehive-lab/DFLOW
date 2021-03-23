@@ -1,0 +1,2 @@
+# Ignore the certificates directory.
+test_certs/*

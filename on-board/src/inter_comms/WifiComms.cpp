@@ -5,6 +5,9 @@
 #include <iostream>
 #include <unistd.h>
 #include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <pwd.h>
+#include "filesystem"
 
 using namespace std;
 
@@ -210,12 +213,6 @@ int WifiComms::accept_connection() {
         }
         client_socket_fd = socket_fd;
 
-        int ssl_status = SSL_accept(ssl);
-
-        if (ssl_status == -1) {
-            throw runtime_error("Error in accepting SSL protocol");
-        }
-
         return 0;
     }
     catch (exception &exception) {
@@ -224,9 +221,10 @@ int WifiComms::accept_connection() {
     }
 }
 
-int load_certificates(SSL_CTX *context, char *certificate_file, char *key_file) {
+int WifiComms::load_certificates(SSL_CTX * context, char * certificate_file, char * key_file, char * ca_file) {
     try {
         if (SSL_CTX_use_certificate_file(context, certificate_file, SSL_FILETYPE_PEM) <= 0) {
+            ERR_print_errors_fp(stderr);
             throw runtime_error("Error loading certificate file");
         }
 
@@ -236,6 +234,10 @@ int load_certificates(SSL_CTX *context, char *certificate_file, char *key_file) 
 
         if (!SSL_CTX_check_private_key(context)) {
             throw runtime_error("Private key doesn't match public key certificate");
+        }
+
+        if (SSL_CTX_load_verify_locations(context, ca_file, nullptr) <= 0) {
+            throw runtime_error("Error loading CA certificate");
         }
 
         return 0;
@@ -258,7 +260,37 @@ int WifiComms::establish_connection(int port) {
         return -1;
     }
 
-    load_certificates(context, const_cast<char*>("~/DFLOW/test_certs/on-board.crt"), const_cast<char*>("~/DFLOW/test_certs/on-board.key"));
+    const char *homedir;
+
+    if ((homedir = getenv("HOME")) == nullptr) {
+        homedir = getpwuid(getuid())->pw_dir;
+    }
+
+    char on_board_cert[256], on_board_key[256], rootCA[256];
+
+    strcpy(on_board_cert, homedir);
+    strcat(on_board_cert, "/DFLOW/test_certs/on-board/on-board.crt");
+
+    strcpy(on_board_key, homedir);
+    strcat(on_board_key, "/DFLOW/test_certs/on-board/on-board.key");
+
+    strcpy(rootCA, homedir);
+    strcat(rootCA, "/DFLOW/test_certs/rootCA/rootCA.crt");
+
+
+    if (!filesystem::exists(on_board_cert)) {
+        throw runtime_error("Certificate file doesn't exist");
+    }
+
+    if (!filesystem::exists(on_board_key)) {
+        throw runtime_error("Private key file doesn't exist");
+    }
+
+    if (!filesystem::exists(rootCA)) {
+        throw runtime_error("CA certificate doesn't exist");
+    }
+
+    load_certificates(context, on_board_cert, on_board_key, rootCA);
 
     int socket_creation_status = create_socket(port);
     if (socket_creation_status == -1) {
@@ -282,6 +314,12 @@ int WifiComms::establish_connection(int port) {
 
     ssl = SSL_new(context);
     SSL_set_fd(ssl, client_socket_fd);
+
+    int ssl_status = SSL_accept(ssl);
+
+    if (ssl_status == -1) {
+        throw runtime_error("Error in accepting SSL protocol");
+    }
 
     return 0;
 }

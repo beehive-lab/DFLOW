@@ -38,6 +38,8 @@ private:
     SSL *ssl;
 
     SSL_CTX *context;
+
+    static int load_certificates(SSL_CTX * context, char * certificate_file, char * key_file, char * ca_file);
 };
 
 #endif
