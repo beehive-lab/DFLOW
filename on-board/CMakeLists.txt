@@ -85,7 +85,8 @@ find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads PUBLIC ${PYTHON_LIBRARIES} )
+find_package(OpenSSL REQUIRED)
+target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
 
  
 set(TEST_SOURCE_FILES
