@@ -2,6 +2,7 @@
 #define DFLOW_WIFICOMMS_H
 
 #include "Communications.h"
+#include "openssl/ssl.h"
 
 class WifiComms : public Communications {
 public:
@@ -33,6 +34,12 @@ private:
     int server_socket_fd;
 
     bool logging;
+
+    SSL *ssl;
+
+    SSL_CTX *context;
+
+    static int load_certificates(SSL_CTX * context, char * certificate_file, char * key_file, char * ca_file);
 };
 
 #endif

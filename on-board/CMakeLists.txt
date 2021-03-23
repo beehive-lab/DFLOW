@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)  # CMake version check
 project(DFLOW)               # Create project "simple_example"
-set(CMAKE_CXX_STANDARD 14)            # Enable c++14 standard
+set(CMAKE_CXX_STANDARD 17)            # Enable c++14 standard
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 
@@ -83,7 +83,8 @@ find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads PUBLIC ${PYTHON_LIBRARIES} )
+find_package(OpenSSL REQUIRED)
+target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
 
  
 set(TEST_SOURCE_FILES

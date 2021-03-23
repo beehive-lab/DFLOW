@@ -5,6 +5,9 @@
 #include "sys/socket.h"
 #include <unistd.h>
 #include <cstring>
+#include <openssl/err.h>
+#include <pwd.h>
+#include "filesystem"
 
 using namespace std;
 
@@ -18,6 +21,8 @@ BluetoothComms::BluetoothComms() {
     server_socket_fd = -1;
     client_socket_fd = -1;
     this->channel = 0;
+    ssl = nullptr;
+    context = nullptr;
 }
 
 int BluetoothComms::send(char *data) {
@@ -27,7 +32,7 @@ int BluetoothComms::send(char *data) {
             cout << "Sending: " << data;
         }
 
-        int no_of_bytes = ::send(client_socket_fd, data, strlen(data), 0);
+        int no_of_bytes = ::SSL_write(ssl, data, strlen(data));
 
         if (no_of_bytes == -1) {
             throw runtime_error("Error sending the message");
@@ -52,7 +57,7 @@ int BluetoothComms::receive(char buffer[BUFFER_SIZE]) {
             cout << "Waiting to receive a message" << endl;
         }
 
-        int no_of_bytes = recv(client_socket_fd, buffer, 1024, 0);
+        int no_of_bytes = SSL_read(ssl, buffer, BUFFER_SIZE);
 
         if (no_of_bytes == -1) {
             throw runtime_error("Error receiving the message");
@@ -105,6 +110,9 @@ int BluetoothComms::disconnect() {
         if (logging) {
             cout << "Successfully closed the client socket" << endl;
         }
+
+        SSL_free(ssl);
+        SSL_CTX_free(context);
 
         return 0;
     }
@@ -224,7 +232,74 @@ int BluetoothComms::accept_connection() {
     }
 }
 
+int BluetoothComms::load_certificates(SSL_CTX * context, char * certificate_file, char * key_file, char * ca_file) {
+    try {
+        if (SSL_CTX_use_certificate_file(context, certificate_file, SSL_FILETYPE_PEM) <= 0) {
+            ERR_print_errors_fp(stderr);
+            throw runtime_error("Error loading certificate file");
+        }
+
+        if (SSL_CTX_use_PrivateKey_file(context, key_file, SSL_FILETYPE_PEM) <= 0) {
+            throw runtime_error("Error loading private key file");
+        }
+
+        if (!SSL_CTX_check_private_key(context)) {
+            throw runtime_error("Private key doesn't match public key certificate");
+        }
+
+        if (SSL_CTX_load_verify_locations(context, ca_file, nullptr) <= 0) {
+            throw runtime_error("Error loading CA certificate");
+        }
+
+        return 0;
+    }
+    catch (exception &exception) {
+        cerr << exception.what() << endl;
+        return -1;
+    }
+}
+
 int BluetoothComms::establish_connection(int port) {
+
+    SSL_library_init();
+    OpenSSL_add_all_algorithms();
+    SSL_load_error_strings();
+    const SSL_METHOD *method = TLS_server_method();
+    context = SSL_CTX_new(method);
+
+    if (!context) {
+        return -1;
+    }
+    const char *homedir;
+
+    if ((homedir = getenv("HOME")) == nullptr) {
+        homedir = getpwuid(getuid())->pw_dir;
+    }
+
+    char on_board_cert[256], on_board_key[256], rootCA[256];
+
+    strcpy(on_board_cert, homedir);
+    strcat(on_board_cert, "/DFLOW/test_certs/on-board/on-board.crt");
+
+    strcpy(on_board_key, homedir);
+    strcat(on_board_key, "/DFLOW/test_certs/on-board/on-board.key");
+
+    strcpy(rootCA, homedir);
+    strcat(rootCA, "/DFLOW/test_certs/rootCA/rootCA.crt");
+
+    if (!filesystem::exists(on_board_cert)) {
+        throw runtime_error("Certificate file doesn't exist");
+    }
+
+    if (!filesystem::exists(on_board_key)) {
+        throw runtime_error("Private key file doesn't exist");
+    }
+
+    if (!filesystem::exists(rootCA)) {
+        throw runtime_error("CA certificate doesn't exist");
+    }
+
+    load_certificates(context, on_board_cert, on_board_key, rootCA);
 
     int socket_creation_status = create_socket(channel);
     if (socket_creation_status == -1) {
@@ -244,6 +319,15 @@ int BluetoothComms::establish_connection(int port) {
     int accept_status = accept_connection();
     if (accept_status == -1) {
         return -1;
+    }
+
+    ssl = SSL_new(context);
+    SSL_set_fd(ssl, client_socket_fd);
+
+    int ssl_status = SSL_accept(ssl);
+
+    if (ssl_status == -1) {
+        throw runtime_error("Error in accepting SSL protocol");
     }
 
     return 0;
