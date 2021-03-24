@@ -110,6 +110,11 @@ void check_data_from_dprocess()
   }
 }
 
+void logic_module_thread()
+{
+  Logic logic_module = Logic(processed_pipes_vector);
+  logic_module.Wifi_logic(true,8080);
+}
 
 int main() {
 
@@ -133,15 +138,15 @@ int main() {
   }
 
   //create threads
-  std::thread first(retrieve,shrdFutureObj);
-  std::thread second(set_data_processing_module,shrdFutureObj);
+  //std::thread first(retrieve,shrdFutureObj);
+  //std::thread second(set_data_processing_module,shrdFutureObj);
 //  std::thread third(check_data_from_dprocess);
-  first.join();
-  second.join();
+ // first.join();
+ // second.join();
 //  third.join();
 
-    Logic logic(processed_pipes_vector);
+    std::thread logic_thread(logic_module_thread);
 
-    logic.Wifi_logic(true, 8080);
+    logic_thread.join();
    return 0;
 }

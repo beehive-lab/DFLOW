@@ -17,9 +17,9 @@ public:
 
 private:
 
-    static void receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]);
+    void receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]);
 
-    static std::vector<Pipes> processed_pipes_vector;
+    std::vector<Pipes> processed_pipes_vector;
 
 };
 

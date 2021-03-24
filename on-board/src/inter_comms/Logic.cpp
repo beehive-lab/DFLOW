@@ -30,7 +30,7 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                 strcat(response, token);
             } else if (strcmp(token, "AIR_TEMPERATURE") == 0) {
                 float value;
-                read(processed_pipes_vector[AIR_TEMPERATURE_PIPE].rdwr[READ], &value, sizeof(float));
+                read(Logic::processed_pipes_vector[AIR_TEMPERATURE_PIPE].rdwr[READ], &value, sizeof(float));
                 strcat(response, ":AIR_TEMPERATURE:");
                 char value_char[256];
                 sprintf(value_char, "%G", value);
@@ -53,9 +53,7 @@ void Logic::Wifi_logic(bool logging, int port) {
 
     char send_buffer[BUFFER_SIZE];
 
-    thread receive_data(receive_loop, wifi_comms, receive_buffer);
-
-    receive_data.join();
+    Logic::receive_loop(wifi_comms, receive_buffer);
 }
 
 void Logic::Bluetooth_logic(bool logging, int channel) {
@@ -63,5 +61,5 @@ void Logic::Bluetooth_logic(bool logging, int channel) {
 }
 
 Logic::Logic(vector<Pipes> processed_pipes_vector_init) {
-    processed_pipes_vector = std::move(processed_pipes_vector_init);
+    Logic::processed_pipes_vector = processed_pipes_vector_init;
 }
