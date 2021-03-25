@@ -38,6 +38,9 @@ dataProcessing::dataProcessing(std::vector<Pipes> can_pipes_vector, std::vector<
     dataProcessing::gear_position_buffer       =boost::circular_buffer<int>(buffer_size);
     dataProcessing::water_temperature_buffer   =boost::circular_buffer<float>(buffer_size);
     dataProcessing::engine_speed_buffer        =boost::circular_buffer<int>(buffer_size);
+    dataProcessing::acceleration_x_buffer        =boost::circular_buffer<float>(buffer_size);
+    dataProcessing::acceleration_y_buffer        =boost::circular_buffer<float>(buffer_size);
+    dataProcessing::acceleration_z_buffer        =boost::circular_buffer<float>(buffer_size);
     dataProcessing::time_stamp_buffer          =boost::circular_buffer<time_t>(buffer_size);
 
 }
@@ -197,6 +200,7 @@ void dataProcessing::readCanPipes()
     ABSModuleMessage        temp_abs_message;
     ConfigurableModesMessage temp_config_message;
     IMUSensorMessage        temp_imu_message;
+    AccelerometerMessage    temp_accel_message;
 
     //perform non-blocking reads
     ssize_t intake_r = read(can_pipes_vector[INTAKE_MESSAGE_PIPE].rdwr[READ],&temp_intake_message.data,sizeof(temp_intake_message.data));
@@ -205,6 +209,7 @@ void dataProcessing::readCanPipes()
     ssize_t config_r = read(can_pipes_vector[CONFIG_MESSAGE_PIPE].rdwr[READ],&temp_config_message.data,sizeof(temp_config_message.data));
     ssize_t imu_r = read(can_pipes_vector[IMU_MESSAGE_PIPE].rdwr[READ],&temp_imu_message.data,sizeof(temp_imu_message.data));
     ssize_t engine_r = read(can_pipes_vector[ENGINE_MESSAGE_PIPE].rdwr[READ],&temp_engine_message.data,sizeof(temp_engine_message.data));
+    ssize_t accel_r = read(can_pipes_vector[ACCELEROMETER_MESSAGE_PIPE].rdwr[READ],&temp_accel_message.data,sizeof(temp_accel_message.data));
 
     //if read was succesful set current in-module messages
     if(intake_r>0)
@@ -230,6 +235,10 @@ void dataProcessing::readCanPipes()
     if(engine_r>0)
     {
         received_engine_message.data = temp_engine_message.data;
+    }
+    if(accel_r>0)
+    {
+        received_accel_message = temp_accel_message;
     }
 }
 
@@ -260,6 +269,10 @@ void dataProcessing::pushBackSignals(time_t time)
     dataProcessing::gear_position_buffer.push_back(received_engine_message.data.gear_position);
     dataProcessing::water_temperature_buffer.push_back(received_engine_message.data.water_temperature);
     dataProcessing::engine_speed_buffer.push_back(received_engine_message.data.engine_speed);
+
+    dataProcessing::acceleration_x_buffer.push_back(received_accel_message.data.acceleration_x);
+    dataProcessing::acceleration_y_buffer.push_back(received_accel_message.data.acceleration_y);
+    dataProcessing::acceleration_z_buffer.push_back(received_accel_message.data.acceleration_z);
 
     dataProcessing::time_stamp_buffer.push_back(time);
 }
@@ -336,7 +349,7 @@ void dataProcessing::startProcessing(std::shared_future<void> futureObj)
     dataProcessing::last_tick_time = time(0);
 
     //make can output pipes non-blocking
-    for(int i=0;i<6;i++)
+    for(int i=0;i<7;i++)
         int retval = fcntl(can_pipes_vector[i].rdwr[READ],F_SETFL,fcntl(can_pipes_vector[i].rdwr[READ],F_GETFL) | O_NONBLOCK);
 
     
@@ -385,6 +398,11 @@ void dataProcessing::startProcessing(std::shared_future<void> futureObj)
             dataProcessing::sendIntegerData(gear_position_buffer,GEAR_POSITION_PIPE);
             dataProcessing::sendFloatData(water_temperature_buffer,WATER_TEMPERATURE_PIPE);
             dataProcessing::sendIntegerData(engine_speed_buffer,ENGINE_SPEED_PIPE);
+
+            //ACCELEROMETER
+            dataProcessing::sendFloatData(acceleration_x_buffer,ACCELERATION_X_PIPE);
+            dataProcessing::sendFloatData(acceleration_y_buffer,ACCELERATION_Y_PIPE);
+            dataProcessing::sendFloatData(acceleration_z_buffer,ACCELERATION_Z_PIPE);
 
             dataProcessing::sendTimeData(time_stamp_buffer,TIMESTAMP_PIPE);
         }

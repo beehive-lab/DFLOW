@@ -1,0 +1,229 @@
+{
+  "architecture": {
+    "backend": "tensorflow",
+    "class_name": "Functional",
+    "config": {
+      "input_layers": [
+        [
+          "input_1",
+          0,
+          0
+        ]
+      ],
+      "layers": [
+        {
+          "class_name": "InputLayer",
+          "config": {
+            "batch_input_shape": [
+              null,
+              3
+            ],
+            "dtype": "float32",
+            "name": "input_1",
+            "ragged": false,
+            "sparse": false
+          },
+          "inbound_nodes": [],
+          "name": "input_1"
+        },
+        {
+          "class_name": "BatchNormalization",
+          "config": {
+            "axis": [
+              1
+            ],
+            "beta_constraint": null,
+            "beta_initializer": {
+              "class_name": "Zeros",
+              "config": {}
+            },
+            "beta_regularizer": null,
+            "center": true,
+            "dtype": "float32",
+            "epsilon": 0.001,
+            "gamma_constraint": null,
+            "gamma_initializer": {
+              "class_name": "Ones",
+              "config": {}
+            },
+            "gamma_regularizer": null,
+            "momentum": 0.99,
+            "moving_mean_initializer": {
+              "class_name": "Zeros",
+              "config": {}
+            },
+            "moving_variance_initializer": {
+              "class_name": "Ones",
+              "config": {}
+            },
+            "name": "batch_normalization_4",
+            "scale": true,
+            "trainable": true
+          },
+          "inbound_nodes": [
+            [
+              [
+                "input_1",
+                0,
+                0,
+                {}
+              ]
+            ]
+          ],
+          "name": "batch_normalization_4"
+        },
+        {
+          "class_name": "Dense",
+          "config": {
+            "activation": "relu",
+            "activity_regularizer": null,
+            "bias_constraint": null,
+            "bias_initializer": {
+              "class_name": "Zeros",
+              "config": {}
+            },
+            "bias_regularizer": null,
+            "dtype": "float32",
+            "kernel_constraint": null,
+            "kernel_initializer": {
+              "class_name": "GlorotUniform",
+              "config": {
+                "seed": null
+              }
+            },
+            "kernel_regularizer": null,
+            "name": "dense_144",
+            "trainable": true,
+            "units": 16,
+            "use_bias": true
+          },
+          "inbound_nodes": [
+            [
+              [
+                "batch_normalization_4",
+                0,
+                0,
+                {}
+              ]
+            ]
+          ],
+          "name": "dense_144"
+        },
+        {
+          "class_name": "Dense",
+          "config": {
+            "activation": "sigmoid",
+            "activity_regularizer": null,
+            "bias_constraint": null,
+            "bias_initializer": {
+              "class_name": "Zeros",
+              "config": {}
+            },
+            "bias_regularizer": null,
+            "dtype": "float32",
+            "kernel_constraint": null,
+            "kernel_initializer": {
+              "class_name": "GlorotUniform",
+              "config": {
+                "seed": null
+              }
+            },
+            "kernel_regularizer": null,
+            "name": "dense_145",
+            "trainable": true,
+            "units": 1,
+            "use_bias": true
+          },
+          "inbound_nodes": [
+            [
+              [
+                "dense_144",
+                0,
+                0,
+                {}
+              ]
+            ]
+          ],
+          "name": "dense_145"
+        }
+      ],
+      "name": "sequential_47",
+      "output_layers": [
+        [
+          "dense_145",
+          0,
+          0
+        ]
+      ]
+    },
+    "keras_version": "2.4.0"
+  },
+  "hash": "403022476dcc3ead3e02a84689986421c411a8fb01d0f852eb4a2a81b4b6ad77",
+  "image_data_format": "channels_last",
+  "input_shapes": [
+    [
+      3
+    ]
+  ],
+  "output_shapes": [
+    [
+      1
+    ]
+  ],
+  "tests": [
+    {
+      "inputs": [
+        {
+          "shape": [
+            3
+          ],
+          "values": [
+            "eJVLvvxCar8MRJi/"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "shape": [
+            1
+          ],
+          "values": [
+            "1eHGDA=="
+          ]
+        }
+      ]
+    }
+  ],
+  "trainable_params": {
+    "batch_normalization_4": {
+      "beta": [
+        "SIgxP/ui5T1kKms/"
+      ],
+      "gamma": [
+        "S8R1vk43HUA5YARA"
+      ],
+      "moving_mean": [
+        "c06BQjF1zD8sbyw/"
+      ],
+      "moving_variance": [
+        "t3w4RIz0QUAhgow/"
+      ]
+    },
+    "dense_144": {
+      "bias": [
+        "UQ+mP5+PSr/XfDw/didsP+YNW74GbF8/0y9MP4KTpj+7VYs/gBulPsHaZb+yeFG/DnUdv9ovAz/lcpY/b8eXPw=="
+      ],
+      "weights": [
+        "Ypw+P1YQ+j798tk+c10ZP79yYL9Z1yg/J6sEvPFUfD98Jbs+gUcyPhroNr5EhQ8/x0mlPodKMD88aGY/X0gbP9n6/b9+Xme/PemSPwoUzr9Ccyo+Gl+TP3ICrD8X3ds/cRC9vx60xT8xbwS/+D5CP7gOk77Az8O/0FOwP4CVw7+9tS+/SavHvlc+sD85INC/WDLEPYqVsT/+MNc+WuerPzWB7r+R36o9lz0ePzA8KD+cMeg+HjFxv92ymD+Lwbq/"
+      ]
+    },
+    "dense_145": {
+      "bias": [
+        "to2IPQ=="
+      ],
+      "weights": [
+        "EPuIv5LYjz5/Lco/mZuzv8rB374qh9k/nPbZP95mxD9B26e/fqPeP9KXXj7gqai+8PQvPzrFkr/4NO0/OZfFvw=="
+      ]
+    }
+  }
+}

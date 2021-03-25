@@ -13,6 +13,7 @@
 #include"imu_sensor_message.hpp"
 #include"abs_module_message.hpp"
 #include"configurable_modes_message.hpp"
+#include"accelerometer_message.hpp"
 
 #ifndef data_process_module_H
 #define data_process_module_H
@@ -70,6 +71,9 @@ class dataProcessing
         boost::circular_buffer<int>     gear_position_buffer;
         boost::circular_buffer<float>   water_temperature_buffer;
         boost::circular_buffer<int>     engine_speed_buffer;
+        boost::circular_buffer<float>     acceleration_x_buffer;
+        boost::circular_buffer<float>     acceleration_y_buffer;
+        boost::circular_buffer<float>     acceleration_z_buffer;
         boost::circular_buffer<time_t>  time_stamp_buffer;
 
         EngineSensorsMessage    received_engine_message;
@@ -78,6 +82,7 @@ class dataProcessing
         ABSModuleMessage        received_abs_message;
         ConfigurableModesMessage received_config_message;
         IMUSensorMessage        received_imu_message;
+        AccelerometerMessage    received_accel_message;
 };
 
 

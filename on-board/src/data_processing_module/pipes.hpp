@@ -23,6 +23,9 @@ extern const int OIL_PRESSURE_PIPE;
 extern const int GEAR_POSITION_PIPE;
 extern const int WATER_TEMPERATURE_PIPE;
 extern const int ENGINE_SPEED_PIPE;
+extern const int ACCELERATION_X_PIPE;
+extern const int ACCELERATION_Y_PIPE;
+extern const int ACCELERATION_Z_PIPE;
 extern const int TIMESTAMP_PIPE;
 
 extern const int INTAKE_MESSAGE_PIPE;
@@ -31,6 +34,7 @@ extern const int TPM_MESSAGE_PIPE;
 extern const int ENGINE_MESSAGE_PIPE;
 extern const int CONFIG_MESSAGE_PIPE;
 extern const int IMU_MESSAGE_PIPE;
+extern const int ACCELEROMETER_MESSAGE_PIPE;
 
 
 extern const int READ;
