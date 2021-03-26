@@ -69,6 +69,8 @@ void CAN_Module::setListener(std::vector<Pipes> output_pipes, std::shared_future
             config_message.set_from_map(message_map);
             write(output_pipes[CONFIG_MESSAGE_PIPE].rdwr[WRITE], &config_message.data, sizeof(config_message.data));
         }
+
+        //if the file path for the accelerometer data is set, add any incoming messages to the ACCELEROMETER PIPE
         if(accelerometer_file_path.compare(std::string("notset")) != 0)
         {
             File_Interface file_interface(CAN_Module::accelerometer_file_path);
