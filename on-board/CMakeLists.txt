@@ -139,6 +139,13 @@ set(COMMS_TEST_FILES
                         src/inter_comms/WifiComms.cpp
                         src/inter_comms/BluetoothComms.cpp
 )
+
+set(CRYPTO_TEST_FILES
+        src/config.cpp
+        src/config.hpp
+        src/crypto/SymmetricEncryption.h
+        src/crypto/SymmetricEncryption.cpp
+)
  
  
  
@@ -147,10 +154,12 @@ add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER
 add_executable(TestPythonInterface test/pythoninterfacetest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES} ${CANMODULE_SOURCE})
 add_executable(TestComms test/communicationstest.cpp ${COMMS_TEST_FILES})
 add_executable(TestDataProcessing test/dataprocessingtest.cpp ${DATAP_TEST_FILES})
+add_executable(TestCrypto test/cryptotest.cpp ${CRYPTO_TEST_FILES})
 target_link_libraries(TestCan PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
 target_link_libraries(TestPythonInterface PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
 target_link_libraries(TestComms PUBLIC gtest_main gmock_main)
 target_link_libraries(TestDataProcessing PUBLIC gtest_main gmock_main)
+target_link_libraries(TestCrypto PUBLIC gtest_main)
 add_test(NAME canmoduletest COMMAND TestCan)
 
 
