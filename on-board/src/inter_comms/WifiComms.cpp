@@ -4,7 +4,6 @@
 #include <netdb.h>
 #include <iostream>
 #include <unistd.h>
-#include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <pwd.h>
 #include "filesystem"
