@@ -1,0 +1,35 @@
+security:
+  cert_file_path: ~/.dflow/certs/client/client.crt
+  priv_key_file_path: ~/.dflow/certs/client/client.key
+  ca_cert_file_path: ~/.dflow/certs/rootCA/rootCA.crt
+
+help:
+  default: Type 'help:<command_name>' where <command_name> is the name of the command to show help info for.
+  exit: Disconnect from the on-board and exit.
+  menu: Print a list of the available commands.
+  start_sensor_data_stream: |-
+    Start streaming one or more types of sensor data from the on-board.
+    Type 'help:sensor_data_types' to list options.
+  stop_sensor_data_stream:  |-
+    Stop streaming one or more types of sensor data from the on-board.
+    Type 'help:sensor_data_types' to list options.
+  sensor_data_types: |-
+    AIR_TEMPERATURE
+    THROTTLE_POSITION
+    TYRE_PRESSURE_FRONT
+    TYRE_PRESSURE_REAR
+    MOTORCYCLE_SPEED
+    REAR_WHEEL_SPEED
+    FRONT_WHEEL_SPEED
+    BRAKE_REAR_ACTIVE
+    BRAKE_FRONT_ACTIVE
+    ABS_MODE
+    TC_MODE
+    THROTTLE_RESPONSE_MODE
+    LEAN_ANGLE
+    BATTERY_VOLTAGE
+    OIL_PRESSURE
+    GEAR_POSITION
+    WATER_TEMPERATURE
+    ENGINE_SPEED
+    TIMESTAMP
