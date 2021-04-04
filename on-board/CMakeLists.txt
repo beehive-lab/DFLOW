@@ -157,9 +157,9 @@ add_executable(TestDataProcessing test/dataprocessingtest.cpp ${DATAP_TEST_FILES
 add_executable(TestCrypto test/cryptotest.cpp ${CRYPTO_TEST_FILES})
 target_link_libraries(TestCan PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
 target_link_libraries(TestPythonInterface PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
-target_link_libraries(TestComms PUBLIC gtest_main gmock_main)
+target_link_libraries(TestComms PUBLIC gtest_main gmock_main OpenSSL::SSL)
 target_link_libraries(TestDataProcessing PUBLIC gtest_main gmock_main)
-target_link_libraries(TestCrypto PUBLIC gtest_main)
+target_link_libraries(TestCrypto PUBLIC gtest_main OpenSSL::SSL)
 add_test(NAME canmoduletest COMMAND TestCan)
 
 

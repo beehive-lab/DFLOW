@@ -5,6 +5,13 @@
 #include <stdint-gcc.h>
 #include <openssl/aes.h>
 
+/**
+ AES encryption (CBC mode) to be used internally. The on-board data can be
+ encrypted for an extra layer of security.
+
+ The randomly generated initialization vector is used in the AES algorithm
+ to provide an initial state, required when performing the encryption.
+ */
 class SymmetricEncryption {
 public:
 

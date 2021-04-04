@@ -1,4 +1,5 @@
 #include <crypto/SymmetricEncryption.h>
+#include <string>
 #include "gtest/gtest.h"
 
 namespace {
@@ -17,13 +18,15 @@ namespace {
 
         SymmetricEncryption::decrypt(key, sizeof target, target, result);
 
-        EXPECT_EQ(source, result);
+        EXPECT_TRUE(
+                strcmp(reinterpret_cast<const char *>(source), reinterpret_cast<const char *>(result)) == 0);
 
         uint8_t wrong_key[8] = "my_key2";
 
         SymmetricEncryption::decrypt(wrong_key, sizeof target, target, result);
 
-        EXPECT_NE(source, result);
+        EXPECT_FALSE(
+                strcmp(reinterpret_cast<const char *>(source), reinterpret_cast<const char *>(result)) == 0);
     }
 
 }
