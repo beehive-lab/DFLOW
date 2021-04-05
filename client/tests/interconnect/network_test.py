@@ -141,10 +141,14 @@ class NetworkLinkTestCase(unittest.TestCase):
         # calls is correct.
         mock_call_manager = MagicMock()
         mock_call_manager.attach_mock(self._mock_socket_constructor, 'create')
+        mock_call_manager.attach_mock(
+            self._mock_socket_instance.settimeout,
+            'settimeout'
+        )
         mock_call_manager.attach_mock(self._mock_ssl_socket.connect, 'connect')
         mock_call_manager.attach_mock(self._mock_ssl_socket.close, 'close')
 
-        # Create the network link and call connect() then disconnect.
+        # Create the network link and call connect() then reconnect.
         network_link = NetworkLink(
             self._test_host_name,
             self._test_port_num,
@@ -159,8 +163,10 @@ class NetworkLinkTestCase(unittest.TestCase):
         self.assertEqual(
             [
                 call.create(socket.AF_INET, socket.SOCK_STREAM),
+                call.settimeout(5),
                 call.close(),
                 call.create(socket.AF_INET, socket.SOCK_STREAM),
+                call.settimeout(5),
                 call.connect((self._test_host_name, self._test_port_num))
             ],
             mock_call_manager.mock_calls
