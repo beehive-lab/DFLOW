@@ -13,6 +13,9 @@ help:
   stop_sensor_data_stream:  |-
     Stop streaming one or more types of sensor data from the on-board.
     Type 'help:sensor_data_types' to list options.
+  print_recorded_sensor_data: |-
+    Print all the data sent from the on-board for a particular sensor type.
+    Type 'help:sensor_data_types' to list options.
   sensor_data_types: |-
     AIR_TEMPERATURE
     THROTTLE_POSITION
