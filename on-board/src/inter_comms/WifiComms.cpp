@@ -252,7 +252,7 @@ int WifiComms::establish_connection(int port) {
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
-    const SSL_METHOD *method = TLS_server_method();
+    const SSL_METHOD *method = SSLv23_server_method();
     context = SSL_CTX_new(method);
 
     if (!context) {
