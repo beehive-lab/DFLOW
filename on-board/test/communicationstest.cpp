@@ -29,7 +29,7 @@ namespace {
         EXPECT_CALL(mock_wifi_comms, listen_socket()).Times(1);
         EXPECT_CALL(mock_wifi_comms, accept_connection()).Times(1);
 
-        mock_wifi_comms.establish_connection(8080);
+        EXPECT_THROW(mock_wifi_comms.establish_connection(8080), std::runtime_error);
     }
 
     using ::testing::Return;
@@ -81,7 +81,7 @@ namespace {
         EXPECT_CALL(mock_bluetooth_comms, listen_socket()).Times(1);
         EXPECT_CALL(mock_bluetooth_comms, accept_connection()).Times(1);
 
-        mock_bluetooth_comms.establish_connection(0);
+        EXPECT_THROW(mock_bluetooth_comms.establish_connection(0), std::runtime_error);
     }
 
     TEST_F(WifiTest, BTSend) {
