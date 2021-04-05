@@ -41,7 +41,7 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/../src/udf_module)
  
 #SET UP PROJECT
 
-execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/udf_module/install_frugally-deep.sh)
+#execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/udf_module/install_frugally-deep.sh)
 
 # Add main.cpp file of project root directory as source file
 set(CANMODULE_SOURCE
