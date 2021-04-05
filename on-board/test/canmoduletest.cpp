@@ -35,7 +35,7 @@ void process_set_helper(std::vector<Pipes>can_pipes_vector,std::shared_future<vo
     MockCAN_Python_Interface can_interface;
     EXPECT_CALL(can_interface, initializeInterface(std::string("./DFLOW"),std::string("test"))).Times(1);
     EXPECT_CALL(can_interface, getMessageMap()).WillRepeatedly(testing::Return(test_map));
-    CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"),&can_interface);
+    CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"),std::string("test"),&can_interface);
 
     //can_module.setInterface(&can_interface);
     can_module.setListener(can_pipes_vector,futureObj);
@@ -74,7 +74,7 @@ TEST_F(ModuleTest,TestSender)
   test_message.data.throttle_response_mode = 3;
   EXPECT_CALL(can_interface,initializeInterface(std::string("./DFLOW"),std::string("test"))).Times(1);
   EXPECT_CALL(can_interface,sendMessage(test_message.get_message_map())).Times(1);
-  CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"),&can_interface);
+  CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"),std::string("test"),&can_interface);
 
   //can_module.setInterface(&can_interface);
   can_module.sendConfigMessage(test_message);

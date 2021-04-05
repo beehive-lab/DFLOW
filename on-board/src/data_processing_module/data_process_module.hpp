@@ -34,6 +34,8 @@ class dataProcessing
     private:
         void readCanPipes();
         void pushBackSignals(time_t);
+        void pushBackToBuckets();
+        void clearBuckets();
 
         float compute_float_buffer_output(boost::circular_buffer<float>,int);
         bool compute_boolean_buffer_output(boost::circular_buffer<bool>,int);
@@ -52,6 +54,28 @@ class dataProcessing
         std::vector<int> data_mode_vector;
         int time_interval;
         int tick_interval;
+
+        std::vector<float>   air_temperature_bucket;
+        std::vector<int>     throttle_position_bucket;
+        std::vector<float>   tyre_pressure_front_bucket;
+        std::vector<float>   tyre_pressure_rear_bucket;
+        std::vector<int>     motorcycle_speed_bucket;
+        std::vector<int>     rear_wheel_speed_bucket;
+        std::vector<int>     front_wheel_speed_bucket;
+        std::vector<int>     brake_rear_active_bucket;
+        std::vector<int>     brake_front_active_bucket;
+        std::vector<int>     abs_mode_bucket;
+        std::vector<int>     tc_mode_bucket;
+        std::vector<int>     throttle_response_mode_bucket;
+        std::vector<float>   lean_angle_bucket;
+        std::vector<float>   battery_voltage_bucket;
+        std::vector<float>   oil_pressure_bucket;
+        std::vector<int>     gear_position_bucket;
+        std::vector<float>   water_temperature_bucket;
+        std::vector<int>     engine_speed_bucket;
+        std::vector<float>   acceleration_x_bucket;
+        std::vector<float>   acceleration_y_bucket;
+        std::vector<float>   acceleration_z_bucket;
 
         boost::circular_buffer<float>   air_temperature_buffer;
         boost::circular_buffer<int>     throttle_position_buffer;
@@ -83,6 +107,14 @@ class dataProcessing
         ConfigurableModesMessage received_config_message;
         IMUSensorMessage        received_imu_message;
         AccelerometerMessage    received_accel_message;
+
+        bool new_engine_message;
+        bool new_intake_message;
+        bool new_tpm_message;
+        bool new_abs_message;
+        bool new_config_message;
+        bool new_imu_message;
+        bool new_accel_message;
 };
 
 

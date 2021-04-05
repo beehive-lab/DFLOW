@@ -28,14 +28,17 @@ TEST_F(UDFModuleTest, TestDataInterface) {
     }
     time_t time_test = time(0);
     float lean_angle = 55.5;
+    int gear_position = 1;
     OnBoardDataInterface data_interface(dp_pipes_vector);
     write(dp_pipes_vector[TIMESTAMP_PIPE].rdwr[WRITE], &time_test,sizeof(time_t));
     write(dp_pipes_vector[LEAN_ANGLE_PIPE].rdwr[WRITE], &lean_angle, sizeof(float));
+    write(dp_pipes_vector[GEAR_POSITION_PIPE].rdwr[WRITE], &gear_position, sizeof(int));
     time_t received_time = data_interface.getSignalBatch();
     
     EXPECT_EQ(time_test, received_time);
     EXPECT_FLOAT_EQ(lean_angle,data_interface.getFloatData(LEAN_ANGLE_PIPE));
-    EXPECT_EQ(-1,data_interface.getIntegerData(GEAR_POSITION_PIPE));
+    EXPECT_EQ(1,data_interface.getIntegerData(GEAR_POSITION_PIPE));
+    EXPECT_EQ(-1, data_interface.getIntegerData(MOTORCYCLE_SPEED_PIPE));
 }
 
 TEST_F(UDFModuleTest, TestAddonFunctions) {

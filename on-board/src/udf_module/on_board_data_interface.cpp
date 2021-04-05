@@ -44,7 +44,7 @@ time_t OnBoardDataInterface::getSignalBatch(){
         battery_voltage = -1;
         if(!(read(processed_pipes_vector[OIL_PRESSURE_PIPE].rdwr[READ],&oil_pressure,sizeof(float)) > 0))
         oil_pressure = -1;
-        if(!(read(processed_pipes_vector[GEAR_POSITION_PIPE].rdwr[READ],&gear_position,sizeof(int)) > 0))
+        if(!(read(processed_pipes_vector[GEAR_POSITION_PIPE].rdwr[READ],&gear_position,sizeof(int)) > -1))
         gear_position = -1;
         if(!(read(processed_pipes_vector[WATER_TEMPERATURE_PIPE].rdwr[READ],&water_temperature,sizeof(float)) > 0))
         water_temperature = -1;
@@ -91,7 +91,7 @@ float OnBoardDataInterface::getFloatData(int data_id)
 
 int OnBoardDataInterface::getIntegerData(int data_id)
 {
-    if(data_id = THROTTLE_POSITION_PIPE)
+    if(data_id == THROTTLE_POSITION_PIPE)
         return throttle_position;
     else if(data_id == MOTORCYCLE_SPEED_PIPE)
         return motorcycle_speed;
