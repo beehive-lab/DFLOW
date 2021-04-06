@@ -36,4 +36,4 @@ jobs:
         - gcc -v && g++ -v && cmake --version
         - cmake .
         - cmake --build .
-        - ./TestCan && ./TestComms && ./TestDataProcessing
+        - ./TestCan && ./TestComms && ./TestDataProcessing && ./TestCrypto
