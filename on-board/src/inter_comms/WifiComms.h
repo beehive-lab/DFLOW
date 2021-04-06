@@ -6,7 +6,7 @@
 
 class WifiComms : public Communications {
 public:
-    explicit WifiComms(bool logging);
+    explicit WifiComms(bool logging, bool encryption);
 
     explicit WifiComms();
 
@@ -34,6 +34,8 @@ private:
     int server_socket_fd;
 
     bool logging;
+
+    bool encryption;
 
     SSL *ssl;
 
