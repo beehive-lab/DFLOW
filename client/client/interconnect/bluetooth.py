@@ -1,3 +1,7 @@
+"""
+NOTE: Currently bluetooth connectivity is only available on linux.
+"""
+
 import socket
 import ssl
 

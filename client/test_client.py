@@ -36,6 +36,14 @@ if __name__ == "__main__":
 
     try:
         link.connect()
+        print(
+            'Commands:\n'
+            ' - "exit": exit client\n'
+            ' - "disconnect": close socket\n'
+            ' - "reconnect": reconnect socket\n'
+            ' - "send:<message>": send <message> on socket\n'
+            ' - "recv": receive and print message from socket'
+        )
         while True:
             next_cmd = input('cmd:').strip().lower()
             if ':' in next_cmd:
