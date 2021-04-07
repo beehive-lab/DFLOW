@@ -21,6 +21,8 @@ private:
 
     void read_and_send(WifiComms wifiComms);
 
+    static void thread_starter(Logic logic, WifiComms comms);
+
     std::vector<Pipes> processed_pipes_vector;
 
     bool currently_streaming[18] {false};

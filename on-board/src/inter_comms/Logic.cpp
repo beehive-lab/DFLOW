@@ -4,6 +4,7 @@
 #include "ctime"
 #include <iostream>
 #include <cstring>
+#include <utility>
 #include <vector>
 #include <unistd.h>
 #include "pipes.hpp"
@@ -13,11 +14,9 @@ using namespace std;
 
 void Logic::read_and_send(WifiComms wifiComms) {
 
-    bool sending_data = true;
+    while (true) {
 
-    while (sending_data) {
-
-        sending_data = false;
+        bool sending_data = false;
         char *response = new char[BUFFER_SIZE];
 
         if (type_of_comms == 0) {
@@ -341,11 +340,6 @@ void Logic::read_and_send(WifiComms wifiComms) {
 
 void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) {
 
-    // This part doesn't work. I need to create a thread separately and this can't
-    // be done from a non-static method.
-
-    // thread values_thread(read_and_send, wifiComms);
-
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
         wifiComms.receive(receive_buffer);
@@ -353,6 +347,7 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
         char* token = strtok(receive_buffer, ":");
 
         while (token != nullptr) {
+            cout<<token<<endl;
 
             if (strcmp(token, "stream-bike-sensor-data") == 0) {
                 type_of_comms = 0;
@@ -400,7 +395,6 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
 
             token = strtok(nullptr, ":");
         }
-        return;
     }
 }
 
@@ -411,9 +405,11 @@ void Logic::Wifi_logic(bool logging, int port) {
 
     char receive_buffer[BUFFER_SIZE];
 
-    char send_buffer[BUFFER_SIZE];
+    thread send_thread(&Logic::read_and_send, this, wifi_comms);
 
     Logic::receive_loop(wifi_comms, receive_buffer);
+
+    send_thread.join();
 }
 
 void Logic::Bluetooth_logic(bool logging, int channel) {
@@ -421,5 +417,5 @@ void Logic::Bluetooth_logic(bool logging, int channel) {
 }
 
 Logic::Logic(vector<Pipes> processed_pipes_vector_init) {
-    Logic::processed_pipes_vector = processed_pipes_vector_init;
+    Logic::processed_pipes_vector = std::move(processed_pipes_vector_init);
 }
