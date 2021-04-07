@@ -55,7 +55,6 @@ class CAN_Decoder:
             decoded = self.database.decode_message(self.config_mode_message.frame_id, message.data)
             for key in decoded:
                     decoded[key] = str(decoded[key])
-                    print(decoded[key])
             decoded["MessageType"] = "ConfigurableMode"
             return decoded
 
