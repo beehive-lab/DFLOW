@@ -17,7 +17,7 @@ class CAN_Decoder:
         self.intake_message = self.database.get_message_by_name('INTAKE_SENSORS')
         self.abs_message = self.database.get_message_by_name('ABS_MODULE')
         self.tpm_message = self.database.get_message_by_name('TPM_MODULE')
-        self.config_mode_message = self.database.get_message_by_name("CONFIGURABLE_MODES")
+        self.config_mode_message = self.database.get_message_by_name('CONFIGURABLE_MODES')
         
     def get_message(self):
         message = self.can_bus.recv()
@@ -51,10 +51,11 @@ class CAN_Decoder:
                     decoded[key] = str(decoded[key])
             decoded["MessageType"] = "EngineSensors"
             return decoded
-        elif(Message.arbitration_id == self.config_mode_message.frame_id):
+        elif(message.arbitration_id == self.config_mode_message.frame_id):
             decoded = self.database.decode_message(self.config_mode_message.frame_id, message.data)
             for key in decoded:
                     decoded[key] = str(decoded[key])
+                    print(decoded[key])
             decoded["MessageType"] = "ConfigurableMode"
             return decoded
 
