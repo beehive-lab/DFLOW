@@ -97,15 +97,14 @@ int main() {
       processed_pipes_vector.push_back(new_pipe);
   }
 
-  //create threads
-  //std::thread first(retrieve,shrdFutureObj);
-  //std::thread second(set_data_processing_module,shrdFutureObj);
+  // create threads
+  std::thread first(retrieve,shrdFutureObj);
+  std::thread second(set_data_processing_module,shrdFutureObj);
 //  std::thread third(check_data_from_dprocess);
- // first.join();
- // second.join();
-//  third.join();
-
     std::thread logic_thread(logic_module_thread);
+    first.join();
+  second.join();
+//  third.join();
 
     logic_thread.join();
    return 0;
