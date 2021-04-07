@@ -83,13 +83,15 @@ set(SOURCE_FILES
                 src/data_processing_module/data_process_module.cpp
                 src/data_processing_module/pipes.cpp
                 src/inter_comms/WifiComms.cpp
-                src/inter_comms/BluetoothComms.cpp)
+                src/inter_comms/BluetoothComms.cpp
+                src/crypto/SymmetricEncryption.cpp)
  
 set(HEADER_FILES  src/config.hpp
                src/data_processing_module/data_process_module.hpp
                src/data_processing_module/pipes.hpp
                src/inter_comms/WifiComms.h
-               src/inter_comms/BluetoothComms.h)
+               src/inter_comms/BluetoothComms.h
+               src/crypto/SymmetricEncryption.h)
  
 include_directories( src/can_module src/ libs/can_module src/inter_comms src/data_processing_module src/can_module/messages src/udf_module)
  
@@ -102,6 +104,7 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
+link_libraries(ssl crypto)
 target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
 
 add_executable(DFLOW_OnBoard_WithAI src/mainWithAI.cpp ${SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${UDFMODULE_AI_SOURCE})
@@ -159,6 +162,13 @@ set(COMMS_TEST_FILES
                         src/inter_comms/WifiComms.cpp
                         src/inter_comms/BluetoothComms.cpp
 )
+
+set(CRYPTO_TEST_FILES
+        src/config.cpp
+        src/config.hpp
+        src/crypto/SymmetricEncryption.h
+        src/crypto/SymmetricEncryption.cpp
+)
  
 set(UDF_TEST_FILES
                         src/udf_module/on_board_data_interface.cpp
@@ -175,11 +185,13 @@ add_executable(TestPythonInterface test/pythoninterfacetest.cpp ${TEST_SOURCE_FI
 add_executable(TestComms test/communicationstest.cpp ${COMMS_TEST_FILES})
 add_executable(TestDataProcessing test/dataprocessingtest.cpp ${DATAP_TEST_FILES})
 add_executable(TestUDF test/udfmoduletest.cpp ${UDF_TEST_FILES})
+add_executable(TestCrypto test/cryptotest.cpp ${CRYPTO_TEST_FILES})
 target_link_libraries(TestCan PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
 target_link_libraries(TestPythonInterface PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
-target_link_libraries(TestComms PUBLIC gtest_main gmock_main)
+target_link_libraries(TestComms PUBLIC gtest_main gmock_main OpenSSL::SSL)
 target_link_libraries(TestDataProcessing PUBLIC gtest_main gmock_main)
 target_link_libraries(TestUDF PUBLIC gtest_main gmock_main)
+target_link_libraries(TestCrypto PUBLIC gtest_main OpenSSL::SSL)
 add_test(NAME canmoduletest COMMAND TestCan)
 
 
