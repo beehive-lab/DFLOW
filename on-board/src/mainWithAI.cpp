@@ -10,6 +10,7 @@
 #include <data_process_module.hpp>
 #include <boost/circular_buffer.hpp>
 #include "on_board_data_interface.hpp"
+#include "edgeAI_functions.hpp"
 using namespace std;
 
 //second release prototype
@@ -61,11 +62,10 @@ void set_data_processing_module(std::shared_future<void> futureObj)
 void check_data_from_dprocess()
 {
   OnBoardDataInterface data_interface(processed_pipes_vector);
+  DFLOW_Onboard_Addon_Functions AI_func(CRASH_FUNCTION, "./fdeep_crash_model.json");
   while(true)
   {
-    time_t time_of_batch = data_interface.getSignalBatch();
-    std::cout<<"Lean_Angle is "<<data_interface.getFloatData(LEAN_ANGLE_PIPE)<<std::endl;
-    std::cout<<"Gear Position is "<<data_interface.getIntegerData(GEAR_POSITION_PIPE)<<std::endl;
+    std::cout<<AI_func.crashAIfunction(data_interface)<<std::endl;
   }
 }
 
