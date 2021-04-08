@@ -15,7 +15,7 @@ int WifiComms::send(char *data) {
 
     try {
         if (logging) {
-            cout << "Sending: " << data;
+            cout << "Sending: " << data << endl;
         }
 
         int no_of_bytes = ::SSL_write(ssl, data, strlen(data));
