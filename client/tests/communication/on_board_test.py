@@ -26,7 +26,7 @@ class OnBoardTest(unittest.TestCase):
         on_board.start_streaming_data(['key1', 'key2', 'key3'])
         mock_build_message.assert_called_with(
             MessageCommand.STREAM_BIKE_SENSOR_DATA,
-            ['key1', 'key2', 'key3', 'start']
+            ['start', 'key1', 'key2', 'key3']
         )
         mock_comm_link.send.assert_called_with(mock_message.encode())
 
@@ -43,7 +43,7 @@ class OnBoardTest(unittest.TestCase):
         on_board.stop_streaming_data(['key1', 'key2', 'key3'])
         mock_build_message.assert_called_with(
             MessageCommand.STREAM_BIKE_SENSOR_DATA,
-            ['key1', 'key2', 'key3', 'stop']
+            ['stop', 'key1', 'key2', 'key3']
         )
         mock_comm_link.send.assert_called_with(mock_message.encode())
 

@@ -22,7 +22,7 @@ class OnBoard:
 
     def start_streaming_data(self, data_keys: [BikeSensorDataKey]) -> None:
         msg_command: MessageCommand = MessageCommand.STREAM_BIKE_SENSOR_DATA
-        msg_args: [str] = [str(data_key) for data_key in data_keys] + ['start']
+        msg_args: [str] = ['start'] + [str(data_key) for data_key in data_keys]
 
         message: str = build_message(
             msg_command,
@@ -33,7 +33,7 @@ class OnBoard:
 
     def stop_streaming_data(self, data_keys: [BikeSensorDataKey]) -> None:
         msg_command: MessageCommand = MessageCommand.STREAM_BIKE_SENSOR_DATA
-        msg_args: [str] = [str(data_key) for data_key in data_keys] + ['stop']
+        msg_args: [str] = ['stop'] + [str(data_key) for data_key in data_keys]
 
         message = build_message(
             msg_command,
