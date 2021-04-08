@@ -341,12 +341,18 @@ void dataProcessing::clearBuckets()
 
 int getIntegerAverageOfVector(std::vector<int> v)
 {
-    return std::accumulate(v.begin(),v.end(), 0) / static_cast<int>(v.size());
+    if(v.size() > 0)
+        return std::accumulate(v.begin(),v.end(), 0) / static_cast<int>(v.size());
+    else
+        return 0;
 }
 
 float getFloatAverageOfVector(std::vector<float> v)
 {
-    return static_cast<float>(std::accumulate(v.begin(),v.end(), 0.0))/ static_cast<float>(v.size());
+    if(v.size() > 0)
+        return static_cast<float>(std::accumulate(v.begin(),v.end(), 0.0))/ static_cast<float>(v.size());
+    else
+        return 0;
 }
 
 //helper function that pushes back the current module signals to the buffers

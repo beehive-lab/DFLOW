@@ -62,10 +62,20 @@ void set_data_processing_module(std::shared_future<void> futureObj)
 void check_data_from_dprocess()
 {
   OnBoardDataInterface data_interface(processed_pipes_vector);
-  DFLOW_Onboard_Addon_Functions AI_func(CRASH_FUNCTION, "./fdeep_crash_model.json");
+  DFLOW_Onboard_Addon_Functions AI_func;
   while(true)
   {
-    std::cout<<AI_func.crashAIfunction(data_interface)<<std::endl;
+    float result_of_function = AI_func.AIfunction(data_interface,std::vector<int>{LEAN_ANGLE_PIPE,ACCELERATION_X_PIPE,ACCELERATION_Y_PIPE},
+                                   std::vector<int>{FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE},
+                                   "./fdeep_crash_model.json");
+    if(result_of_function > 0.6)
+    {
+      std::cout<<"XXXXXXXXXXMotorcycle crashedXXXXXXXXXXXXXX"<<std::endl;
+    }
+    else
+    {
+      std::cout<<"XXXXXXXXXXMotorcycle did not crashXXXXXXXXXXXXXX"<<std::endl;
+    }
   }
 }
 
