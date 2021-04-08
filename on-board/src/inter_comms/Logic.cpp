@@ -376,9 +376,9 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
 }
 
 void Logic::Wifi_logic(bool logging, int port) {
-    WifiComms wifi_comms(logging);
+    WifiComms wifi_comms(logging, port);
 
-    wifi_comms.establish_connection(port);
+    wifi_comms.establish_connection();
 
     char receive_buffer[BUFFER_SIZE];
 
@@ -394,7 +394,7 @@ void Logic::Wifi_logic(bool logging, int port) {
 void Logic::Bluetooth_logic(bool logging, int channel) {
     BluetoothComms bt_comms(logging, channel);
 
-    bt_comms.establish_connection(channel);
+    bt_comms.establish_connection();
 
     char receive_buffer[BUFFER_SIZE];
 

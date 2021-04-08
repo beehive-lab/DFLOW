@@ -10,6 +10,24 @@
 
 using namespace std;
 
+WifiComms::WifiComms(bool logging, int port) : WifiComms() {
+    this->logging = logging;
+    this->port = port;
+}
+
+WifiComms::WifiComms(int port) : WifiComms() {
+    this->port = port;
+}
+
+WifiComms::WifiComms() {
+    this->port = 8080;
+    this->logging = false;
+    server_socket_fd = -1;
+    client_socket_fd = -1;
+    server_info = nullptr;
+    ssl = nullptr;
+    context = nullptr;
+};
 
 int WifiComms::send(char *data) {
 
@@ -108,7 +126,7 @@ int WifiComms::disconnect() {
     }
 }
 
-int WifiComms::create_socket(int port) {
+int WifiComms::create_socket() {
 
     try {
         struct addrinfo hints{};
@@ -247,7 +265,7 @@ int WifiComms::load_certificates(SSL_CTX * context, char * certificate_file, cha
     }
 }
 
-int WifiComms::establish_connection(int port) {
+int WifiComms::establish_connection() {
 
     SSL_library_init();
     OpenSSL_add_all_algorithms();
@@ -291,7 +309,7 @@ int WifiComms::establish_connection(int port) {
 
     load_certificates(context, on_board_cert, on_board_key, rootCA);
 
-    int socket_creation_status = create_socket(port);
+    int socket_creation_status = create_socket();
     if (socket_creation_status == -1) {
         return -1;
     }
@@ -322,16 +340,3 @@ int WifiComms::establish_connection(int port) {
 
     return 0;
 }
-
-WifiComms::WifiComms(bool logging) : WifiComms() {
-    this->logging = logging;
-}
-
-WifiComms::WifiComms() {
-    this->logging = false;
-    server_socket_fd = -1;
-    client_socket_fd = -1;
-    server_info = nullptr;
-    ssl = nullptr;
-    context = nullptr;
-};
