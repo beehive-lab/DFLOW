@@ -163,10 +163,10 @@ class NetworkLinkTestCase(unittest.TestCase):
         self.assertEqual(
             [
                 call.create(socket.AF_INET, socket.SOCK_STREAM),
-                call.settimeout(5),
+                call.settimeout(20),
                 call.close(),
                 call.create(socket.AF_INET, socket.SOCK_STREAM),
-                call.settimeout(5),
+                call.settimeout(20),
                 call.connect((self._test_host_name, self._test_port_num))
             ],
             mock_call_manager.mock_calls

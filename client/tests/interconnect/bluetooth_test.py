@@ -170,14 +170,14 @@ class BluetoothLinkTestCase(unittest.TestCase):
                     socket.SOCK_STREAM,
                     socket.BTPROTO_RFCOMM
                 ),
-                call.settimeout(5),
+                call.settimeout(20),
                 call.close(),
                 call.create(
                     socket.AF_BLUETOOTH,
                     socket.SOCK_STREAM,
                     socket.BTPROTO_RFCOMM
                 ),
-                call.settimeout(5),
+                call.settimeout(20),
                 call.connect((self._test_mac_address, self._test_channel_num))
             ],
             mock_call_manager.mock_calls
