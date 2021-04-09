@@ -33,68 +33,89 @@ BluetoothComms::BluetoothComms() {
 
 int BluetoothComms::send(char *data) {
 
-    try {
+    int no_of_bytes;
+
+    if (encryption) {
         if (logging) {
-            cout << "Sending: " << data << endl;
+            cout << "Sending securely: " << data << endl;
+        }
+        no_of_bytes = ::SSL_write(ssl, data, strlen(data));
+
+        if (no_of_bytes <= 0) {
+            cout << "Error sending the message" << endl;
+            return no_of_bytes;
         }
 
-        int no_of_bytes;
-
-        if (encryption) {
-            no_of_bytes = ::SSL_write(ssl, data, strlen(data));
-        } else {
-            no_of_bytes = ::send(client_socket_fd, data, strlen(data), 0);
+        if (logging) {
+            cout << "Successfully sent " << no_of_bytes << " bytes (securely)" << endl;
         }
+
+    } else {
+        if (logging) {
+            cout << "Sending insecurely: " << data << endl;
+        }
+        no_of_bytes = ::send(client_socket_fd, data, strlen(data), 0);
 
         if (no_of_bytes == -1) {
-            throw runtime_error("Error sending the message");
+            cout << "Error sending the message" << endl;
+            return no_of_bytes;
         }
 
         if (logging) {
-            cout << "Successfully sent " << no_of_bytes << " bytes" << endl;
+            cout << "Successfully sent " << no_of_bytes << " bytes (insecurely)" << endl;
         }
+    }
 
-        return no_of_bytes;
-    }
-    catch (exception &exception) {
-        cerr << exception.what() << endl;
-        return -1;
-    }
+    return no_of_bytes;
 }
 
 int BluetoothComms::receive(char buffer[BUFFER_SIZE]) {
 
-    try {
+    int no_of_bytes;
+
+    if (encryption) {
         if (logging) {
-            cout << "Waiting to receive a message" << endl;
+            cout << "Waiting to receive a secure message" << endl;
         }
 
-        int no_of_bytes;
+        no_of_bytes = SSL_read(ssl, buffer, BUFFER_SIZE);
 
-        if (encryption) {
-            no_of_bytes = SSL_read(ssl, buffer, BUFFER_SIZE);
-        } else {
-            no_of_bytes = recv(client_socket_fd, buffer, BUFFER_SIZE, 0);
+        if (no_of_bytes > 0) {
+            if (logging) {
+                cout << "Successfully received " << no_of_bytes << " bytes (securely)" << endl;
+            }
         }
+        if (no_of_bytes <= 0) {
+            if (logging) {
+                cout << "An error has occurred or the connection has been closed" << endl;
+            }
+            disconnect();
+        }
+    } else {
+        if (logging) {
+            cout << "Waiting to receive an insecure message" << endl;
+        }
+
+        no_of_bytes = ::recv(client_socket_fd, buffer, BUFFER_SIZE, 0);
 
         if (no_of_bytes == -1) {
-            throw runtime_error("Error receiving the message");
+            cout << "Error receiving the message" << endl;
+            disconnect();
+            return no_of_bytes;
         }
 
         if (no_of_bytes == 0) {
-            throw runtime_error("Connection was closed");
+            cout << "Connection was closed" << endl;
+            disconnect();
+            return no_of_bytes;
         }
 
         if (logging) {
-            cout << "Successfully received " << no_of_bytes << " bytes" << endl;
+            cout << "Successfully received " << no_of_bytes << " bytes (insecurely)" << endl;
         }
+    }
 
-        return no_of_bytes;
-    }
-    catch (exception &exception) {
-        cerr << exception.what() << endl;
-        return -1;
-    }
+    return no_of_bytes;
 }
 
 int BluetoothComms::disconnect() {
@@ -102,6 +123,7 @@ int BluetoothComms::disconnect() {
     try {
 
         if (logging) {
+            cout<<"Disconnecting..."<<endl;
             cout << "Closing the server socket" << endl;
         }
 
@@ -228,7 +250,11 @@ int BluetoothComms::listen_socket() {
 int BluetoothComms::accept_connection() {
     try {
         if (logging) {
-            cout << "Accepting a new connection" << endl;
+            if (encryption) {
+                cout << "Accepting a new secure connection" << endl;
+            } else {
+                cout<< "Accepting a new insecure connection" << endl;
+            }
         }
 
         struct sockaddr_storage client_address{};
@@ -240,7 +266,11 @@ int BluetoothComms::accept_connection() {
         }
 
         if (logging) {
-            cout << "Successfully accepted " << socket_fd << endl;
+            if (encryption) {
+                cout << "Successfully accepted " << socket_fd << " (securely)" << endl;
+            } else {
+                cout << "Successfully accepted " << socket_fd << " (insecurely)" << endl;
+            }
         }
         client_socket_fd = socket_fd;
 
@@ -291,11 +321,7 @@ int BluetoothComms::establish_connection() {
         if (!context) {
             return -1;
         }
-        const char *homedir;
-
-        if ((homedir = getenv("HOME")) == nullptr) {
-            homedir = getpwuid(getuid())->pw_dir;
-        }
+        const char *homedir = DFLOW_HOME;
 
         char on_board_cert[256], on_board_key[256], rootCA[256];
 

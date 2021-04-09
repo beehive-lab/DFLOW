@@ -11,9 +11,9 @@ public:
 
     explicit Logic(std::vector<Pipes> processed_pipes_vector);
 
-    void Wifi_logic(bool logging, int port);
+    void Wifi_logic(bool logging, bool encryption, int port);
 
-    void Bluetooth_logic(bool logging, int channel);
+    void Bluetooth_logic(bool logging, bool encryption, int channel);
 
 private:
 

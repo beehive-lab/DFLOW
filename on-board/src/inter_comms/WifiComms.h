@@ -6,7 +6,7 @@
 
 class WifiComms : public Communications {
 public:
-    explicit WifiComms(bool logging, int port);
+    explicit WifiComms(bool logging, bool encryption, int port);
 
     explicit WifiComms(int port);
 
@@ -30,6 +30,8 @@ public:
 
 private:
     int port;
+
+    bool encryption;
 
     struct addrinfo *server_info;
 
