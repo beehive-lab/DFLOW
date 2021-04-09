@@ -11,7 +11,7 @@ class MessageCommand(Enum):
         return self.value
 
 
-class BikeSensorDataKey(Enum):
+class SensorDataKey(Enum):
     """
     The keys for different types of bike sensor data.
     """

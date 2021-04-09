@@ -2,7 +2,7 @@ import socket
 from threading import Thread
 
 from client.communication.messages import (
-    BikeSensorDataKey,
+    SensorDataKey,
     MessageCommand,
     build_message
 )
@@ -20,7 +20,7 @@ class OnBoard:
     def get_incoming_msg(self) -> bytes:
         return self._comm_link.receive()
 
-    def start_streaming_data(self, data_keys: [BikeSensorDataKey]) -> None:
+    def start_streaming_data(self, data_keys: [SensorDataKey]) -> None:
         msg_command: MessageCommand = MessageCommand.STREAM_BIKE_SENSOR_DATA
         msg_args: [str] = ['start'] + [str(data_key) for data_key in data_keys]
 
@@ -31,7 +31,7 @@ class OnBoard:
 
         self._comm_link.send(message.encode())
 
-    def stop_streaming_data(self, data_keys: [BikeSensorDataKey]) -> None:
+    def stop_streaming_data(self, data_keys: [SensorDataKey]) -> None:
         msg_command: MessageCommand = MessageCommand.STREAM_BIKE_SENSOR_DATA
         msg_args: [str] = ['stop'] + [str(data_key) for data_key in data_keys]
 
@@ -100,7 +100,7 @@ class IncomingMessageHandler(Thread):
             (timestamp, data_value)
         )
 
-    def get_recorded_sensor_data(self, data_type: BikeSensorDataKey) -> []:
+    def get_recorded_sensor_data(self, data_type: SensorDataKey) -> []:
         if data_type in self.received_data[self._SENSOR_DATA_KEY]:
             return self.received_data[self._SENSOR_DATA_KEY][str(data_type)]
         else:

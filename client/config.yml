@@ -21,6 +21,8 @@ help:
   print_recorded_sensor_data: |-
     Print all the data sent from the on-board for a particular sensor type.
     Type 'help:sensor_data_types' to list options.
+  plot_sensor_data: |-
+    Plot sensor data on a graph over time. Output is saved to a file with the specified name.
   sensor_data_types: |-
     AIR_TEMPERATURE
     THROTTLE_POSITION
