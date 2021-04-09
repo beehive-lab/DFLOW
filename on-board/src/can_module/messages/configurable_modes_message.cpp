@@ -3,7 +3,7 @@
 void ConfigurableModesMessage::set_from_map(std::map<std::string,std::string> value_map)
 {
     ConfigurableModesMessage::data.abs_mode = std::stoi(value_map["ABSMode"]);
-    ConfigurableModesMessage::data.tc_mode = std::stoi(value_map["TCMODE"]);
+    ConfigurableModesMessage::data.tc_mode = std::stoi(value_map["TCMode"]);
     ConfigurableModesMessage::data.throttle_response_mode = std::stoi(value_map["ThrottleResponseMode"]);
 }
 
