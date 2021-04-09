@@ -22,6 +22,10 @@ void Logic::read_and_send(WifiComms wifiComms) {
         bool sending_data = false;
         char *response = new char[BUFFER_SIZE];
 
+        if (type_of_comms == 1) {
+
+        }
+
         if (type_of_comms == 0) {
             strcat(response, "stream-bike-sensor-data");
         }
@@ -310,6 +314,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
 
 void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) {
 
+    int abs_mode = -1, tc_mode = -1, tr_mode = -1;
+
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
         wifiComms.receive(receive_buffer);
@@ -317,7 +323,10 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
         char* token = strtok(receive_buffer, ":");
 
         while (token != nullptr) {
-            if (strcmp(token, "stream-bike-sensor-data") == 0) {
+            if (strcmp(token, "configure-pipe") == 0) {
+                type_of_comms = 1;
+            }
+            else if (strcmp(token, "stream-bike-sensor-data") == 0) {
                 type_of_comms = 0;
             } else if (strcmp(token, "quit") == 0) {
                 stopping = true;
@@ -368,6 +377,14 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                 currently_streaming[WATER_TEMPERATURE_PIPE] = starting;
             } else if (strcmp(token, "engine_speed") == 0) {
                 currently_streaming[ENGINE_SPEED_PIPE] = starting;
+            } else if (type_of_comms == 1) {
+                if (abs_mode == -1) {
+                    abs_mode = stoi(token);
+                } else if (tc_mode == -1) {
+                    tc_mode = stoi(token);
+                } else if (tr_mode == -1) {
+                    tr_mode = stoi(token);
+                }
             }
 
             token = strtok(nullptr, ":");
