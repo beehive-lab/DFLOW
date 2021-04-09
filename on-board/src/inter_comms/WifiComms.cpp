@@ -39,7 +39,7 @@ int WifiComms::send(char *data) {
 
 
     if (no_of_bytes <= 0) {
-        cout<<"Error sending the message. Trying to send again."<<endl;
+        cout<<"Error sending the message."<<endl;
         return no_of_bytes;
     }
 

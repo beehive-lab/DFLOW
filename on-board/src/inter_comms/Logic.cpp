@@ -24,10 +24,6 @@ void Logic::read_and_send(WifiComms wifiComms) {
         bool sending_data = false;
         char *response = new char[BUFFER_SIZE];
 
-        if (type_of_comms == 1) {
-
-        }
-
         if (type_of_comms == 0) {
             strcat(response, "stream-bike-sensor-data");
         }
@@ -402,17 +398,15 @@ void Logic::Wifi_logic(bool logging, int port) {
 
     WifiComms wifi_comms(logging, port);
 
-    while (true) {
-        wifi_comms.establish_connection();
+    char receive_buffer[BUFFER_SIZE];
 
-        thread send_thread(&Logic::read_and_send, this, wifi_comms);
+    wifi_comms.establish_connection();
 
-        char receive_buffer[BUFFER_SIZE];
+    thread send_thread(&Logic::read_and_send, this, wifi_comms);
 
-        Logic::receive_loop(wifi_comms, receive_buffer);
+    Logic::receive_loop(wifi_comms, receive_buffer);
 
-        send_thread.join();
-    }
+    send_thread.join();
 }
 
 void Logic::Bluetooth_logic(bool logging, int channel) {
