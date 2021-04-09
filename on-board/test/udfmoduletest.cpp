@@ -51,7 +51,7 @@ TEST_F(UDFModuleTest, TestAddonFunctions) {
         dp_pipes_vector.push_back(new_pipe);
     }
     OnBoardDataInterface data_interface(dp_pipes_vector);
-    DFLOW_Onboard_Addon_Functions AI_func(CRASH_FUNCTION, "./fdeep_crash_model.json");
+    DFLOW_Onboard_Addon_Functions AI_func;
 
     float lean_angle = 0,acceleration_x = 0, acceleration_y = 0;
     time_t time_test = time(0);
@@ -61,9 +61,11 @@ TEST_F(UDFModuleTest, TestAddonFunctions) {
     write(dp_pipes_vector[ACCELERATION_X_PIPE].rdwr[WRITE], &acceleration_x, sizeof(float));
     write(dp_pipes_vector[ACCELERATION_Y_PIPE].rdwr[WRITE], &acceleration_y, sizeof(float));
 
-    bool result = AI_func.crashAIfunction(data_interface);
+    float result = AI_func.AIfunction(data_interface,std::vector<int>{LEAN_ANGLE_PIPE,ACCELERATION_X_PIPE,ACCELERATION_Y_PIPE},
+                                   std::vector<int>{FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE},
+                                   "./fdeep_crash_model.json");
 
-    EXPECT_FALSE(result);
+    EXPECT_LE(result,0.5);
 }
 
 }

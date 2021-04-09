@@ -198,4 +198,4 @@ add_test(NAME canmoduletest COMMAND TestCan)
 
 CONFIGURE_FILE(src/can_module/python_module.py python_module.py COPYONLY)
 CONFIGURE_FILE(src/can_module/DFLOW.dbc DFLOW.dbc COPYONLY)
-
+CONFIGURE_FILE(src/udf_module/fdeep_crash_model.json fdeep_crash_model.json COPYONLY)
