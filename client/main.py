@@ -22,6 +22,7 @@ class AppConfig:
     priv_key_file_path: str
     ca_cert_file_path: str
     help_dict: {str: str}
+    socket_timeout: int
 
 
 class ConnectionMethod(Enum):
@@ -62,7 +63,10 @@ class Client:
 
                     self.process_command(next_command, on_board, msg_handler)
             finally:
+                print('Preparing to shut down...')
                 msg_handler.stop()
+                msg_handler.join()
+                print('Shutting down...')
 
     def get_connection_to_on_board(self) -> CommLink:
         """
@@ -86,7 +90,8 @@ class Client:
                 self._app_config.ca_cert_file_path,
                 self._app_config.cert_file_path,
                 self._app_config.priv_key_file_path,
-                secure=use_secure_connection
+                secure=use_secure_connection,
+                timeout=self._app_config.socket_timeout
             )
         else:
             host = input('Enter on-board hostname: ')
@@ -97,7 +102,8 @@ class Client:
                 self._app_config.ca_cert_file_path,
                 self._app_config.cert_file_path,
                 self._app_config.priv_key_file_path,
-                secure=use_secure_connection
+                secure=use_secure_connection,
+                timeout=self._app_config.socket_timeout
             )
 
         return comm_link
@@ -202,7 +208,8 @@ def load_app_config() -> AppConfig:
             os.path.expanduser(config['security']['cert_file_path']),
             os.path.expanduser(config['security']['priv_key_file_path']),
             os.path.expanduser(config['security']['ca_cert_file_path']),
-            config['help']
+            config['help'],
+            config['socket']['timeout']
         )
 
     return app_config

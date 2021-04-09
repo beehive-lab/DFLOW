@@ -1,3 +1,6 @@
+socket:
+  timeout: 20
+
 security:
   cert_file_path: ~/.dflow/certs/client/client.crt
   priv_key_file_path: ~/.dflow/certs/client/client.key
@@ -10,9 +13,11 @@ help:
   start_sensor_data_stream: |-
     Start streaming one or more types of sensor data from the on-board.
     Type 'help:sensor_data_types' to list options.
+    NOTE: "start_sensor_data_stream:all" starts streaming all sensor data types.
   stop_sensor_data_stream:  |-
     Stop streaming one or more types of sensor data from the on-board.
     Type 'help:sensor_data_types' to list options.
+    NOTE: "stop_sensor_data_stream:all" stops streaming all sensor data types.
   print_recorded_sensor_data: |-
     Print all the data sent from the on-board for a particular sensor type.
     Type 'help:sensor_data_types' to list options.

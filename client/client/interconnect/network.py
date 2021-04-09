@@ -17,6 +17,7 @@ class NetworkLink(CommLink):
         cert_file: str,
         key_file: str,
         verify_host_name: bool = False,
+        timeout: int = 20,
         secure: bool = True
     ):
         self._connected = False
@@ -26,6 +27,7 @@ class NetworkLink(CommLink):
         self._cert_file: str = cert_file
         self._key_file: str = key_file
         self._verify_host_name = verify_host_name
+        self._timeout = timeout
         self._sock: socket.socket = (
             self._create_secure_network_socket()
             if secure else
@@ -51,7 +53,7 @@ class NetworkLink(CommLink):
             socket.AF_INET,
             socket.SOCK_STREAM
         )
-        sock.settimeout(5)
+        sock.settimeout(self._timeout)
         return sock
 
     def __enter__(self):

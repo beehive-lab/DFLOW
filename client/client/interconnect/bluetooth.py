@@ -21,7 +21,8 @@ class BluetoothLink(CommLink):
         cert_file: str,
         key_file: str,
         verify_host_name: bool = False,
-        secure: bool = True
+        secure: bool = True,
+        timeout: int = 20
     ):
         self._connected = False
         self._mac_addr: str = mac_addr
@@ -30,6 +31,7 @@ class BluetoothLink(CommLink):
         self._cert_file: str = cert_file
         self._key_file: str = key_file
         self._verify_host_name = verify_host_name
+        self._timeout = timeout
         self._sock: socket.socket = (
             self._create_secure_bluetooth_socket()
             if secure else
@@ -56,7 +58,7 @@ class BluetoothLink(CommLink):
             socket.SOCK_STREAM,
             socket.BTPROTO_RFCOMM
         )
-        sock.settimeout(5)
+        sock.settimeout(self._timeout)
         return sock
 
     def __enter__(self):
