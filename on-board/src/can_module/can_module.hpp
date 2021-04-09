@@ -23,7 +23,7 @@ class CAN_Module{
         CAN_Module(std::string,std::string,std::string,CAN_Interface* = new CAN_Python_Interface());
         CAN_Module(std::string,std::string,CAN_Interface* = new CAN_Python_Interface());
         void setListener(std::vector<Pipes>, std::shared_future<void>);
-        void sendConfigMessage(ConfigurableModesMessage);
+        void sendConfigMessage(int,int,int);
     private:
         std::string dbc_file_path;
         std::string python_file_path;
