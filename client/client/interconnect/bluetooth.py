@@ -20,17 +20,25 @@ class BluetoothLink(CommLink):
         ca_cert_file: str,
         cert_file: str,
         key_file: str,
-        verify_host_name: bool = False
+        verify_host_name: bool = False,
+        secure: bool = True,
+        timeout: int = 20
     ):
+        self._connected = False
         self._mac_addr: str = mac_addr
         self._channel: int = channel
         self._ca_cert_file: str = ca_cert_file
         self._cert_file: str = cert_file
         self._key_file: str = key_file
         self._verify_host_name = verify_host_name
-        self._sock: socket.socket = self._create_secure_socket()
+        self._timeout = timeout
+        self._sock: socket.socket = (
+            self._create_secure_bluetooth_socket()
+            if secure else
+            self._create_bluetooth_socket()
+        )
 
-    def _create_secure_socket(self) -> socket.socket:
+    def _create_secure_bluetooth_socket(self) -> socket.socket:
         ssl_context: ssl.SSLContext = ssl.create_default_context(
             cafile=self._ca_cert_file
         )
@@ -41,28 +49,35 @@ class BluetoothLink(CommLink):
         ssl_context.check_hostname = self._verify_host_name
 
         return ssl_context.wrap_socket(
-            socket.socket(
-                socket.AF_BLUETOOTH,
-                socket.SOCK_STREAM,
-                socket.BTPROTO_RFCOMM
-            )
+            self._create_bluetooth_socket()
         )
+
+    def _create_bluetooth_socket(self) -> socket.socket:
+        sock: socket.socket = socket.socket(
+            socket.AF_BLUETOOTH,
+            socket.SOCK_STREAM,
+            socket.BTPROTO_RFCOMM
+        )
+        sock.settimeout(self._timeout)
+        return sock
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        self._sock.close()
+        self.disconnect()
 
     def connect(self) -> None:
         self._sock.connect((self._mac_addr, self._channel))
+        self._connected = True
 
     def reconnect(self) -> None:
-        self._sock.close()
-        self._sock = self._create_secure_socket()
+        self.disconnect()
+        self._sock = self._create_secure_bluetooth_socket()
         self.connect()
 
     def disconnect(self) -> None:
+        self._connected = False
         self._sock.close()
 
     def send(self, data: bytes) -> None:
@@ -70,3 +85,6 @@ class BluetoothLink(CommLink):
 
     def receive(self, buffer_size: int = 1024) -> bytes:
         return self._sock.recv(buffer_size)
+
+    def is_connected(self) -> bool:
+        return self._connected

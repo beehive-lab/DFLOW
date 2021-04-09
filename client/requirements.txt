@@ -5,3 +5,4 @@ mccabe==0.6.1
 parameterized==0.7.4
 pycodestyle==2.6.0
 pyflakes==2.2.0
+PyYAML==5.4.1
