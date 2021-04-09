@@ -6,7 +6,7 @@
 
 class BluetoothComms: public Communications {
 public:
-    explicit BluetoothComms(bool logging, int channel);
+    explicit BluetoothComms(bool logging, bool encryption, int channel);
 
     explicit BluetoothComms(int channel);
 
@@ -34,6 +34,8 @@ private:
     int client_socket_fd;
 
     bool logging;
+
+    bool encryption;
 
     int channel;
 

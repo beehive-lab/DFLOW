@@ -3,6 +3,8 @@
 
 #define BUFFER_SIZE 1024
 
+#include "config.hpp"
+
 class Communications {
 public:
     virtual int send(char *data) = 0;

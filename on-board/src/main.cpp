@@ -74,7 +74,7 @@ void check_data_from_dprocess()
 void logic_module_thread()
 {
   Logic logic_module = Logic(processed_pipes_vector);
-  logic_module.Wifi_logic(true,8080);
+  logic_module.Wifi_logic(true, true, 8080);
 }
 
 int main() {
