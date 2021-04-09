@@ -31,57 +31,45 @@ WifiComms::WifiComms() {
 };
 
 int WifiComms::send(char *data) {
+    if (logging) {
+        cout << "Sending: " << data << endl;
+    }
 
-    try {
-        if (logging) {
-            cout << "Sending: " << data << endl;
-        }
+    int no_of_bytes = ::SSL_write(ssl, data, strlen(data));
 
-        int no_of_bytes = ::SSL_write(ssl, data, strlen(data));
 
-        if (no_of_bytes == -1) {
-            throw runtime_error("Error sending the message");
-        }
-
-        if (logging) {
-            cout << "Successfully sent " << no_of_bytes << " bytes" << endl;
-        }
-
+    if (no_of_bytes <= 0) {
+        cout<<"Error sending the message. Trying to send again."<<endl;
         return no_of_bytes;
     }
-    catch (exception &exception) {
-        cerr << exception.what() << endl;
-        return -1;
+
+    if (logging) {
+        cout << "Successfully sent " << no_of_bytes << " bytes" << endl;
     }
+
+    return no_of_bytes;
 }
 
 int WifiComms::receive(char buffer[BUFFER_SIZE]) {
+    if (logging) {
+        cout << "Waiting to receive a message" << endl;
+    }
 
-    try {
-        if (logging) {
-            cout << "Waiting to receive a message" << endl;
-        }
+    int no_of_bytes = SSL_read(ssl, buffer, BUFFER_SIZE);
 
-        int no_of_bytes = SSL_read(ssl, buffer, BUFFER_SIZE);
-
-        if (no_of_bytes == -1) {
-            throw runtime_error("Error receiving the message");
-        }
-
-        if (no_of_bytes == 0) {
-            throw runtime_error("Connection was closed");
-        }
-
+    if (no_of_bytes > 0) {
         if (logging) {
             cout << "Successfully received " << no_of_bytes << " bytes" << endl;
         }
+    }
+    if (no_of_bytes <= 0) {
+        if (logging) {
+            cout<< "An error has occurred or the connection has been closed" << endl;
+        }
+        disconnect();
+    }
 
-        return no_of_bytes;
-    }
-    catch (exception &exception) {
-        cerr << exception.what() << endl;
-        return -1;
-    }
+    return no_of_bytes;
 }
 
 int WifiComms::disconnect() {
@@ -89,6 +77,7 @@ int WifiComms::disconnect() {
     try {
 
         if (logging) {
+            cout<<"Disconnecting..."<<endl;
             cout << "Closing the server socket" << endl;
         }
 

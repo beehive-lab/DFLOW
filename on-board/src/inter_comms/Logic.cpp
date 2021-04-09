@@ -318,7 +318,11 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
 
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
-        wifiComms.receive(receive_buffer);
+        int bytes_received = wifiComms.receive(receive_buffer);
+        if (bytes_received <= 0) {
+            stopping = true;
+            return;
+        }
 
         char* token = strtok(receive_buffer, ":");
 
@@ -328,9 +332,6 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
             }
             else if (strcmp(token, "stream-bike-sensor-data") == 0) {
                 type_of_comms = 0;
-            } else if (strcmp(token, "quit") == 0) {
-                stopping = true;
-                return;
             } else if (strcmp(token, "start") == 0) {
                 starting = true;
             } else if (strcmp(token, "stop") == 0) {
@@ -393,19 +394,20 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
 }
 
 void Logic::Wifi_logic(bool logging, int port) {
+
     WifiComms wifi_comms(logging, port);
 
-    wifi_comms.establish_connection();
+    while (true) {
+        wifi_comms.establish_connection();
 
-    char receive_buffer[BUFFER_SIZE];
+        thread send_thread(&Logic::read_and_send, this, wifi_comms);
 
-    thread send_thread(&Logic::read_and_send, this, wifi_comms);
+        char receive_buffer[BUFFER_SIZE];
 
-    Logic::receive_loop(wifi_comms, receive_buffer);
+        Logic::receive_loop(wifi_comms, receive_buffer);
 
-    send_thread.join();
-
-    wifi_comms.disconnect();
+        send_thread.join();
+    }
 }
 
 void Logic::Bluetooth_logic(bool logging, int channel) {
