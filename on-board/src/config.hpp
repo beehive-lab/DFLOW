@@ -5,4 +5,6 @@
 
 extern const std::string dbc_file_path;
 
+extern const char *DFLOW_HOME;
+
 #endif

@@ -1,4 +1,5 @@
 #include "WifiComms.h"
+#include "config.hpp"
 #include <cstring>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -277,22 +278,18 @@ int WifiComms::establish_connection() {
         return -1;
     }
 
-    const char *homedir;
-
-    if ((homedir = getenv("HOME")) == nullptr) {
-        homedir = getpwuid(getuid())->pw_dir;
-    }
+    const char *homedir = DFLOW_HOME;
 
     char on_board_cert[256], on_board_key[256], rootCA[256];
 
     strcpy(on_board_cert, homedir);
-    strcat(on_board_cert, "/DFLOW/test_certs/on-board/on-board.crt");
+    strcat(on_board_cert, "/test_certs/on-board/on-board.crt");
 
     strcpy(on_board_key, homedir);
-    strcat(on_board_key, "/DFLOW/test_certs/on-board/on-board.key");
+    strcat(on_board_key, "/test_certs/on-board/on-board.key");
 
     strcpy(rootCA, homedir);
-    strcat(rootCA, "/DFLOW/test_certs/rootCA/rootCA.crt");
+    strcat(rootCA, "/test_certs/rootCA/rootCA.crt");
 
 
     if (!filesystem::exists(on_board_cert)) {
