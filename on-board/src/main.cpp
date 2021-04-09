@@ -11,6 +11,7 @@
 #include <boost/circular_buffer.hpp>
 #include "Logic.h"
 #include "on_board_data_interface.hpp"
+#include "config.hpp"
 using namespace std;
 
 //second release prototype
@@ -22,7 +23,7 @@ std::vector<Pipes> processed_pipes_vector;
 //set can module
 void retrieve(std::shared_future<void> futureObj)
 {
-  CAN_Module can_module = CAN_Module(std::string("./DFLOW.dbc"),std::string("notusedatthemom"),std::string("./accel_file.txt"));
+  CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH,ACCELEROMETER_PATH);
   can_module.setListener(can_pipes_vector, futureObj);
 }
 

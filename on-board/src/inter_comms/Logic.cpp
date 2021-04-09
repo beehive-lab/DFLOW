@@ -10,6 +10,8 @@
 #include <on_board_data_interface.hpp>
 #include "pipes.hpp"
 #include "thread"
+#include "can_module.hpp"
+#include "config.hpp"
 
 using namespace std;
 
@@ -384,6 +386,9 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                     tc_mode = stoi(token);
                 } else if (tr_mode == -1) {
                     tr_mode = stoi(token);
+                } else {
+                    CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
+                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
                 }
             }
 

@@ -77,7 +77,7 @@ TEST_F(ModuleTest,TestSender)
   CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"),std::string("test"),&can_interface);
 
   //can_module.setInterface(&can_interface);
-  can_module.sendConfigMessage(test_message);
+  can_module.sendConfigMessage(test_message.data.abs_mode, test_message.data.tc_mode, test_message.data.throttle_response_mode);
 }
 
 }
