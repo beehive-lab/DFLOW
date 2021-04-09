@@ -10,7 +10,7 @@ namespace {
 
     class MockWifiComms : public WifiComms {
         public:
-            MOCK_METHOD(int, create_socket, (int), (override));
+            MOCK_METHOD(int, create_socket, (), (override));
             MOCK_METHOD(int, bind_socket, (), (override));
             MOCK_METHOD(int, listen_socket, (), (override));
             MOCK_METHOD(int, accept_connection, (), (override));
@@ -63,7 +63,7 @@ namespace {
 
     class MockBluetoothComms : public BluetoothComms {
     public:
-        MOCK_METHOD(int, create_socket, (int), (override));
+        MOCK_METHOD(int, create_socket, (), (override));
         MOCK_METHOD(int, bind_socket, (), (override));
         MOCK_METHOD(int, listen_socket, (), (override));
         MOCK_METHOD(int, accept_connection, (), (override));

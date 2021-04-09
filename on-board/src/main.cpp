@@ -9,7 +9,9 @@
 #include <BluetoothComms.h>
 #include <data_process_module.hpp>
 #include <boost/circular_buffer.hpp>
+#include "Logic.h"
 #include "on_board_data_interface.hpp"
+#include "config.hpp"
 using namespace std;
 
 //second release prototype
@@ -21,7 +23,7 @@ std::vector<Pipes> processed_pipes_vector;
 //set can module
 void retrieve(std::shared_future<void> futureObj)
 {
-  CAN_Module can_module = CAN_Module(std::string("./DFLOW.dbc"),std::string("notusedatthemom"),std::string("./accel_file.txt"));
+  CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH,ACCELEROMETER_PATH);
   can_module.setListener(can_pipes_vector, futureObj);
 }
 
@@ -69,6 +71,11 @@ void check_data_from_dprocess()
   }
 }
 
+void logic_module_thread()
+{
+  Logic logic_module = Logic(processed_pipes_vector);
+  logic_module.Wifi_logic(true,8080);
+}
 
 int main() {
 
@@ -76,7 +83,7 @@ int main() {
   std::promise<void> exitSignal;
   std::future<void> futureObj = exitSignal.get_future();
   std::shared_future<void> shrdFutureObj = futureObj.share();
-  
+
   //initialize can pipes and data_proccesing pipes
   for(int i = 0; i<7; i++)
   {
@@ -91,13 +98,15 @@ int main() {
       processed_pipes_vector.push_back(new_pipe);
   }
 
-  //create threads
+  // create threads
   std::thread first(retrieve,shrdFutureObj);
   std::thread second(set_data_processing_module,shrdFutureObj);
-  std::thread third(check_data_from_dprocess);
-  first.join();
+//  std::thread third(check_data_from_dprocess);
+    std::thread logic_thread(logic_module_thread);
+    first.join();
   second.join();
-  third.join();
-  return 0;
-}
+//  third.join();
 
+    logic_thread.join();
+   return 0;
+}

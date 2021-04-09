@@ -8,6 +8,8 @@ class BluetoothComms: public Communications {
 public:
     explicit BluetoothComms(bool logging, bool encryption, int channel);
 
+    explicit BluetoothComms(int channel);
+
     explicit BluetoothComms();
 
     int send(char *data) override;
@@ -16,9 +18,9 @@ public:
 
     int disconnect() override;
 
-    int establish_connection(int channel) override;
+    int establish_connection() override;
 
-    int create_socket(int port) override;
+    int create_socket() override;
 
     int bind_socket() override;
 

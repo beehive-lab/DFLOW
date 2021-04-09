@@ -25,3 +25,7 @@ class CommLink(ABC):
     @abstractmethod
     def receive(self, buffer_size: int = 1024) -> bytes:
         pass
+
+    @abstractmethod
+    def is_connected(self) -> bool:
+        pass

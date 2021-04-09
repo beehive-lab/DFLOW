@@ -86,11 +86,16 @@ void CAN_Module::setListener(std::vector<Pipes> output_pipes, std::shared_future
     Py_Finalize();
 }
 
-void CAN_Module::sendConfigMessage(ConfigurableModesMessage message)
+void CAN_Module::sendConfigMessage(int abs_mode,int tc_mode, int tr_mode)
 {
+    ConfigurableModesMessage config_message;
+    config_message.data.abs_mode = abs_mode;
+    config_message.data.tc_mode = tc_mode;
+    config_message.data.throttle_response_mode = tr_mode;
+
     //instantiate python class
     interface_module->initializeInterface(CAN_Module::dbc_file_path, CAN_Module::python_file_path);
 
     //send config message
-    interface_module->sendMessage(message.get_message_map());
+    interface_module->sendMessage(config_message.get_message_map());
 }
