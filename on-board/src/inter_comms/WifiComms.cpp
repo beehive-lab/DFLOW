@@ -1,4 +1,5 @@
 #include "WifiComms.h"
+#include "config.hpp"
 #include <cstring>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -10,59 +11,65 @@
 
 using namespace std;
 
+WifiComms::WifiComms(bool logging, int port) : WifiComms() {
+    this->logging = logging;
+    this->port = port;
+}
+
+WifiComms::WifiComms(int port) : WifiComms() {
+    this->port = port;
+}
+
+WifiComms::WifiComms() {
+    this->port = 8080;
+    this->logging = false;
+    server_socket_fd = -1;
+    client_socket_fd = -1;
+    server_info = nullptr;
+    ssl = nullptr;
+    context = nullptr;
+};
 
 int WifiComms::send(char *data) {
+    if (logging) {
+        cout << "Sending: " << data << endl;
+    }
 
-    try {
-        if (logging) {
-            cout << "Sending: " << data;
-        }
+    int no_of_bytes = ::SSL_write(ssl, data, strlen(data));
 
-        int no_of_bytes = ::SSL_write(ssl, data, strlen(data));
 
-        if (no_of_bytes == -1) {
-            throw runtime_error("Error sending the message");
-        }
-
-        if (logging) {
-            cout << "Successfully sent " << no_of_bytes << " bytes" << endl;
-        }
-
+    if (no_of_bytes <= 0) {
+        cout<<"Error sending the message."<<endl;
         return no_of_bytes;
     }
-    catch (exception &exception) {
-        cerr << exception.what() << endl;
-        return -1;
+
+    if (logging) {
+        cout << "Successfully sent " << no_of_bytes << " bytes" << endl;
     }
+
+    return no_of_bytes;
 }
 
 int WifiComms::receive(char buffer[BUFFER_SIZE]) {
+    if (logging) {
+        cout << "Waiting to receive a message" << endl;
+    }
 
-    try {
-        if (logging) {
-            cout << "Waiting to receive a message" << endl;
-        }
+    int no_of_bytes = SSL_read(ssl, buffer, BUFFER_SIZE);
 
-        int no_of_bytes = SSL_read(ssl, buffer, BUFFER_SIZE);
-
-        if (no_of_bytes == -1) {
-            throw runtime_error("Error receiving the message");
-        }
-
-        if (no_of_bytes == 0) {
-            throw runtime_error("Connection was closed");
-        }
-
+    if (no_of_bytes > 0) {
         if (logging) {
             cout << "Successfully received " << no_of_bytes << " bytes" << endl;
         }
+    }
+    if (no_of_bytes <= 0) {
+        if (logging) {
+            cout<< "An error has occurred or the connection has been closed" << endl;
+        }
+        disconnect();
+    }
 
-        return no_of_bytes;
-    }
-    catch (exception &exception) {
-        cerr << exception.what() << endl;
-        return -1;
-    }
+    return no_of_bytes;
 }
 
 int WifiComms::disconnect() {
@@ -70,6 +77,7 @@ int WifiComms::disconnect() {
     try {
 
         if (logging) {
+            cout<<"Disconnecting..."<<endl;
             cout << "Closing the server socket" << endl;
         }
 
@@ -108,7 +116,7 @@ int WifiComms::disconnect() {
     }
 }
 
-int WifiComms::create_socket(int port) {
+int WifiComms::create_socket() {
 
     try {
         struct addrinfo hints{};
@@ -247,7 +255,7 @@ int WifiComms::load_certificates(SSL_CTX * context, char * certificate_file, cha
     }
 }
 
-int WifiComms::establish_connection(int port) {
+int WifiComms::establish_connection() {
 
     SSL_library_init();
     OpenSSL_add_all_algorithms();
@@ -259,22 +267,18 @@ int WifiComms::establish_connection(int port) {
         return -1;
     }
 
-    const char *homedir;
-
-    if ((homedir = getenv("HOME")) == nullptr) {
-        homedir = getpwuid(getuid())->pw_dir;
-    }
+    const char *homedir = DFLOW_HOME;
 
     char on_board_cert[256], on_board_key[256], rootCA[256];
 
     strcpy(on_board_cert, homedir);
-    strcat(on_board_cert, "/DFLOW/test_certs/on-board/on-board.crt");
+    strcat(on_board_cert, "/test_certs/on-board/on-board.crt");
 
     strcpy(on_board_key, homedir);
-    strcat(on_board_key, "/DFLOW/test_certs/on-board/on-board.key");
+    strcat(on_board_key, "/test_certs/on-board/on-board.key");
 
     strcpy(rootCA, homedir);
-    strcat(rootCA, "/DFLOW/test_certs/rootCA/rootCA.crt");
+    strcat(rootCA, "/test_certs/rootCA/rootCA.crt");
 
 
     if (!filesystem::exists(on_board_cert)) {
@@ -291,7 +295,7 @@ int WifiComms::establish_connection(int port) {
 
     load_certificates(context, on_board_cert, on_board_key, rootCA);
 
-    int socket_creation_status = create_socket(port);
+    int socket_creation_status = create_socket();
     if (socket_creation_status == -1) {
         return -1;
     }
@@ -322,16 +326,3 @@ int WifiComms::establish_connection(int port) {
 
     return 0;
 }
-
-WifiComms::WifiComms(bool logging) : WifiComms() {
-    this->logging = logging;
-}
-
-WifiComms::WifiComms() {
-    this->logging = false;
-    server_socket_fd = -1;
-    client_socket_fd = -1;
-    server_info = nullptr;
-    ssl = nullptr;
-    context = nullptr;
-};

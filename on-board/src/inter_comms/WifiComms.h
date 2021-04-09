@@ -6,7 +6,9 @@
 
 class WifiComms : public Communications {
 public:
-    explicit WifiComms(bool logging);
+    explicit WifiComms(bool logging, int port);
+
+    explicit WifiComms(int port);
 
     explicit WifiComms();
 
@@ -16,9 +18,9 @@ public:
 
     int disconnect() override;
 
-    int establish_connection(int port) override;
+    int establish_connection() override;
 
-    int create_socket(int port) override;
+    int create_socket() override;
 
     int bind_socket() override;
 
@@ -27,6 +29,8 @@ public:
     int listen_socket() override;
 
 private:
+    int port;
+
     struct addrinfo *server_info;
 
     int client_socket_fd;

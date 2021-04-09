@@ -16,6 +16,10 @@ BluetoothComms::BluetoothComms(bool logging, int channel) : BluetoothComms() {
     this->channel = channel;
 }
 
+BluetoothComms::BluetoothComms(int channel) : BluetoothComms() {
+    this->channel = channel;
+}
+
 BluetoothComms::BluetoothComms() {
     this->logging = false;
     server_socket_fd = -1;
@@ -29,7 +33,7 @@ int BluetoothComms::send(char *data) {
 
     try {
         if (logging) {
-            cout << "Sending: " << data;
+            cout << "Sending: " << data << endl;
         }
 
         int no_of_bytes = ::SSL_write(ssl, data, strlen(data));
@@ -122,7 +126,7 @@ int BluetoothComms::disconnect() {
     }
 }
 
-int BluetoothComms::create_socket(int port) {
+int BluetoothComms::create_socket() {
 
     try {
         if (logging) {
@@ -259,7 +263,7 @@ int BluetoothComms::load_certificates(SSL_CTX * context, char * certificate_file
     }
 }
 
-int BluetoothComms::establish_connection(int port) {
+int BluetoothComms::establish_connection() {
 
     SSL_library_init();
     OpenSSL_add_all_algorithms();
@@ -301,7 +305,7 @@ int BluetoothComms::establish_connection(int port) {
 
     load_certificates(context, on_board_cert, on_board_key, rootCA);
 
-    int socket_creation_status = create_socket(channel);
+    int socket_creation_status = create_socket();
     if (socket_creation_status == -1) {
         return -1;
     }

@@ -7,13 +7,13 @@ class Communications {
 public:
     virtual int send(char *data) = 0;
 
-    virtual int establish_connection(int port) = 0;
+    virtual int establish_connection() = 0;
 
     virtual int receive(char buffer[BUFFER_SIZE]) = 0;
 
     virtual int disconnect() = 0;
 
-    virtual int create_socket(int port) = 0;
+    virtual int create_socket() = 0;
 
     virtual int bind_socket() = 0;
 
