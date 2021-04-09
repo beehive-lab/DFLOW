@@ -85,6 +85,7 @@ set(SOURCE_FILES
                 src/inter_comms/WifiComms.cpp
                 src/inter_comms/BluetoothComms.cpp
                 src/inter_comms/Logic.cpp
+                src/inter_comms/BluetoothLogic.cpp
                 src/crypto/SymmetricEncryption.cpp)
 set(HEADER_FILES  src/config.hpp
                src/data_processing_module/data_process_module.hpp
@@ -92,7 +93,8 @@ set(HEADER_FILES  src/config.hpp
                src/inter_comms/WifiComms.h
                src/inter_comms/BluetoothComms.h
         src/crypto/SymmetricEncryption.h
-        src/inter_comms/Logic.h)
+        src/inter_comms/Logic.h
+        src/inter_comms/BluetoothLogic.h)
  
 include_directories( src/can_module src/ libs/can_module src/inter_comms src/data_processing_module src/can_module/messages src/udf_module)
  

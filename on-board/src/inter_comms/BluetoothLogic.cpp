@@ -1,4 +1,4 @@
-#include "Logic.h"
+#include "BluetoothLogic.h"
 #include "ctime"
 #include <cstring>
 #include <utility>
@@ -8,11 +8,98 @@
 #include "thread"
 #include "can_module.hpp"
 #include "config.hpp"
-#include "BluetoothLogic.h"
 
 using namespace std;
 
-void Logic::read_and_send(WifiComms wifiComms) {
+BluetoothLogic::BluetoothLogic(std::vector<Pipes> processed_pipes_vector_init) {
+    BluetoothLogic::processed_pipes_vector = std::move(processed_pipes_vector_init);
+}
+
+void BluetoothLogic::receive_loop(BluetoothComms bluetoothComms, char receive_buffer[BUFFER_SIZE]) {
+
+    int abs_mode = -1, tc_mode = -1, tr_mode = -1;
+
+    while (true) {
+        memset(receive_buffer, 0, BUFFER_SIZE);
+        int bytes_received = bluetoothComms.receive(receive_buffer);
+        if (bytes_received <= 0) {
+            stopping = true;
+            return;
+        }
+
+        char* token = strtok(receive_buffer, ":");
+
+        while (token != nullptr) {
+            if (strcmp(token, "configure-pipe") == 0) {
+                type_of_comms = 1;
+            }
+            else if (strcmp(token, "stream-bike-sensor-data") == 0) {
+                type_of_comms = 0;
+            } else if (strcmp(token, "start") == 0) {
+                starting = true;
+            } else if (strcmp(token, "stop") == 0) {
+                starting = false;
+            } else if (strcmp(token, "all") == 0) {
+                if (starting) {
+                    fill(begin(currently_streaming), end(currently_streaming), true);
+                } else {
+                    fill(begin(currently_streaming), end(currently_streaming), false);
+                }
+            } else if (strcmp(token, "air_temperature") == 0) {
+                currently_streaming[AIR_TEMPERATURE_PIPE] = starting;
+            } else if (strcmp(token, "throttle_position") == 0) {
+                currently_streaming[THROTTLE_POSITION_PIPE] = starting;
+            } else if (strcmp(token, "tyre_pressure_front") == 0) {
+                currently_streaming[TYRE_PRESSURE_FRONT_PIPE] = starting;
+            } else if (strcmp(token, "tyre_pressure_rear") == 0) {
+                currently_streaming[TYRE_PRESSURE_REAR_PIPE] = starting;
+            } else if (strcmp(token, "motorcycle_speed") == 0) {
+                currently_streaming[MOTORCYCLE_SPEED_PIPE] = starting;
+            } else if (strcmp(token, "rear_wheel_speed") == 0) {
+                currently_streaming[REAR_WHEEL_SPEED_PIPE] = starting;
+            } else if (strcmp(token, "front_wheel_speed") == 0) {
+                currently_streaming[FRONT_WHEEL_SPEED_PIPE] = starting;
+            } else if (strcmp(token, "brake_rear_active") == 0) {
+                currently_streaming[BRAKE_REAR_ACTIVE_PIPE] = starting;
+            } else if (strcmp(token, "brake_front_active") == 0) {
+                currently_streaming[BRAKE_FRONT_ACTIVE_PIPE] = starting;
+            } else if (strcmp(token, "abs_mode") == 0) {
+                currently_streaming[ABS_MODE_PIPE] = starting;
+            } else if (strcmp(token, "tc_mode") == 0) {
+                currently_streaming[TC_MODE_PIPE] = starting;
+            } else if (strcmp(token, "throttle_response_mode") == 0) {
+                currently_streaming[THROTTLE_RESPONSE_MODE_PIPE] = starting;
+            } else if (strcmp(token, "lean_angle") == 0) {
+                currently_streaming[LEAN_ANGLE_PIPE] = starting;
+            } else if (strcmp(token, "battery_voltage") == 0) {
+                currently_streaming[BATTERY_VOLTAGE_PIPE] = starting;
+            } else if (strcmp(token, "oil_pressure") == 0) {
+                currently_streaming[OIL_PRESSURE_PIPE] = starting;
+            } else if (strcmp(token, "gear_position") == 0) {
+                currently_streaming[GEAR_POSITION_PIPE] = starting;
+            } else if (strcmp(token, "water_temperature") == 0) {
+                currently_streaming[WATER_TEMPERATURE_PIPE] = starting;
+            } else if (strcmp(token, "engine_speed") == 0) {
+                currently_streaming[ENGINE_SPEED_PIPE] = starting;
+            } else if (type_of_comms == 1) {
+                if (abs_mode == -1) {
+                    abs_mode = stoi(token);
+                } else if (tc_mode == -1) {
+                    tc_mode = stoi(token);
+                } else if (tr_mode == -1) {
+                    tr_mode = stoi(token);
+                } else {
+                    CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
+                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
+                }
+            }
+
+            token = strtok(nullptr, ":");
+        }
+    }
+}
+
+void BluetoothLogic::read_and_send(BluetoothComms bluetoothComms) {
 
     OnBoardDataInterface data_interface(processed_pipes_vector);
 
@@ -296,7 +383,7 @@ void Logic::read_and_send(WifiComms wifiComms) {
         }
 
         if (sending_data) {
-            wifiComms.send(response);
+            bluetoothComms.send(response);
         }
 
         if (stopping) {
@@ -305,123 +392,4 @@ void Logic::read_and_send(WifiComms wifiComms) {
 
         this_thread::sleep_for(chrono::milliseconds(1000));
     }
-}
-
-void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) {
-
-    int abs_mode = -1, tc_mode = -1, tr_mode = -1;
-
-    while (true) {
-        memset(receive_buffer, 0, BUFFER_SIZE);
-        int bytes_received = wifiComms.receive(receive_buffer);
-        if (bytes_received <= 0) {
-            stopping = true;
-            return;
-        }
-
-        char* token = strtok(receive_buffer, ":");
-
-        while (token != nullptr) {
-            if (strcmp(token, "configure-pipe") == 0) {
-                type_of_comms = 1;
-            }
-            else if (strcmp(token, "stream-bike-sensor-data") == 0) {
-                type_of_comms = 0;
-            } else if (strcmp(token, "start") == 0) {
-                starting = true;
-            } else if (strcmp(token, "stop") == 0) {
-                starting = false;
-            } else if (strcmp(token, "all") == 0) {
-                if (starting) {
-                    fill(begin(currently_streaming), end(currently_streaming), true);
-                } else {
-                    fill(begin(currently_streaming), end(currently_streaming), false);
-                }
-            } else if (strcmp(token, "air_temperature") == 0) {
-                currently_streaming[AIR_TEMPERATURE_PIPE] = starting;
-            } else if (strcmp(token, "throttle_position") == 0) {
-                currently_streaming[THROTTLE_POSITION_PIPE] = starting;
-            } else if (strcmp(token, "tyre_pressure_front") == 0) {
-                currently_streaming[TYRE_PRESSURE_FRONT_PIPE] = starting;
-            } else if (strcmp(token, "tyre_pressure_rear") == 0) {
-                currently_streaming[TYRE_PRESSURE_REAR_PIPE] = starting;
-            } else if (strcmp(token, "motorcycle_speed") == 0) {
-                currently_streaming[MOTORCYCLE_SPEED_PIPE] = starting;
-            } else if (strcmp(token, "rear_wheel_speed") == 0) {
-                currently_streaming[REAR_WHEEL_SPEED_PIPE] = starting;
-            } else if (strcmp(token, "front_wheel_speed") == 0) {
-                currently_streaming[FRONT_WHEEL_SPEED_PIPE] = starting;
-            } else if (strcmp(token, "brake_rear_active") == 0) {
-                currently_streaming[BRAKE_REAR_ACTIVE_PIPE] = starting;
-            } else if (strcmp(token, "brake_front_active") == 0) {
-                currently_streaming[BRAKE_FRONT_ACTIVE_PIPE] = starting;
-            } else if (strcmp(token, "abs_mode") == 0) {
-                currently_streaming[ABS_MODE_PIPE] = starting;
-            } else if (strcmp(token, "tc_mode") == 0) {
-                currently_streaming[TC_MODE_PIPE] = starting;
-            } else if (strcmp(token, "throttle_response_mode") == 0) {
-                currently_streaming[THROTTLE_RESPONSE_MODE_PIPE] = starting;
-            } else if (strcmp(token, "lean_angle") == 0) {
-                currently_streaming[LEAN_ANGLE_PIPE] = starting;
-            } else if (strcmp(token, "battery_voltage") == 0) {
-                currently_streaming[BATTERY_VOLTAGE_PIPE] = starting;
-            } else if (strcmp(token, "oil_pressure") == 0) {
-                currently_streaming[OIL_PRESSURE_PIPE] = starting;
-            } else if (strcmp(token, "gear_position") == 0) {
-                currently_streaming[GEAR_POSITION_PIPE] = starting;
-            } else if (strcmp(token, "water_temperature") == 0) {
-                currently_streaming[WATER_TEMPERATURE_PIPE] = starting;
-            } else if (strcmp(token, "engine_speed") == 0) {
-                currently_streaming[ENGINE_SPEED_PIPE] = starting;
-            } else if (type_of_comms == 1) {
-                if (abs_mode == -1) {
-                    abs_mode = stoi(token);
-                } else if (tc_mode == -1) {
-                    tc_mode = stoi(token);
-                } else if (tr_mode == -1) {
-                    tr_mode = stoi(token);
-                } else {
-                    CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
-                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
-                }
-            }
-
-            token = strtok(nullptr, ":");
-        }
-    }
-}
-
-void Logic::Wifi_logic(bool logging, bool encryption, int port) {
-
-    WifiComms wifi_comms(logging, encryption, port);
-
-    char receive_buffer[BUFFER_SIZE];
-
-    wifi_comms.establish_connection();
-
-    thread send_thread(&Logic::read_and_send, this, wifi_comms);
-
-    Logic::receive_loop(wifi_comms, receive_buffer);
-
-    send_thread.join();
-}
-
-void Logic::Bluetooth_logic(bool logging, bool encryption, int channel) {
-    BluetoothComms bt_comms(logging, encryption, channel);
-
-    char receive_buffer[BUFFER_SIZE];
-
-    bt_comms.establish_connection();
-
-    BluetoothLogic bt_logic(processed_pipes_vector);
-
-    thread send_thread_bt(&BluetoothLogic::read_and_send, bt_logic, bt_comms);
-
-    bt_logic.receive_loop(bt_comms, receive_buffer);
-
-    bt_comms.disconnect();
-}
-
-Logic::Logic(vector<Pipes> processed_pipes_vector_init) {
-    Logic::processed_pipes_vector = std::move(processed_pipes_vector_init);
 }

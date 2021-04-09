@@ -3,6 +3,7 @@
 
 #include <pipes.hpp>
 #include "WifiComms.h"
+#include "BluetoothComms.h"
 
 
 class Logic {

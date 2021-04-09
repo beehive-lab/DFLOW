@@ -23,7 +23,7 @@ BluetoothComms::BluetoothComms(int channel) : BluetoothComms() {
 
 BluetoothComms::BluetoothComms() {
     this->logging = false;
-    this->encryption = false;
+    this->encryption = true;
     server_socket_fd = -1;
     client_socket_fd = -1;
     this->channel = 0;
@@ -189,6 +189,18 @@ int BluetoothComms::create_socket() {
             cout << "Successfully created a new socket" << endl;
         }
 
+        int enable = 1;
+
+        int reusable_status = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
+
+        if (reusable_status == -1) {
+            throw runtime_error("Error making the socket reusable");
+        }
+
+        if (logging) {
+            cout << "Socket is now reusable" << endl;
+        }
+
         server_socket_fd = socket_fd;
 
         return 0;
@@ -311,6 +323,13 @@ int BluetoothComms::load_certificates(SSL_CTX * context, char * certificate_file
 
 int BluetoothComms::establish_connection() {
 
+    if (logging) {
+        cout << "*****************************" << endl;
+        cout << "Establishing BT communication" << endl;
+        cout << "*****************************" << endl;
+        cout << endl;
+    }
+
     if (encryption) {
         SSL_library_init();
         OpenSSL_add_all_algorithms();
@@ -326,13 +345,13 @@ int BluetoothComms::establish_connection() {
         char on_board_cert[256], on_board_key[256], rootCA[256];
 
         strcpy(on_board_cert, homedir);
-        strcat(on_board_cert, "/DFLOW/test_certs/on-board/on-board.crt");
+        strcat(on_board_cert, "/test_certs/on-board/on-board.crt");
 
         strcpy(on_board_key, homedir);
-        strcat(on_board_key, "/DFLOW/test_certs/on-board/on-board.key");
+        strcat(on_board_key, "/test_certs/on-board/on-board.key");
 
         strcpy(rootCA, homedir);
-        strcat(rootCA, "/DFLOW/test_certs/rootCA/rootCA.crt");
+        strcat(rootCA, "/test_certs/rootCA/rootCA.crt");
 
         if (!filesystem::exists(on_board_cert)) {
             throw runtime_error("Certificate file doesn't exist");

@@ -23,7 +23,7 @@ WifiComms::WifiComms(int port) : WifiComms() {
 WifiComms::WifiComms() {
     this->port = 8080;
     this->logging = false;
-    this->encryption = false;
+    this->encryption = true;
     server_socket_fd = -1;
     client_socket_fd = -1;
     server_info = nullptr;
@@ -197,6 +197,18 @@ int WifiComms::create_socket() {
             cout << "Successfully created a new socket" << endl;
         }
 
+        int enable = 1;
+
+        int reusable_status = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
+
+        if (reusable_status == -1) {
+            throw runtime_error("Error making the socket reusable");
+        }
+
+        if (logging) {
+            cout << "Socket is now reusable" << endl;
+        }
+
         server_socket_fd = socket_fd;
 
         return 0;
@@ -312,6 +324,13 @@ int WifiComms::load_certificates(SSL_CTX * context, char * certificate_file, cha
 }
 
 int WifiComms::establish_connection() {
+
+    if (logging) {
+        cout << "*******************************" << endl;
+        cout << "Establishing WiFi communication" << endl;
+        cout << "*******************************" << endl;
+        cout << endl;
+    }
 
     if (encryption) {
         SSL_library_init();
