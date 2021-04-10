@@ -309,11 +309,12 @@ void Logic::read_and_send(WifiComms wifiComms) {
 
 void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) {
 
-    int abs_mode = -1, tc_mode = -1, tr_mode = -1;
-
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
         int bytes_received = wifiComms.receive(receive_buffer);
+
+        int abs_mode = -1, tc_mode = -1, tr_mode = -1;
+
         if (bytes_received <= 0) {
             stopping = true;
             return;
@@ -380,9 +381,8 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                     tc_mode = stoi(token);
                 } else if (tr_mode == -1) {
                     tr_mode = stoi(token);
-                } else {
-                    CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
-                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
+//                    CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
+//                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
                 }
             }
 
