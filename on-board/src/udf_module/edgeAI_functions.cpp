@@ -2,6 +2,7 @@
 const int CRASH_FUNCTION = 1;
 const int FLOAT_UDF_DATA_TYPE = 0;
 const int INT_UDF_DATA_TYPE = 1;
+const int BOOL_UDF_DATA_TYPE = 2;
 
 DFLOW_Onboard_Addon_Functions::DFLOW_Onboard_Addon_Functions()
 {}
@@ -13,6 +14,7 @@ float DFLOW_Onboard_Addon_Functions::AIfunction(OnBoardDataInterface data_interf
 
     std::vector<int> integer_values;
     std::vector<float> float_values;
+    std::vector<bool> bool_values;
     //get the signal batch and the required data
     data_interface.getSignalBatch();
 
@@ -26,14 +28,19 @@ float DFLOW_Onboard_Addon_Functions::AIfunction(OnBoardDataInterface data_interf
         {
             integer_values.push_back(data_interface.getIntegerData(desired_data[i]));
         }
+        else if(desired_data_types[i] == BOOL_UDF_DATA_TYPE)
+        {
+            bool_values.push_back(data_interface.getBooleanData(desired_data[i]));
+        }
     }
     for(int i =0; i < integer_values.size(); i++)
     {
         float_values.push_back(static_cast<float>(integer_values[i]));
     }
-    //float lean_angle = data_interface.getFloatData(LEAN_ANGLE_PIPE);
-    //float accel_x = data_interface.getFloatData(ACCELERATION_X_PIPE);
-    //float accel_y = data_interface.getFloatData(ACCELERATION_Y_PIPE);
+    for(int i =0; i < bool_values.size(); i++)
+    {
+        float_values.push_back(static_cast<float>(bool_values[i]));
+    }
 
     //get the model prediction
     const auto result = model.predict(

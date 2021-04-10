@@ -78,6 +78,10 @@ set(UDFMODULE_AI_SOURCE
         src/udf_module/edgeAI_functions.cpp
         src/udf_module/edgeAI_functions.hpp)
 
+set(PROFILING_MODULE_SOURCE
+        src/profiling_module/profiling_module.cpp
+        src/profiling_module/profiling_module.hpp)
+
 set(SOURCE_FILES
                 src/config.cpp
                 src/data_processing_module/data_process_module.cpp
@@ -93,10 +97,10 @@ set(HEADER_FILES  src/config.hpp
                src/inter_comms/BluetoothComms.h
                src/crypto/SymmetricEncryption.h)
  
-include_directories( src/can_module src/ libs/can_module src/inter_comms src/data_processing_module src/can_module/messages src/udf_module)
+include_directories( src/can_module src/ libs/can_module src/inter_comms src/data_processing_module src/can_module/messages src/udf_module src/profiling_module)
  
 # Add executable target with source files listed in SOURCE_FILES variable
-add_executable(DFLOW_OnBoard src/main.cpp ${SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${UDFMODULE_SOURCE})
+add_executable(DFLOW_OnBoard src/main.cpp ${SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${UDFMODULE_SOURCE} ${PROFILING_MODULE_SOURCE})
 
 find_package(PythonLibs REQUIRED)
 find_package(frugally-deep REQUIRED)
@@ -107,7 +111,7 @@ find_package(OpenSSL REQUIRED)
 link_libraries(ssl crypto)
 target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
 
-add_executable(DFLOW_OnBoard_WithAI src/mainWithAI.cpp ${SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${UDFMODULE_AI_SOURCE})
+add_executable(DFLOW_OnBoard_WithAI src/mainWithAI.cpp ${SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${UDFMODULE_AI_SOURCE} ${PROFILING_MODULE_SOURCE})
 
 include_directories(${PYTHON_INCLUDE_DIRS})
 target_link_libraries(DFLOW_OnBoard_WithAI PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )

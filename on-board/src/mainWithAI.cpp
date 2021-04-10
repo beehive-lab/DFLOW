@@ -11,6 +11,7 @@
 #include <boost/circular_buffer.hpp>
 #include "on_board_data_interface.hpp"
 #include "edgeAI_functions.hpp"
+#include "profiling_module.hpp"
 using namespace std;
 
 //second release prototype
@@ -100,11 +101,16 @@ int main() {
       pipe(new_pipe.rdwr);
       processed_pipes_vector.push_back(new_pipe);
   }
-
+  ProfilingModule pr_module;
   //create threads
   std::thread first(retrieve,shrdFutureObj);
   std::thread second(set_data_processing_module,shrdFutureObj);
   std::thread third(check_data_from_dprocess);
+  while(true)
+  {
+    std::cout<<"Overall memory usage "<<pr_module.getMemoryUsage()<<" "<<pr_module.getCPUUsage()<<std::endl;
+    usleep(1000000);
+  }
   first.join();
   second.join();
   third.join();

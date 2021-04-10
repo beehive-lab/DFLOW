@@ -3,6 +3,8 @@
 #include "pipes.hpp"
 #include <vector>
 #include <unistd.h>
+#include <climits>
+#include <cfloat>
 
 #ifndef ON_BOARD_DATA_INTERFACE_H
 #define ON_BOARD_DATA_INTERFACE_H

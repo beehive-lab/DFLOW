@@ -1,79 +1,85 @@
-//#include "stdlib.h"
-#include <iostream>
-#include <ifstream>
-#include <string>
-#include "sys/times.h"
-#include "sys/vtimes.h"
+#include "profiling_module.hpp"
 
-static clock_t lastCPU, lastSysCPU, lastUserCPU;
-static int numProcessors;
 
-void init()
+ProfilingModule::ProfilingModule()
 {
-    ofstream data_file;
+    ProfilingModule::init();
+}
+
+void ProfilingModule::init()
+{
+    std::ifstream data_file;
     struct tms timeSample;
-    char line[128];
+    std::string line;
 
     lastCPU = times(&timeSample);
-    lastSysCPU = timeSample.tms_stime;
-    lastUserCPU = timeSample.tms_utime;
+    lastSysCPU = lastCPU;
+    lastUserCPU = lastCPU;
 
     data_file.open("/proc/cpuinfo");
     numProcessors = 0;
-    while(getline(line,data_file) != NULL){
-        if (strncmp(line, "processor", 9) == 0) numProcessors++;
+    while(std::getline(data_file, line)){
+        if (line.compare(0,9,"processor") == 0) numProcessors++;
     }
-
     data_file.close();
 }
 
-double getCurrentValue(){
+double ProfilingModule::getCPUUsage(){
     struct tms timeSample;
     clock_t now;
     double percent;
 
     now = times(&timeSample);
-    if (now <= lastCPU || timeSample.tms_stime < lastSysCPU ||
-        timeSample.tms_utime < lastUserCPU){
+    int who = RUSAGE_SELF;
+    struct rusage usage;
+    int ret;
+
+
+    ret = getrusage(who, &usage);
+    int user_usage_since_last_time = usage.ru_utime.tv_usec - lastUserCPU;
+    int sys_usage_since_last_time = usage.ru_stime.tv_usec - lastSysCPU;
+    if (now <= lastCPU || usage.ru_stime.tv_usec < lastSysCPU ||
+        usage.ru_utime.tv_usec < lastUserCPU)
+    {
         //Overflow detection. Just skip this value.
         percent = -1.0;
     }
-    else{
-        percent = (timeSample.tms_stime - lastSysCPU) +
-            (timeSample.tms_utime - lastUserCPU);
-        percent /= (now - lastCPU);
+    else
+    {
+        percent = user_usage_since_last_time + sys_usage_since_last_time;
+        percent /= (now - lastCPU)*1000;
         percent /= numProcessors;
         percent *= 100;
     }
     lastCPU = now;
-    lastSysCPU = timeSample.tms_stime;
-    lastUserCPU = timeSample.tms_utime;
+    lastSysCPU = usage.ru_stime.tv_usec;
+    lastUserCPU = usage.ru_utime.tv_usec;
 
     return percent;
 }
 
 
-int parseLine(char* line){
+int ProfilingModule::parseLine(std::string line){
     // This assumes that a digit will be found and the line ends in " Kb".
-    int i = strlen(line);
-    const char* p = line;
-    while (*p <'0' || *p > '9') p++;
-    line[i-3] = '\0';
-    i = atoi(p);
+    int index = 0;
+    while (line[index] <'0' || line[index] > '9') index++;
+    line = line.substr(index,line.size() - 3);
+    int i = stoi(line);
     return i;
 }
 
-int getValue(){ //Note: this value is in KB!
-    FILE* file = fopen("/proc/self/status", "r");
+int ProfilingModule::getMemoryUsage(){ //Note: this value is in KB!
+    std::ifstream memory_file;
+    memory_file.open("/proc/self/status");
     int result = -1;
-    char line[128];
+    std::string line;
 
-    while (fgets(line, 128, file) != NULL){
-        if (strncmp(line, "VmSize:", 7) == 0){
+    while (std::getline(memory_file, line)){
+        if (line.compare(0,6,"VmRSS:") == 0){
             result = parseLine(line);
             break;
         }
     }
-    fclose(file);
+    memory_file.close();
     return result;
 }

@@ -8,6 +8,7 @@
 extern const int CRASH_FUNCTION;
 extern const int FLOAT_UDF_DATA_TYPE;
 extern const int INT_UDF_DATA_TYPE;
+extern const int BOOL_UDF_DATA_TYPE;
 class DFLOW_Onboard_Addon_Functions{
     public:
         DFLOW_Onboard_Addon_Functions();
