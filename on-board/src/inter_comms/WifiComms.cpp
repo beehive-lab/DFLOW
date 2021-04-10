@@ -124,24 +124,10 @@ int WifiComms::disconnect() {
 
         if (logging) {
             cout<<"Disconnecting..."<<endl;
-            cout << "Closing the server socket" << endl;
-        }
-
-        int status = close(server_socket_fd);
-
-        if (status == -1) {
-            throw runtime_error("Error closing the server socket");
-        }
-
-        if (logging) {
-            cout << "Successfully closed the server socket" << endl;
-        }
-
-        if (logging) {
             cout << "Closing the client socket" << endl;
         }
 
-        status = close(client_socket_fd);
+        int status = close(client_socket_fd);
 
         if (status == -1) {
             throw runtime_error("Error closing the client socket");
@@ -325,13 +311,6 @@ int WifiComms::load_certificates(SSL_CTX * context, char * certificate_file, cha
 
 int WifiComms::establish_connection() {
 
-    if (logging) {
-        cout << "*******************************" << endl;
-        cout << "Establishing WiFi communication" << endl;
-        cout << "*******************************" << endl;
-        cout << endl;
-    }
-
     if (encryption) {
         SSL_library_init();
         OpenSSL_add_all_algorithms();
@@ -372,19 +351,28 @@ int WifiComms::establish_connection() {
         load_certificates(context, on_board_cert, on_board_key, rootCA);
     }
 
-    int socket_creation_status = create_socket();
-    if (socket_creation_status == -1) {
-        return -1;
-    }
+    if (client_socket_fd == -1) {
+        if (logging) {
+            cout << "*******************************" << endl;
+            cout << "Establishing WiFi communication" << endl;
+            cout << "*******************************" << endl;
+            cout << endl;
+        }
 
-    int bind_status = bind_socket();
-    if (bind_status == -1) {
-        return -1;
-    }
+        int socket_creation_status = create_socket();
+        if (socket_creation_status == -1) {
+            return -1;
+        }
 
-    int listen_status = listen_socket();
-    if (listen_status == -1) {
-        return -1;
+        int bind_status = bind_socket();
+        if (bind_status == -1) {
+            return -1;
+        }
+
+        int listen_status = listen_socket();
+        if (listen_status == -1) {
+            return -1;
+        }
     }
 
     int accept_status = accept_connection();
