@@ -337,41 +337,41 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                 } else {
                     fill(begin(currently_streaming), end(currently_streaming), false);
                 }
-            } else if (strcmp(token, "air_temperature") == 0) {
+            } else if (strcmp(token, "AIR_TEMPERATURE") == 0) {
                 currently_streaming[AIR_TEMPERATURE_PIPE] = starting;
-            } else if (strcmp(token, "throttle_position") == 0) {
+            } else if (strcmp(token, "THROTTLE_POSITION") == 0) {
                 currently_streaming[THROTTLE_POSITION_PIPE] = starting;
-            } else if (strcmp(token, "tyre_pressure_front") == 0) {
+            } else if (strcmp(token, "TYRE_PRESSURE_FRONT") == 0) {
                 currently_streaming[TYRE_PRESSURE_FRONT_PIPE] = starting;
-            } else if (strcmp(token, "tyre_pressure_rear") == 0) {
+            } else if (strcmp(token, "TYRE_PRESSURE_REAR") == 0) {
                 currently_streaming[TYRE_PRESSURE_REAR_PIPE] = starting;
-            } else if (strcmp(token, "motorcycle_speed") == 0) {
+            } else if (strcmp(token, "MOTORCYCLE_SPEED") == 0) {
                 currently_streaming[MOTORCYCLE_SPEED_PIPE] = starting;
-            } else if (strcmp(token, "rear_wheel_speed") == 0) {
+            } else if (strcmp(token, "REAR_WHEEL_SPEED") == 0) {
                 currently_streaming[REAR_WHEEL_SPEED_PIPE] = starting;
-            } else if (strcmp(token, "front_wheel_speed") == 0) {
+            } else if (strcmp(token, "FRONT_WHEEL_SPEED") == 0) {
                 currently_streaming[FRONT_WHEEL_SPEED_PIPE] = starting;
-            } else if (strcmp(token, "brake_rear_active") == 0) {
+            } else if (strcmp(token, "BRAKE_REAR_ACTIVE") == 0) {
                 currently_streaming[BRAKE_REAR_ACTIVE_PIPE] = starting;
-            } else if (strcmp(token, "brake_front_active") == 0) {
+            } else if (strcmp(token, "BRAKE_FRONT_ACTIVE") == 0) {
                 currently_streaming[BRAKE_FRONT_ACTIVE_PIPE] = starting;
-            } else if (strcmp(token, "abs_mode") == 0) {
+            } else if (strcmp(token, "ABS_MODE") == 0) {
                 currently_streaming[ABS_MODE_PIPE] = starting;
-            } else if (strcmp(token, "tc_mode") == 0) {
+            } else if (strcmp(token, "TC_MODE") == 0) {
                 currently_streaming[TC_MODE_PIPE] = starting;
-            } else if (strcmp(token, "throttle_response_mode") == 0) {
+            } else if (strcmp(token, "THROTTLE_RESPONSE_MODE") == 0) {
                 currently_streaming[THROTTLE_RESPONSE_MODE_PIPE] = starting;
-            } else if (strcmp(token, "lean_angle") == 0) {
+            } else if (strcmp(token, "LEAN_ANGLE") == 0) {
                 currently_streaming[LEAN_ANGLE_PIPE] = starting;
-            } else if (strcmp(token, "battery_voltage") == 0) {
+            } else if (strcmp(token, "BATTERY_VOLTAGE") == 0) {
                 currently_streaming[BATTERY_VOLTAGE_PIPE] = starting;
-            } else if (strcmp(token, "oil_pressure") == 0) {
+            } else if (strcmp(token, "OIL_PRESSURE") == 0) {
                 currently_streaming[OIL_PRESSURE_PIPE] = starting;
-            } else if (strcmp(token, "gear_position") == 0) {
+            } else if (strcmp(token, "GEAR_POSITION") == 0) {
                 currently_streaming[GEAR_POSITION_PIPE] = starting;
-            } else if (strcmp(token, "water_temperature") == 0) {
+            } else if (strcmp(token, "WATER_TEMPERATURE") == 0) {
                 currently_streaming[WATER_TEMPERATURE_PIPE] = starting;
-            } else if (strcmp(token, "engine_speed") == 0) {
+            } else if (strcmp(token, "ENGINE_SPEED") == 0) {
                 currently_streaming[ENGINE_SPEED_PIPE] = starting;
             } else if (type_of_comms == 1) {
                 if (abs_mode == -1) {
