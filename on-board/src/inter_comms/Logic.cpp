@@ -18,6 +18,10 @@ void Logic::read_and_send(WifiComms wifiComms) {
 
     while (true) {
 
+        if (stopping) {
+            return;
+        }
+
         bool sending_data = false;
         char *response = new char[BUFFER_SIZE];
 
@@ -295,12 +299,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
 
-        if (sending_data && !stopping) {
+        if (sending_data) {
             wifiComms.send(response);
-        }
-
-        if (stopping) {
-            return;
         }
 
         this_thread::sleep_for(chrono::milliseconds(1000));
@@ -317,6 +317,9 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
 
         if (bytes_received <= 0) {
             stopping = true;
+            for (bool & i : currently_streaming) {
+                i = false;
+            }
             return;
         }
 
@@ -407,13 +410,17 @@ void Logic::Wifi_logic(bool logging, bool encryption, int port) {
 
     char receive_buffer[BUFFER_SIZE];
 
-    wifi_comms.establish_connection();
+    while (true) {
+        wifi_comms.establish_connection();
 
-    thread send_thread(&Logic::read_and_send, this, wifi_comms);
+        stopping = false;
 
-    Logic::receive_loop(wifi_comms, receive_buffer);
+        thread send_thread(&Logic::read_and_send, this, wifi_comms);
 
-    send_thread.join();
+        Logic::receive_loop(wifi_comms, receive_buffer);
+
+        send_thread.join();
+    }
 }
 
 void Logic::Bluetooth_logic(bool logging, bool encryption, int channel) {
