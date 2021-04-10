@@ -307,11 +307,11 @@ void Logic::read_and_send(WifiComms wifiComms) {
     }
 }
 
-void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) {
+void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE]) {
 
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
-        int bytes_received = wifiComms.receive(receive_buffer);
+        int bytes_received = wifiComms->receive(receive_buffer);
 
         int abs_mode = -1, tc_mode = -1, tr_mode = -1;
 
@@ -326,7 +326,6 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
         char* token = strtok(receive_buffer, ":");
 
         while (token != nullptr) {
-            cout<<token<<endl;
             if (strcmp(token, "encryption") == 0) {
                 type_of_comms = 2;
             }
@@ -345,7 +344,7 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                 } else {
                     fill(begin(currently_streaming), end(currently_streaming), false);
                 }
-            } else if (strcmp(token, "air_temperature") == 0) {
+            } else if (strcmp(token, "AIR_TEMPERATURE") == 0) {
                 currently_streaming[AIR_TEMPERATURE_PIPE] = starting;
             } else if (strcmp(token, "THROTTLE_POSITION") == 0) {
                 currently_streaming[THROTTLE_POSITION_PIPE] = starting;
@@ -393,9 +392,9 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                 }
             } else if (type_of_comms == 2) {
                 if (strcmp(token, "on") == 0) {
-                    wifiComms.set_encryption(true);
+                    wifiComms->set_encryption(true);
                 } else if (strcmp(token, "off") == 0) {
-                    wifiComms.set_encryption(false);
+                    wifiComms->set_encryption(false);
                 }
             }
 
@@ -417,7 +416,7 @@ void Logic::Wifi_logic(bool logging, bool encryption, int port) {
 
         thread send_thread(&Logic::read_and_send, this, wifi_comms);
 
-        Logic::receive_loop(wifi_comms, receive_buffer);
+        Logic::receive_loop(&wifi_comms, receive_buffer);
 
         send_thread.join();
     }
