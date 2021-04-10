@@ -323,6 +323,10 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
         char* token = strtok(receive_buffer, ":");
 
         while (token != nullptr) {
+            cout<<token<<endl;
+            if (strcmp(token, "encryption") == 0) {
+                type_of_comms = 2;
+            }
             if (strcmp(token, "configure-pipe") == 0) {
                 type_of_comms = 1;
             }
@@ -338,7 +342,7 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                 } else {
                     fill(begin(currently_streaming), end(currently_streaming), false);
                 }
-            } else if (strcmp(token, "AIR_TEMPERATURE") == 0) {
+            } else if (strcmp(token, "air_temperature") == 0) {
                 currently_streaming[AIR_TEMPERATURE_PIPE] = starting;
             } else if (strcmp(token, "THROTTLE_POSITION") == 0) {
                 currently_streaming[THROTTLE_POSITION_PIPE] = starting;
@@ -383,6 +387,12 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                     tr_mode = stoi(token);
                     CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
 //                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
+                }
+            } else if (type_of_comms == 2) {
+                if (strcmp(token, "on") == 0) {
+                    wifiComms.set_encryption(true);
+                } else if (strcmp(token, "off") == 0) {
+                    wifiComms.set_encryption(false);
                 }
             }
 
