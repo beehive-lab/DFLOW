@@ -295,7 +295,7 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
 
-        if (sending_data) {
+        if (sending_data && !stopping) {
             wifiComms.send(response);
         }
 
@@ -381,7 +381,7 @@ void Logic::receive_loop(WifiComms wifiComms, char receive_buffer[BUFFER_SIZE]) 
                     tc_mode = stoi(token);
                 } else if (tr_mode == -1) {
                     tr_mode = stoi(token);
-//                    CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
+                    CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
 //                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
                 }
             }
