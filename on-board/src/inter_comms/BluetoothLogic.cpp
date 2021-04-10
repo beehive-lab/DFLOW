@@ -15,22 +15,32 @@ BluetoothLogic::BluetoothLogic(std::vector<Pipes> processed_pipes_vector_init) {
     BluetoothLogic::processed_pipes_vector = std::move(processed_pipes_vector_init);
 }
 
-void BluetoothLogic::receive_loop(BluetoothComms bluetoothComms, char receive_buffer[BUFFER_SIZE]) {
-
-    int abs_mode = -1, tc_mode = -1, tr_mode = -1;
+void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_buffer[BUFFER_SIZE]) {
 
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
-        int bytes_received = bluetoothComms.receive(receive_buffer);
+        int bytes_received = bluetooth_comms->receive(receive_buffer);
+
+        int abs_mode = -1, tc_mode = -1, tr_mode = -1;
+
         if (bytes_received <= 0) {
             stopping = true;
+            for (bool & i : currently_streaming) {
+                i = false;
+            }
             return;
         }
 
         char* token = strtok(receive_buffer, ":");
 
         while (token != nullptr) {
-            if (strcmp(token, "configure-pipe") == 0) {
+            if (strcmp(token, "exit-application") == 0) {
+                stopping = true;
+                exit_application = true;
+            }
+            if (strcmp(token, "encryption") == 0) {
+                type_of_comms = 2;
+            } else if (strcmp(token, "configure-pipe") == 0) {
                 type_of_comms = 1;
             }
             else if (strcmp(token, "stream-bike-sensor-data") == 0) {
@@ -45,41 +55,41 @@ void BluetoothLogic::receive_loop(BluetoothComms bluetoothComms, char receive_bu
                 } else {
                     fill(begin(currently_streaming), end(currently_streaming), false);
                 }
-            } else if (strcmp(token, "air_temperature") == 0) {
+            } else if (strcmp(token, "AIR_TEMPERATURE") == 0) {
                 currently_streaming[AIR_TEMPERATURE_PIPE] = starting;
-            } else if (strcmp(token, "throttle_position") == 0) {
+            } else if (strcmp(token, "THROTTLE_POSITION") == 0) {
                 currently_streaming[THROTTLE_POSITION_PIPE] = starting;
-            } else if (strcmp(token, "tyre_pressure_front") == 0) {
+            } else if (strcmp(token, "TYRE_PRESSURE_FRONT") == 0) {
                 currently_streaming[TYRE_PRESSURE_FRONT_PIPE] = starting;
-            } else if (strcmp(token, "tyre_pressure_rear") == 0) {
+            } else if (strcmp(token, "TYRE_PRESSURE_REAR") == 0) {
                 currently_streaming[TYRE_PRESSURE_REAR_PIPE] = starting;
-            } else if (strcmp(token, "motorcycle_speed") == 0) {
+            } else if (strcmp(token, "MOTORCYCLE_SPEED") == 0) {
                 currently_streaming[MOTORCYCLE_SPEED_PIPE] = starting;
-            } else if (strcmp(token, "rear_wheel_speed") == 0) {
+            } else if (strcmp(token, "REAR_WHEEL_SPEED") == 0) {
                 currently_streaming[REAR_WHEEL_SPEED_PIPE] = starting;
-            } else if (strcmp(token, "front_wheel_speed") == 0) {
+            } else if (strcmp(token, "FRONT_WHEEL_SPEED") == 0) {
                 currently_streaming[FRONT_WHEEL_SPEED_PIPE] = starting;
-            } else if (strcmp(token, "brake_rear_active") == 0) {
+            } else if (strcmp(token, "BRAKE_REAR_ACTIVE") == 0) {
                 currently_streaming[BRAKE_REAR_ACTIVE_PIPE] = starting;
-            } else if (strcmp(token, "brake_front_active") == 0) {
+            } else if (strcmp(token, "BRAKE_FRONT_ACTIVE") == 0) {
                 currently_streaming[BRAKE_FRONT_ACTIVE_PIPE] = starting;
-            } else if (strcmp(token, "abs_mode") == 0) {
+            } else if (strcmp(token, "ABS_MODE") == 0) {
                 currently_streaming[ABS_MODE_PIPE] = starting;
-            } else if (strcmp(token, "tc_mode") == 0) {
+            } else if (strcmp(token, "TC_MODE") == 0) {
                 currently_streaming[TC_MODE_PIPE] = starting;
-            } else if (strcmp(token, "throttle_response_mode") == 0) {
+            } else if (strcmp(token, "THROTTLE_RESPONSE_MODE") == 0) {
                 currently_streaming[THROTTLE_RESPONSE_MODE_PIPE] = starting;
-            } else if (strcmp(token, "lean_angle") == 0) {
+            } else if (strcmp(token, "LEAN_ANGLE") == 0) {
                 currently_streaming[LEAN_ANGLE_PIPE] = starting;
-            } else if (strcmp(token, "battery_voltage") == 0) {
+            } else if (strcmp(token, "BATTERY_VOLTAGE") == 0) {
                 currently_streaming[BATTERY_VOLTAGE_PIPE] = starting;
-            } else if (strcmp(token, "oil_pressure") == 0) {
+            } else if (strcmp(token, "OIL_PRESSURE") == 0) {
                 currently_streaming[OIL_PRESSURE_PIPE] = starting;
-            } else if (strcmp(token, "gear_position") == 0) {
+            } else if (strcmp(token, "GEAR_POSITION") == 0) {
                 currently_streaming[GEAR_POSITION_PIPE] = starting;
-            } else if (strcmp(token, "water_temperature") == 0) {
+            } else if (strcmp(token, "WATER_TEMPERATURE") == 0) {
                 currently_streaming[WATER_TEMPERATURE_PIPE] = starting;
-            } else if (strcmp(token, "engine_speed") == 0) {
+            } else if (strcmp(token, "ENGINE_SPEED") == 0) {
                 currently_streaming[ENGINE_SPEED_PIPE] = starting;
             } else if (type_of_comms == 1) {
                 if (abs_mode == -1) {
@@ -88,9 +98,14 @@ void BluetoothLogic::receive_loop(BluetoothComms bluetoothComms, char receive_bu
                     tc_mode = stoi(token);
                 } else if (tr_mode == -1) {
                     tr_mode = stoi(token);
-                } else {
                     CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
-                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
+//                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
+                }
+            } else if (type_of_comms == 2) {
+                if (strcmp(token, "on") == 0) {
+                    bluetooth_comms->set_encryption(true);
+                } else if (strcmp(token, "off") == 0) {
+                    bluetooth_comms->set_encryption(false);
                 }
             }
 
@@ -99,11 +114,15 @@ void BluetoothLogic::receive_loop(BluetoothComms bluetoothComms, char receive_bu
     }
 }
 
-void BluetoothLogic::read_and_send(BluetoothComms bluetoothComms) {
+void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
 
     OnBoardDataInterface data_interface(processed_pipes_vector);
 
     while (true) {
+
+        if (stopping) {
+            return;
+        }
 
         bool sending_data = false;
         char *response = new char[BUFFER_SIZE];
@@ -382,12 +401,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetoothComms) {
             }
         }
 
-        if (sending_data) {
-            bluetoothComms.send(response);
-        }
-
-        if (stopping) {
-            return;
+        if (sending_data && !stopping) {
+            bluetooth_comms.send(response);
         }
 
         this_thread::sleep_for(chrono::milliseconds(1000));

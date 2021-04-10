@@ -30,6 +30,8 @@ private:
 
     bool stopping = false;
 
+    bool exit_application = false;
+
     int type_of_comms = 0;
 };
 

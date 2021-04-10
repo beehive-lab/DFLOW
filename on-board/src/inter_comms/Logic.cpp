@@ -299,7 +299,7 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
 
-        if (sending_data) {
+        if (sending_data && !stopping) {
             wifiComms.send(response);
         }
 
@@ -326,10 +326,13 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
         char* token = strtok(receive_buffer, ":");
 
         while (token != nullptr) {
+            if (strcmp(token, "exit-application") == 0) {
+                stopping = true;
+                exit_application = true;
+            }
             if (strcmp(token, "encryption") == 0) {
                 type_of_comms = 2;
-            }
-            if (strcmp(token, "configure-pipe") == 0) {
+            } else if (strcmp(token, "configure-pipe") == 0) {
                 type_of_comms = 1;
             }
             else if (strcmp(token, "stream-bike-sensor-data") == 0) {
@@ -419,6 +422,10 @@ void Logic::Wifi_logic(bool logging, bool encryption, int port) {
         Logic::receive_loop(&wifi_comms, receive_buffer);
 
         send_thread.join();
+
+        if (exit_application) {
+            return;
+        }
     }
 }
 
@@ -427,15 +434,23 @@ void Logic::Bluetooth_logic(bool logging, bool encryption, int channel) {
 
     char receive_buffer[BUFFER_SIZE];
 
-    bt_comms.establish_connection();
+    while (true) {
+        bt_comms.establish_connection();
 
-    BluetoothLogic bt_logic(processed_pipes_vector);
+        BluetoothLogic bt_logic(processed_pipes_vector);
 
-    thread send_thread_bt(&BluetoothLogic::read_and_send, bt_logic, bt_comms);
+        bt_logic.stopping = false;
 
-    bt_logic.receive_loop(bt_comms, receive_buffer);
+        thread send_thread_bt(&BluetoothLogic::read_and_send, bt_logic, bt_comms);
 
-    bt_comms.disconnect();
+        bt_logic.receive_loop(&bt_comms, receive_buffer);
+
+        send_thread_bt.join();
+
+        if (bt_logic.exit_application) {
+            return;
+        }
+    }
 }
 
 Logic::Logic(vector<Pipes> processed_pipes_vector_init) {
