@@ -1,11 +1,13 @@
 """
 The main entrypoint for client.
 """
+import datetime as dt
 import os
 import readline
 from dataclasses import dataclass
 from enum import Enum
 
+import matplotlib.dates as md
 import matplotlib.pyplot as plt
 import yaml
 
@@ -221,18 +223,24 @@ class Client:
         ax.set_title('Plot of Sensor Data Over Time')
         ax.set_xlabel('Time')
         ax.set_ylabel('Value')
+        xfmt = md.DateFormatter('%Y-%m-%d %H:%M:%S')
+        ax.xaxis.set_major_formatter(xfmt)
         for key in data_keys:
             data = msg_handler.get_recorded_sensor_data(key)
             if data:
                 timestamps = []
                 values = []
                 for value, timestamp in data:
-                    timestamps.append(int(timestamp))
+                    timestamps.append(
+                        dt.datetime.fromtimestamp(int(timestamp))
+                    )
                     values.append(float(value))
                 ax.plot(timestamps, values, label=str(key))
             else:
                 ax.plot([], [], label=str(key))
         ax.legend()
+        fig.autofmt_xdate()
+        fig.tight_layout()
         return fig, ax
 
 
