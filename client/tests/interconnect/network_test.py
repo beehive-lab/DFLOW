@@ -156,6 +156,7 @@ class NetworkLinkTestCase(unittest.TestCase):
             self._test_cert,
             self._test_key
         )
+        network_link._connected = True
         network_link.reconnect()
 
         # Check that when reconnect is called the existing socket is first
