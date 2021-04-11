@@ -159,6 +159,8 @@ class Client:
             '   - print_recorded_sensor_data:<data_key>\n'
             '   - plot_sensor_data:<output_file_name>:<data_key_1>:...'
             ':<data_key_n>\n'
+            '   - enable_secure_comms\n'
+            '   - disable_secure_comms'
         )
 
     def process_command(
@@ -200,6 +202,14 @@ class Client:
             plot_name, *data_keys = args
             fig, ax = self.generate_graph(msg_handler, data_keys)
             fig.savefig(plot_name)
+        elif command == 'enable_secure_comms':
+            print('Enabling secure communication...')
+            on_board.enable_secure_comms()
+            print('Enabled')
+        elif command == 'disable_secure_comms':
+            print('Disabling secure communication...')
+            on_board.disable_secure_comms()
+            print('Disabled')
         else:
             print(
                 '\'{}\' is not a valid command. Type \'menu\' for a list of '

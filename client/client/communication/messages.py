@@ -6,6 +6,7 @@ class MessageCommand(Enum):
     The different commands that can be given to the on-board.
     """
     STREAM_BIKE_SENSOR_DATA = 'stream-bike-sensor-data'
+    ENCRYPTION = 'encryption'
 
     def __str__(self):
         return self.value

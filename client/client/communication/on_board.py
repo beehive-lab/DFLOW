@@ -1,5 +1,6 @@
 import socket
 from threading import Thread
+from time import sleep
 
 from client.communication.messages import (
     SensorDataKey,
@@ -47,6 +48,21 @@ class OnBoard:
 
     def is_connected(self):
         return self._comm_link.is_connected()
+
+    def enable_secure_comms(self):
+        message = build_message(MessageCommand.ENCRYPTION, ['on'])
+        self._comm_link.send(message.encode())
+        sleep(1)
+        self.reconnect(True)
+
+    def disable_secure_comms(self):
+        message = build_message(MessageCommand.ENCRYPTION, ['off'])
+        self._comm_link.send(message.encode())
+        sleep(1)
+        self.reconnect(False)
+
+    def reconnect(self, secure=None):
+        self._comm_link.reconnect(secure)
 
 
 class IncomingMessageHandler(Thread):
