@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import yaml
 
 from client.communication.messages import SensorDataKey
-from client.communication.on_board import OnBoard, IncomingMessageHandler
+from client.communication.on_board import OnBoard
 from client.interconnect.bluetooth import BluetoothLink
 from client.interconnect.commlink import CommLink
 from client.interconnect.network import NetworkLink
@@ -43,35 +43,23 @@ class Client:
     def start(self):
         print('Client started...')
 
-        with self.get_connection_to_on_board() as comm_link:
+        with OnBoard(self.get_connection_to_on_board()) as on_board:
 
-            on_board: OnBoard = OnBoard(comm_link)
-            comm_link.connect()
+            print('Successfully connected to on-board...')
 
-            msg_handler: IncomingMessageHandler = IncomingMessageHandler(
-                on_board
-            )
+            self.print_menu()
 
-            try:
-                msg_handler.start()
+            next_command: str
+            while True:
+                next_command = input('command: ').strip()
 
-                print('Successfully connected to on-board...')
+                if next_command.lower().strip() == 'exit':
+                    print('stopping...')
+                    break
 
-                self.print_menu()
+                self.process_command(next_command, on_board)
 
-                next_command: str
-                while True:
-                    next_command = input('command: ').strip()
-
-                    if next_command.lower().strip() == 'exit':
-                        break
-
-                    self.process_command(next_command, on_board, msg_handler)
-            finally:
-                print('Preparing to shut down...')
-                msg_handler.stop()
-                msg_handler.join()
-                print('Shutting down...')
+        print('Client successfully stopped.')
 
     def get_connection_to_on_board(self) -> CommLink:
         """
@@ -166,8 +154,7 @@ class Client:
     def process_command(
         self,
         command: str,
-        on_board,
-        msg_handler: IncomingMessageHandler
+        on_board
     ) -> None:
         command, *args = command.strip().split(':')
         command = command.lower().strip()
@@ -191,7 +178,7 @@ class Client:
                 )
             print('*****************************************')
             print('Recorded data for: ', args[0])
-            print(msg_handler.get_recorded_sensor_data(args[0]))
+            print(on_board.get_recorded_sensor_data(args[0]))
             print('*****************************************')
         elif command == 'plot_sensor_data':
             if not args:
@@ -200,7 +187,7 @@ class Client:
                     '\'help plot_sensor_data\' for help'
                 )
             plot_name, *data_keys = args
-            fig, ax = self.generate_graph(msg_handler, data_keys)
+            fig, ax = self.generate_graph(on_board, data_keys)
             fig.savefig(plot_name)
         elif command == 'enable_secure_comms':
             print('Enabling secure communication...')
@@ -226,7 +213,7 @@ class Client:
 
     def generate_graph(
         self,
-        msg_handler: IncomingMessageHandler,
+        on_board: OnBoard,
         data_keys: [SensorDataKey]
     ):
         fig, ax = plt.subplots()
@@ -236,7 +223,7 @@ class Client:
         xfmt = md.DateFormatter('%Y-%m-%d %H:%M:%S')
         ax.xaxis.set_major_formatter(xfmt)
         for key in data_keys:
-            data = msg_handler.get_recorded_sensor_data(key)
+            data = on_board.get_recorded_sensor_data(key)
             if data:
                 timestamps = []
                 values = []

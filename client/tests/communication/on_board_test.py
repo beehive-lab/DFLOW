@@ -13,6 +13,12 @@ class OnBoardTest(unittest.TestCase):
     A suite of tests surrounding the OnBoard class functionality.
     """
 
+    def setUp(self) -> None:
+        self._mock_message_handler = patch(
+            'client.communication.on_board.IncomingMessageHandler'
+        ).start()
+        self.addCleanup(patch.stopall)
+
     @patch('client.communication.on_board.build_message')
     def test_start_streaming_data(self, mock_build_message):
         """
@@ -47,24 +53,13 @@ class OnBoardTest(unittest.TestCase):
         )
         mock_comm_link.send.assert_called_with(mock_message.encode())
 
-
-class IncomingMessageHandlerTest(unittest.TestCase):
-    """
-    A suite of tests surrounding the IncomingMessageHandler class
-    functionality.
-    """
-
     def test_incoming_stream_bike_sensor_data_msg(self):
         """
         Test incoming data from the bike is dealt with properly.
         """
 
-        # Set up  a mock onboard object with some dummy incoming messages
-        # to be dealt with by the message handler.
-        mock_on_board = MagicMock()
-        mock_on_board.is_connected.return_value = True
-        mock_on_board.get_incoming_msg = MagicMock()
-        mock_on_board.get_incoming_msg.side_effect = [
+        # Create some test sensor data messages.
+        test_sensor_data_messages = [
             b'stream-bike-sensor-data:AIR_TEMPERATURE:30:TIMESTAMP1',
             b'stream-bike-sensor-data:AIR_TEMPERATURE:20:TIMESTAMP2',
             (
@@ -76,18 +71,15 @@ class IncomingMessageHandlerTest(unittest.TestCase):
             b'stream-bike-sensor-data:AIR_TEMPERATURE:0:TIMESTAMP6',
         ]
 
-        # Set up  the message handler object.
-        msg_handler = IncomingMessageHandler(mock_on_board)
+        # Create OnBoard object.
+        mock_comm_link = MagicMock()
+        on_board = OnBoard(mock_comm_link)
 
-        # Run the thread in a try catch and ignore StopIteration errors.  It
-        # will error because it will exhaust the side_effect list and cause
-        # a StopIteration error. This is a messy solution but it works to
-        # test for now.
-        try:
-            msg_handler.run()
-        except StopIteration:
-            pass
+        # Simulate handle_incoming_message call for the test messages.
+        for message in test_sensor_data_messages:
+            on_board.handle_incoming_message(message)
 
+        # Verify all messages are handled correctly.
         expected_data = {
             'AIR_TEMPERATURE': [
                 (b'30', b'TIMESTAMP1'),
@@ -105,13 +97,43 @@ class IncomingMessageHandlerTest(unittest.TestCase):
 
         self.assertListEqual(
             expected_data['AIR_TEMPERATURE'],
-            msg_handler.get_recorded_sensor_data('AIR_TEMPERATURE')
+            on_board.get_recorded_sensor_data('AIR_TEMPERATURE')
         )
         self.assertListEqual(
             expected_data['TYRE_PRESSURE_REAR'],
-            msg_handler.get_recorded_sensor_data('TYRE_PRESSURE_REAR')
+            on_board.get_recorded_sensor_data('TYRE_PRESSURE_REAR')
         )
         self.assertListEqual(
             expected_data['BRAKE_FRONT_ACTIVE'],
-            msg_handler.get_recorded_sensor_data('BRAKE_FRONT_ACTIVE')
+            on_board.get_recorded_sensor_data('BRAKE_FRONT_ACTIVE')
         )
+
+
+class IncomingMessageHandlerTest(unittest.TestCase):
+    """
+    A suite of tests surrounding the IncomingMessageHandler class
+    functionality.
+    """
+
+    def test_incoming_msg_handled(self):
+        """
+        Test incoming message is handled correctly.
+        """
+        test_msg = 'test:message'
+
+        mock_comm_link = MagicMock()
+        mock_comm_link.receive.side_effect = [test_msg]
+        mock_on_board = MagicMock()
+
+        msg_handler = IncomingMessageHandler(mock_on_board, mock_comm_link)
+
+        # Run the thread in a try catch and ignore StopIteration errors.  It
+        # will error because it will exhaust the side_effect list and cause
+        # a StopIteration error. This is a messy solution but it works to
+        # test for now.
+        try:
+            msg_handler.run()
+        except StopIteration:
+            pass
+
+        mock_on_board.handle_incoming_message.assert_called_with(test_msg)
