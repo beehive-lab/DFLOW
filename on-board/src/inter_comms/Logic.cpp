@@ -327,8 +327,9 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
             if (strcmp(token, "exit-application") == 0) {
                 stopping = true;
                 exit_application = true;
-            }
-            if (strcmp(token, "encryption") == 0) {
+            } else if (strcmp(token, "start-bandwidth-test") == 0) {
+                type_of_comms = 3;
+            } else if (strcmp(token, "encryption") == 0) {
                 type_of_comms = 2;
             } else if (strcmp(token, "configure-pipe") == 0) {
                 type_of_comms = 1;
@@ -395,6 +396,12 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                     wifiComms->set_encryption(true);
                 } else if (strcmp(token, "off") == 0) {
                     wifiComms->set_encryption(false);
+                }
+            } else if (type_of_comms == 3) {
+                // Bandwidth test. Ignore message unless it is the last one
+                if (strcmp(token, "bandwidth-test-request-confirm") == 0) {
+                    char to_send[23] = "bandwidth-test-confirm";
+                    wifiComms->send(to_send);
                 }
             }
 
