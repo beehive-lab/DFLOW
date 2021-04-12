@@ -85,6 +85,10 @@ std::map<std::string, std::string> CAN_Python_Interface::getMessageMap()
                 std::string value = std::string(PyUnicode_AsUTF8( PyList_GetItem(pValues,   i) ));
                 message_map.insert( std::pair<std::string, std::string>(key,value));
             }
+            Py_DECREF(pKeys);
+            Py_DECREF(pValues);
+            Py_DECREF(pDict);
+            
         }
         else
         {

@@ -20,7 +20,7 @@ class UDFModuleTest : public ::testing::Test {
 TEST_F(UDFModuleTest, TestDataInterface) {
     std::vector<Pipes> dp_pipes_vector;
      //message which would come from cantools
-    for(int i = 0; i<22; i++)
+    for(int i = 0; i<26; i++)
     {
         Pipes new_pipe;
         pipe(new_pipe.rdwr);
@@ -44,7 +44,7 @@ TEST_F(UDFModuleTest, TestDataInterface) {
 TEST_F(UDFModuleTest, TestAddonFunctions) {
     std::vector<Pipes> dp_pipes_vector;
      //message which would come from cantools
-    for(int i = 0; i<22; i++)
+    for(int i = 0; i<26; i++)
     {
         Pipes new_pipe;
         pipe(new_pipe.rdwr);

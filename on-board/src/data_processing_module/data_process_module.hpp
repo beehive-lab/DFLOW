@@ -14,6 +14,7 @@
 #include"abs_module_message.hpp"
 #include"configurable_modes_message.hpp"
 #include"accelerometer_message.hpp"
+#include"profiling_message.hpp"
 
 #ifndef data_process_module_H
 #define data_process_module_H
@@ -62,7 +63,8 @@ class dataProcessing
                                               THROTTLE_RESPONSE_MODE_PIPE, LEAN_ANGLE_PIPE, BATTERY_VOLTAGE_PIPE,
                                               OIL_PRESSURE_PIPE, GEAR_POSITION_PIPE, WATER_TEMPERATURE_PIPE, 
                                               ENGINE_SPEED_PIPE, ACCELERATION_X_PIPE, ACCELERATION_Y_PIPE,
-                                              ACCELERATION_Z_PIPE};
+                                              ACCELERATION_Z_PIPE, CPU_USAGE_PIPE, CPU_FREQUENCY_PIPE,
+                                              CPU_TEMPERATURE_PIPE, MEMORY_USAGE_PIPE};
 
         std::vector<int> processing_inputs_type = {FLOAT_TYPE, INTEGER_TYPE,
                                                    FLOAT_TYPE, FLOAT_TYPE, INTEGER_TYPE,
@@ -71,7 +73,8 @@ class dataProcessing
                                                    INTEGER_TYPE, FLOAT_TYPE, FLOAT_TYPE,
                                                    FLOAT_TYPE, INTEGER_TYPE, FLOAT_TYPE,
                                                    INTEGER_TYPE, FLOAT_TYPE, FLOAT_TYPE,
-                                                   FLOAT_TYPE};
+                                                   FLOAT_TYPE, FLOAT_TYPE, INTEGER_TYPE,
+                                                   INTEGER_TYPE, INTEGER_TYPE};
 
         std::map<int,std::vector<float>>  float_buckets;
         std::map<int,std::vector<int>>    integer_buckets;
@@ -90,6 +93,7 @@ class dataProcessing
         ConfigurableModesMessage received_config_message;
         IMUSensorMessage        received_imu_message;
         AccelerometerMessage    received_accel_message;
+        ProfilingMessage        received_profiling_message;
 
         bool new_engine_message;
         bool new_intake_message;
@@ -98,6 +102,7 @@ class dataProcessing
         bool new_config_message;
         bool new_imu_message;
         bool new_accel_message;
+        bool new_profiling_message;
 };
 
 

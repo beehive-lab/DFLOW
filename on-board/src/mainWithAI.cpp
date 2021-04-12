@@ -34,7 +34,8 @@ void set_data_processing_module(std::shared_future<void> futureObj)
   std::vector<int> data_modes{AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
                               AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
                               AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
-                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER};
+                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
+                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER};
   dataProcessing processing_module = dataProcessing(can_pipes_vector, processed_pipes_vector, data_modes, 1, 3, 3);
   processing_module.startProcessing(futureObj);
 }
@@ -89,13 +90,13 @@ int main() {
   std::shared_future<void> shrdFutureObj = futureObj.share();
   
   //initialize can pipes and data_proccesing pipes
-  for(int i = 0; i<7; i++)
+  for(int i = 0; i<8; i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       can_pipes_vector.push_back(new_pipe);
   }
-  for(int i = 0; i<22;i++)
+  for(int i = 0; i<26;i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);

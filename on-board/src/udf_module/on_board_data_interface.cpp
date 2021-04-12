@@ -7,7 +7,7 @@ OnBoardDataInterface::OnBoardDataInterface(std::vector<Pipes> processed_pipes_ve
 
 time_t OnBoardDataInterface::getSignalBatch(){
     //FOR NON_BLOCKING READS
-    for(int i=0;i<22;i++)
+    for(int i=0;i<26;i++)
         if(i != TIMESTAMP_PIPE)
             int retval = fcntl(processed_pipes_vector[i].rdwr[READ],F_SETFL,fcntl(processed_pipes_vector[i].rdwr[READ],F_GETFL) | O_NONBLOCK);
     
@@ -56,9 +56,18 @@ time_t OnBoardDataInterface::getSignalBatch(){
         acceleration_y = FLT_MIN;
         if(!(read(processed_pipes_vector[ACCELERATION_Z_PIPE].rdwr[READ],&acceleration_z,sizeof(float)) > 0))
         acceleration_z = FLT_MIN;
+        if(!(read(processed_pipes_vector[CPU_USAGE_PIPE].rdwr[READ],&cpu_usage,sizeof(float)) > 0))
+        cpu_usage = FLT_MIN;
+        if(!(read(processed_pipes_vector[CPU_TEMPERATURE_PIPE].rdwr[READ],&cpu_temp,sizeof(int)) > 0))
+        cpu_temp = INT_MIN;
+        if(!(read(processed_pipes_vector[CPU_FREQUENCY_PIPE].rdwr[READ],&cpu_freq,sizeof(int)) > 0))
+        cpu_freq = INT_MIN;
+        if(!(read(processed_pipes_vector[MEMORY_USAGE_PIPE].rdwr[READ],&memory_usage,sizeof(int)) > 0))
+        memory_usage = INT_MIN;
+        
     }
     //RETURN TO BLOCKING
-    for(int i=0;i<22;i++)
+    for(int i=0;i<26;i++)
             int retval = fcntl(processed_pipes_vector[i].rdwr[READ],F_SETFL,fcntl(processed_pipes_vector[i].rdwr[READ],F_GETFL) | ~O_NONBLOCK);
     return time_received;
 }
@@ -85,6 +94,8 @@ float OnBoardDataInterface::getFloatData(int data_id)
         return acceleration_y;
     else if(data_id == ACCELERATION_Z_PIPE)
         return acceleration_z;
+    else if(data_id == CPU_USAGE_PIPE)
+        return cpu_usage;
     else
         return FLT_MIN;
 }
@@ -113,6 +124,12 @@ int OnBoardDataInterface::getIntegerData(int data_id)
         return gear_position;
     else if(data_id == ENGINE_SPEED_PIPE)
         return engine_speed;
+    else if(data_id == CPU_TEMPERATURE_PIPE)
+        return cpu_temp;
+    else if(data_id == CPU_FREQUENCY_PIPE)
+        return cpu_freq;
+    else if(data_id == MEMORY_USAGE_PIPE)
+        return memory_usage;
     else
         return INT_MIN;
 }

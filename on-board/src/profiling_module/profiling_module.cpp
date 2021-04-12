@@ -1,10 +1,20 @@
 #include "profiling_module.hpp"
 
-
 ProfilingModule::ProfilingModule()
 {
     ProfilingModule::init();
 }
+
+void ProfilingModule::computeAndSendStats(Pipes profiling_pipe)
+{
+    ProfilingMessage profiling_message;
+    profiling_message.data.cpu_freq = getCPUFrequency();
+    profiling_message.data.memory_usage = getMemoryUsage();
+    profiling_message.data.cpu_temp = getCPUTemperature();
+    profiling_message.data.cpu_usage = getCPUUsage();
+    write(profiling_pipe.rdwr[WRITE],&profiling_message.data, sizeof(profiling_message.data));
+}
+
 
 void ProfilingModule::init()
 {
@@ -24,10 +34,11 @@ void ProfilingModule::init()
     data_file.close();
 }
 
-double ProfilingModule::getCPUUsage(){
+float ProfilingModule::getCPUUsage()
+{
     struct tms timeSample;
     clock_t now;
-    double percent;
+    float percent;
 
     now = times(&timeSample);
     int who = RUSAGE_SELF;
@@ -68,7 +79,8 @@ int ProfilingModule::parseLine(std::string line){
     return i;
 }
 
-int ProfilingModule::getMemoryUsage(){ //Note: this value is in KB!
+int ProfilingModule::getMemoryUsage()
+{
     std::ifstream memory_file;
     memory_file.open("/proc/self/status");
     int result = -1;
@@ -82,4 +94,22 @@ int ProfilingModule::getMemoryUsage(){ //Note: this value is in KB!
     }
     memory_file.close();
     return result;
+}
+
+int ProfilingModule::getCPUTemperature()
+{
+    std::ifstream temperature_file;
+    int temp;
+    temperature_file.open("/sys/class/thermal/thermal_zone0/temp");
+    temperature_file>>temp;
+    return temp/1000;
+}
+
+int ProfilingModule::getCPUFrequency()
+{
+    std::ifstream frequency_file;
+    int freq;
+    frequency_file.open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq");
+    frequency_file>>freq;
+    return freq/1000;
 }

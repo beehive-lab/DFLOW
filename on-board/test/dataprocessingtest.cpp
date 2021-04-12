@@ -18,13 +18,13 @@ std::vector<Pipes> output_pipes;
 class DataProcessingTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    for(int i = 0; i<7; i++)
+    for(int i = 0; i<8; i++)
     {
         Pipes new_pipe;
         pipe(new_pipe.rdwr);
         can_pipe_test_vector.push_back(new_pipe);
     }
-    for(int i = 0; i<22; i++)
+    for(int i = 0; i<26; i++)
     {
         Pipes new_pipe;
         pipe(new_pipe.rdwr);
@@ -48,7 +48,8 @@ TEST_F(DataProcessingTest, Setters) {
   std::vector<int> data_modes{FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,
                               FULL_BUFFER,FULL_BUFFER,DO_NOT_COMPUTE,DO_NOT_COMPUTE,DO_NOT_COMPUTE,FULL_BUFFER,
                               FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,
-                              FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER};
+                              FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,FULL_BUFFER,
+                              FULL_BUFFER,FULL_BUFFER};
   
   std::promise<void> exitSignal;
   std::shared_future<void> futureObj = exitSignal.get_future().share();

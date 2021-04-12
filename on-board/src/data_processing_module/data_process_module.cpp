@@ -199,6 +199,7 @@ void dataProcessing::readCanPipes()
     ConfigurableModesMessage temp_config_message;
     IMUSensorMessage        temp_imu_message;
     AccelerometerMessage    temp_accel_message;
+    ProfilingMessage        temp_profiling_message;
 
     //perform non-blocking reads
     ssize_t intake_r = read(can_pipes_vector[INTAKE_MESSAGE_PIPE].rdwr[READ],&temp_intake_message.data,sizeof(temp_intake_message.data));
@@ -208,6 +209,7 @@ void dataProcessing::readCanPipes()
     ssize_t imu_r = read(can_pipes_vector[IMU_MESSAGE_PIPE].rdwr[READ],&temp_imu_message.data,sizeof(temp_imu_message.data));
     ssize_t engine_r = read(can_pipes_vector[ENGINE_MESSAGE_PIPE].rdwr[READ],&temp_engine_message.data,sizeof(temp_engine_message.data));
     ssize_t accel_r = read(can_pipes_vector[ACCELEROMETER_MESSAGE_PIPE].rdwr[READ],&temp_accel_message.data,sizeof(temp_accel_message.data));
+    ssize_t profiling_r = read(can_pipes_vector[PROFILING_MESSAGE_PIPE].rdwr[READ],&temp_profiling_message.data,sizeof(temp_profiling_message.data));
 
     //if read was succesful set current in-module messages
     if(intake_r>0)
@@ -244,6 +246,11 @@ void dataProcessing::readCanPipes()
     {
         received_accel_message = temp_accel_message;
         new_accel_message = true;
+    }
+    if(profiling_r>0)
+    {
+        received_profiling_message = temp_profiling_message;
+        new_profiling_message = true;
     }
 }
 
@@ -305,6 +312,14 @@ void dataProcessing::pushBackToBuckets()
         float_buckets[ACCELERATION_Y_PIPE].push_back(received_accel_message.data.acceleration_y);
         float_buckets[ACCELERATION_Z_PIPE].push_back(received_accel_message.data.acceleration_z);
         new_accel_message = false;
+    }
+
+    if(new_profiling_message)
+    {
+        float_buckets[CPU_USAGE_PIPE].push_back(received_profiling_message.data.cpu_usage);
+        integer_buckets[CPU_FREQUENCY_PIPE].push_back(received_profiling_message.data.cpu_freq);
+        integer_buckets[CPU_TEMPERATURE_PIPE].push_back(received_profiling_message.data.cpu_temp);
+        integer_buckets[MEMORY_USAGE_PIPE].push_back(received_profiling_message.data.memory_usage);
     }
 }
 
@@ -441,7 +456,7 @@ void dataProcessing::startProcessing(std::shared_future<void> futureObj)
     dataProcessing::last_tick_time = time(0);
 
     //make can output pipes non-blocking
-    for(int i=0;i<7;i++)
+    for(int i=0;i<8;i++)
         int retval = fcntl(can_pipes_vector[i].rdwr[READ],F_SETFL,fcntl(can_pipes_vector[i].rdwr[READ],F_GETFL) | O_NONBLOCK);
 
     

@@ -68,6 +68,13 @@ set(CANMODULE_SOURCE
         src/can_module/messages/accelerometer_message.cpp
         src/can_module/messages/accelerometer_message.hpp)
 
+set(DATA_PROCESSING_SOURCE
+        src/data_processing_module/data_process_module.cpp
+        src/data_processing_module/pipes.cpp
+        src/data_processing_module/data_process_module.hpp
+        src/data_processing_module/pipes.hpp
+        )
+
 set(UDFMODULE_SOURCE
         src/udf_module/on_board_data_interface.cpp
         src/udf_module/on_board_data_interface.hpp)
@@ -80,27 +87,46 @@ set(UDFMODULE_AI_SOURCE
 
 set(PROFILING_MODULE_SOURCE
         src/profiling_module/profiling_module.cpp
-        src/profiling_module/profiling_module.hpp)
+        src/profiling_module/profiling_module.hpp
+        src/profiling_module/profiling_message.hpp)
+
+set(INTER_COMMS_SOURCE
+        src/inter_comms/WifiComms.cpp
+        src/inter_comms/BluetoothComms.cpp
+        src/inter_comms/WifiComms.h
+        src/inter_comms/BluetoothComms.h
+        )
+
+set(SECURITY_SOURCE
+        src/crypto/SymmetricEncryption.cpp
+        src/crypto/SymmetricEncryption.h
+        )
 
 set(SOURCE_FILES
-                src/config.cpp
-                src/data_processing_module/data_process_module.cpp
-                src/data_processing_module/pipes.cpp
-                src/inter_comms/WifiComms.cpp
-                src/inter_comms/BluetoothComms.cpp
-                src/crypto/SymmetricEncryption.cpp)
+        src/main.cpp
+        src/config.cpp)
  
-set(HEADER_FILES  src/config.hpp
-               src/data_processing_module/data_process_module.hpp
-               src/data_processing_module/pipes.hpp
-               src/inter_comms/WifiComms.h
-               src/inter_comms/BluetoothComms.h
-               src/crypto/SymmetricEncryption.h)
+set(HEADER_FILES  
+        src/config.hpp
+        )
  
-include_directories( src/can_module src/ libs/can_module src/inter_comms src/data_processing_module src/can_module/messages src/udf_module src/profiling_module)
+set(AI_SOURCE_FILES
+        src/mainWithAI.cpp
+        src/config.cpp)
+include_directories(src/can_module 
+                src/ 
+                src/inter_comms 
+                src/data_processing_module 
+                src/can_module/messages 
+                src/udf_module 
+                src/profiling_module)
  
 # Add executable target with source files listed in SOURCE_FILES variable
-add_executable(DFLOW_OnBoard src/main.cpp ${SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${UDFMODULE_SOURCE} ${PROFILING_MODULE_SOURCE})
+add_executable(DFLOW_OnBoard  ${SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${DATA_PROCESSING_SOURCE}
+                                 ${UDFMODULE_SOURCE} ${PROFILING_MODULE_SOURCE} ${INTER_COMMS_SOURCE} ${SECURITY_SOURCE})
+
+add_executable(DFLOW_OnBoard_WithAI ${AI_SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${DATA_PROCESSING_SOURCE}
+                                ${UDFMODULE_AI_SOURCE} ${PROFILING_MODULE_SOURCE} ${INTER_COMMS_SOURCE} ${SECURITY_SOURCE})
 
 find_package(PythonLibs REQUIRED)
 find_package(frugally-deep REQUIRED)
@@ -110,22 +136,10 @@ find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 link_libraries(ssl crypto)
 target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
-
-add_executable(DFLOW_OnBoard_WithAI src/mainWithAI.cpp ${SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${UDFMODULE_AI_SOURCE} ${PROFILING_MODULE_SOURCE})
-
 include_directories(${PYTHON_INCLUDE_DIRS})
 target_link_libraries(DFLOW_OnBoard_WithAI PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
-
-set(TEST_SOURCE_FILES
-                src/can_module/pycan_interface.cpp
-                src/can_module/can_module.cpp
-                src/can_module/messages/intake_sensors_message.cpp
-                libs/can_module/pstream.h
-                src/config.cpp
-                src/data_processing_module/data_process_module.cpp
-                src/data_processing_module/pipes.cpp
-        )
  
+# testing set up
 set(CAN_TEST_HEADER_FILES src/can_module/pycan_interface.hpp
                         src/can_module/can_interface.hpp
                         src/can_module/can_module.hpp

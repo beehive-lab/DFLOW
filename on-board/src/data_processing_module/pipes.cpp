@@ -22,6 +22,10 @@ const int ACCELERATION_X_PIPE       =18;
 const int ACCELERATION_Y_PIPE       =19;
 const int ACCELERATION_Z_PIPE       =20;
 const int TIMESTAMP_PIPE            =21;
+const int CPU_USAGE_PIPE            =22;
+const int CPU_FREQUENCY_PIPE        =23;
+const int CPU_TEMPERATURE_PIPE      =24;
+const int MEMORY_USAGE_PIPE         =25;
 
 const int INTAKE_MESSAGE_PIPE       =0;
 const int ABS_MESSAGE_PIPE          =1;
@@ -30,6 +34,7 @@ const int ENGINE_MESSAGE_PIPE       =3;
 const int CONFIG_MESSAGE_PIPE       =4;
 const int IMU_MESSAGE_PIPE          =5;
 const int ACCELEROMETER_MESSAGE_PIPE =6;
+const int PROFILING_MESSAGE_PIPE    =7;
 
 const int INTEGER_TYPE = 0;
 const int FLOAT_TYPE = 1;
