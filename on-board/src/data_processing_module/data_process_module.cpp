@@ -9,7 +9,8 @@ const int FULL_BUFFER=4;
 const int DO_NOT_COMPUTE=5;
 
 //constructor
-dataProcessing::dataProcessing(std::vector<Pipes> can_pipes_vector, std::vector<Pipes> output_pipe_vector, std::vector<int> data_mode_vector, int tick_interval, int interval, int buffer_size)
+dataProcessing::dataProcessing(std::vector<Pipes> can_pipes_vector, std::vector<Pipes> output_pipe_vector,
+                               std::vector<int> data_mode_vector, int tick_interval, int interval, int buffer_size)
 {
     //set up pipes and intervals
     dataProcessing::can_pipes_vector = can_pipes_vector;
@@ -19,30 +20,27 @@ dataProcessing::dataProcessing(std::vector<Pipes> can_pipes_vector, std::vector<
     dataProcessing::time_interval = interval;
     dataProcessing::last_time = time(0);
 
-    //intialise buffers
-    dataProcessing::air_temperature_buffer     =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::throttle_position_buffer   =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::tyre_pressure_front_buffer =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::tyre_pressure_rear_buffer  =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::motorcycle_speed_buffer    =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::rear_wheel_speed_buffer    =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::front_wheel_speed_buffer   =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::brake_rear_active_buffer   =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::brake_front_active_buffer  =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::abs_mode_buffer            =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::tc_mode_buffer             =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::throttle_response_mode_buffer=boost::circular_buffer<int>(buffer_size);
-    dataProcessing::lean_angle_buffer          =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::battery_voltage_buffer     =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::oil_pressure_buffer        =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::gear_position_buffer       =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::water_temperature_buffer   =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::engine_speed_buffer        =boost::circular_buffer<int>(buffer_size);
-    dataProcessing::acceleration_x_buffer        =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::acceleration_y_buffer        =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::acceleration_z_buffer        =boost::circular_buffer<float>(buffer_size);
-    dataProcessing::time_stamp_buffer          =boost::circular_buffer<time_t>(buffer_size);
+    //creater buffers and buckets
+    for(int i = 0; i < processing_inputs.size(); i++)
+    {
+        if(processing_inputs_type[i] == INTEGER_TYPE)
+        {
+            integer_buffers.insert(std::pair<int,boost::circular_buffer<int>>(processing_inputs[i],boost::circular_buffer<int>(buffer_size)));
+            integer_buckets.insert(std::pair<int,std::vector<int>>(processing_inputs[i],std::vector<int>()));
+        }
+        else if(processing_inputs_type[i] == FLOAT_TYPE)
+        {
+            float_buffers.insert(std::pair<int,boost::circular_buffer<float>>(processing_inputs[i],boost::circular_buffer<float>(buffer_size)));
+            float_buckets.insert(std::pair<int,std::vector<float>>(processing_inputs[i],std::vector<float>()));
+        }
+        else if(processing_inputs_type[i] == BOOLEAN_TYPE)
+        {
+            boolean_buffers.insert(std::pair<int,boost::circular_buffer<bool>>(processing_inputs[i],boost::circular_buffer<bool>(buffer_size)));
+            boolean_buckets.insert(std::pair<int,std::vector<bool>>(processing_inputs[i],std::vector<bool>()));
+        }   
+    }
 
+    dataProcessing::time_stamp_buffer = boost::circular_buffer<time_t>(buffer_size);
 }
 
 //compute ouput of different type buffers based on data mode(taken from data_index - which is the global variable defining the respective pipe)
@@ -249,94 +247,79 @@ void dataProcessing::readCanPipes()
     }
 }
 
+//!!this function performs the mapping between messages and signal buckets/buffers!!
+//Push any new messages to buckets
 void dataProcessing::pushBackToBuckets()
 {
     if(new_intake_message)
     {
-        dataProcessing::air_temperature_bucket.push_back(received_intake_message.data.air_temperature);
-        dataProcessing::throttle_position_bucket.push_back(received_intake_message.data.throttle_position);
+        float_buckets[AIR_TEMPERATURE_PIPE].push_back(received_intake_message.data.air_temperature);
+        integer_buckets[THROTTLE_POSITION_PIPE].push_back(received_intake_message.data.throttle_position);
         new_intake_message = false;
     }
 
     if(new_tpm_message)
     {
-        dataProcessing::tyre_pressure_front_bucket.push_back(received_tpm_message.data.tyre_pressure_front);
-        dataProcessing::tyre_pressure_rear_bucket.push_back(received_tpm_message.data.tyre_pressure_rear);
+        float_buckets[TYRE_PRESSURE_FRONT_PIPE].push_back(received_tpm_message.data.tyre_pressure_front);
+        float_buckets[TYRE_PRESSURE_REAR_PIPE].push_back(received_tpm_message.data.tyre_pressure_rear);
         new_tpm_message = false;
     }
 
     if(new_abs_message)
     {
-        dataProcessing::motorcycle_speed_bucket.push_back(received_abs_message.data.motorcycle_speed); 
-        dataProcessing::rear_wheel_speed_bucket.push_back(received_abs_message.data.rear_wheel_speed);
-        dataProcessing::front_wheel_speed_bucket.push_back(received_abs_message.data.front_wheel_speed);
-        dataProcessing::brake_rear_active_bucket.push_back(received_abs_message.data.rear_brake_active); 
-        dataProcessing::brake_front_active_bucket.push_back(received_abs_message.data.front_brake_active);
+        integer_buckets[MOTORCYCLE_SPEED_PIPE].push_back(received_abs_message.data.motorcycle_speed); 
+        integer_buckets[REAR_WHEEL_SPEED_PIPE].push_back(received_abs_message.data.rear_wheel_speed);
+        integer_buckets[FRONT_WHEEL_SPEED_PIPE].push_back(received_abs_message.data.front_wheel_speed);
+        integer_buckets[BRAKE_REAR_ACTIVE_PIPE].push_back(received_abs_message.data.rear_brake_active); 
+        integer_buckets[BRAKE_FRONT_ACTIVE_PIPE].push_back(received_abs_message.data.front_brake_active);
         new_abs_message = false;
     }
 
     if(new_config_message)
     {
-        dataProcessing::abs_mode_bucket.push_back(received_config_message.data.abs_mode);            
-        dataProcessing::tc_mode_bucket.push_back(received_config_message.data.tc_mode);
-        dataProcessing::throttle_response_mode_bucket.push_back(received_config_message.data.throttle_response_mode);
+        integer_buckets[ABS_MODE_PIPE].push_back(received_config_message.data.abs_mode);            
+        integer_buckets[TC_MODE_PIPE].push_back(received_config_message.data.tc_mode);
+        integer_buckets[THROTTLE_RESPONSE_MODE_PIPE].push_back(received_config_message.data.throttle_response_mode);
         new_config_message = false;
     }
 
     if(new_imu_message)
     {
-        dataProcessing::lean_angle_bucket.push_back(received_imu_message.data.lean_angle);
+        float_buckets[LEAN_ANGLE_PIPE].push_back(received_imu_message.data.lean_angle);
         new_imu_message = false;
     }
 
     if(new_engine_message)
     {
-        dataProcessing::battery_voltage_bucket.push_back(received_engine_message.data.battery_voltage);     
-        dataProcessing::oil_pressure_bucket.push_back(received_engine_message.data.oil_pressure);
-        dataProcessing::gear_position_bucket.push_back(received_engine_message.data.gear_position);
-        dataProcessing::water_temperature_bucket.push_back(received_engine_message.data.water_temperature);
-        dataProcessing::engine_speed_bucket.push_back(received_engine_message.data.engine_speed);
+        float_buckets[BATTERY_VOLTAGE_PIPE].push_back(received_engine_message.data.battery_voltage);     
+        float_buckets[OIL_PRESSURE_PIPE].push_back(received_engine_message.data.oil_pressure);
+        integer_buckets[GEAR_POSITION_PIPE].push_back(received_engine_message.data.gear_position);
+        float_buckets[WATER_TEMPERATURE_PIPE].push_back(received_engine_message.data.water_temperature);
+        integer_buckets[ENGINE_SPEED_PIPE].push_back(received_engine_message.data.engine_speed);
         new_engine_message = false;
     }
 
     if(new_accel_message)
     {
-        dataProcessing::acceleration_x_bucket.push_back(received_accel_message.data.acceleration_x);
-        dataProcessing::acceleration_y_bucket.push_back(received_accel_message.data.acceleration_y);
-        dataProcessing::acceleration_z_bucket.push_back(received_accel_message.data.acceleration_z);
+        float_buckets[ACCELERATION_X_PIPE].push_back(received_accel_message.data.acceleration_x);
+        float_buckets[ACCELERATION_Y_PIPE].push_back(received_accel_message.data.acceleration_y);
+        float_buckets[ACCELERATION_Z_PIPE].push_back(received_accel_message.data.acceleration_z);
         new_accel_message = false;
     }
 }
 
+//clear buckets after pushing to buffers
 void dataProcessing::clearBuckets()
 {
-    dataProcessing::air_temperature_bucket.clear();    
-    dataProcessing::throttle_position_bucket.clear();
-
-    dataProcessing::tyre_pressure_front_bucket.clear();
-    dataProcessing::tyre_pressure_rear_bucket.clear();
-
-    dataProcessing::motorcycle_speed_bucket.clear(); 
-    dataProcessing::rear_wheel_speed_bucket.clear();
-    dataProcessing::front_wheel_speed_bucket.clear();
-    dataProcessing::brake_rear_active_bucket.clear(); 
-    dataProcessing::brake_front_active_bucket.clear();
-
-    dataProcessing::abs_mode_bucket.clear();            
-    dataProcessing::tc_mode_bucket.clear();
-    dataProcessing::throttle_response_mode_bucket.clear();
-
-    dataProcessing::lean_angle_bucket.clear();
-
-    dataProcessing::battery_voltage_bucket.clear();     
-    dataProcessing::oil_pressure_bucket.clear();
-    dataProcessing::gear_position_bucket.clear();
-    dataProcessing::water_temperature_bucket.clear();
-    dataProcessing::engine_speed_bucket.clear();
-
-    dataProcessing::acceleration_x_bucket.clear();
-    dataProcessing::acceleration_y_bucket.clear();
-    dataProcessing::acceleration_z_bucket.clear();
+    for(int i = 0; i <  processing_inputs.size(); i++)
+    {
+        if(processing_inputs_type[i] == INTEGER_TYPE)
+            integer_buckets[processing_inputs[i]].clear();
+        else if(processing_inputs_type[i] == FLOAT_TYPE)
+            float_buckets[processing_inputs[i]].clear();
+        else if(processing_inputs_type[i] == BOOLEAN_TYPE)
+            boolean_buckets[processing_inputs[i]].clear();
+    }
 }
 
 int getIntegerAverageOfVector(std::vector<int> v)
@@ -355,37 +338,31 @@ float getFloatAverageOfVector(std::vector<float> v)
         return 0;
 }
 
+bool getBooleanAverageOfVector(std::vector<bool> v)
+{
+    if(v.size() > 0)
+        if(static_cast<float>(std::accumulate(v.begin(),v.end(), 0.0))/ static_cast<float>(v.size()) >= 0.5)
+            return true;
+        else
+            return false;
+    else
+        return 0;
+}
+
 //helper function that pushes back the current module signals to the buffers
 //takes the current time as parameter to set the timestamp buffer
 void dataProcessing::pushBackSignals(time_t time)
 {
 
-    dataProcessing::air_temperature_buffer.push_back(getFloatAverageOfVector(air_temperature_bucket));    
-    dataProcessing::throttle_position_buffer.push_back(getIntegerAverageOfVector(throttle_position_bucket));
-
-    dataProcessing::tyre_pressure_front_buffer.push_back(getFloatAverageOfVector(tyre_pressure_front_bucket));
-    dataProcessing::tyre_pressure_rear_buffer.push_back(getFloatAverageOfVector(tyre_pressure_rear_bucket));
-
-    dataProcessing::motorcycle_speed_buffer.push_back(getIntegerAverageOfVector(motorcycle_speed_bucket)); 
-    dataProcessing::rear_wheel_speed_buffer.push_back(getIntegerAverageOfVector(rear_wheel_speed_bucket));
-    dataProcessing::front_wheel_speed_buffer.push_back(getIntegerAverageOfVector(front_wheel_speed_bucket));
-    dataProcessing::brake_rear_active_buffer.push_back(getIntegerAverageOfVector(brake_rear_active_bucket)); 
-    dataProcessing::brake_front_active_buffer.push_back(getIntegerAverageOfVector(brake_front_active_bucket));
-
-    dataProcessing::abs_mode_buffer.push_back(getIntegerAverageOfVector(abs_mode_bucket));            
-    dataProcessing::tc_mode_buffer.push_back(getIntegerAverageOfVector(tc_mode_bucket));
-    dataProcessing::throttle_response_mode_buffer.push_back(getIntegerAverageOfVector(throttle_response_mode_bucket));
-    dataProcessing::lean_angle_buffer.push_back(getFloatAverageOfVector(lean_angle_bucket));
-
-    dataProcessing::battery_voltage_buffer.push_back(getFloatAverageOfVector(battery_voltage_bucket));     
-    dataProcessing::oil_pressure_buffer.push_back(getFloatAverageOfVector(oil_pressure_bucket));
-    dataProcessing::gear_position_buffer.push_back(getIntegerAverageOfVector(gear_position_bucket));
-    dataProcessing::water_temperature_buffer.push_back(getFloatAverageOfVector(water_temperature_bucket));
-    dataProcessing::engine_speed_buffer.push_back(getIntegerAverageOfVector(engine_speed_bucket));
-
-    dataProcessing::acceleration_x_buffer.push_back(getFloatAverageOfVector(acceleration_x_bucket));
-    dataProcessing::acceleration_y_buffer.push_back(getFloatAverageOfVector(acceleration_y_bucket));
-    dataProcessing::acceleration_z_buffer.push_back(getFloatAverageOfVector(acceleration_z_bucket));
+    for(int i = 0; i <  processing_inputs.size(); i++)
+    {
+        if(processing_inputs_type[i] == INTEGER_TYPE)
+            integer_buffers[processing_inputs[i]].push_back(getIntegerAverageOfVector(integer_buckets[processing_inputs[i]]));
+        else if(processing_inputs_type[i] == FLOAT_TYPE)
+            float_buffers[processing_inputs[i]].push_back(getFloatAverageOfVector(float_buckets[processing_inputs[i]]));
+        else if(processing_inputs_type[i] == BOOLEAN_TYPE)
+            boolean_buffers[processing_inputs[i]].push_back(getBooleanAverageOfVector(boolean_buckets[processing_inputs[i]]));
+    }
 
     dataProcessing::clearBuckets();
 
@@ -485,40 +462,15 @@ void dataProcessing::startProcessing(std::shared_future<void> futureObj)
         {
             last_time = time(0);
 
-            //INTAKE_SENSORS
-            dataProcessing::sendFloatData(air_temperature_buffer,AIR_TEMPERATURE_PIPE);
-            dataProcessing::sendIntegerData(throttle_position_buffer,THROTTLE_POSITION_PIPE);
-
-            //TPM_MODULE
-            dataProcessing::sendFloatData(tyre_pressure_front_buffer,TYRE_PRESSURE_FRONT_PIPE);
-            dataProcessing::sendFloatData(tyre_pressure_rear_buffer,TYRE_PRESSURE_REAR_PIPE);
-
-            //ABS_MODULE
-            dataProcessing::sendIntegerData(motorcycle_speed_buffer,MOTORCYCLE_SPEED_PIPE);
-            dataProcessing::sendIntegerData(rear_wheel_speed_buffer,REAR_WHEEL_SPEED_PIPE);
-            dataProcessing::sendIntegerData(front_wheel_speed_buffer,FRONT_WHEEL_SPEED_PIPE);
-            dataProcessing::sendIntegerData(brake_rear_active_buffer,BRAKE_REAR_ACTIVE_PIPE);
-            dataProcessing::sendIntegerData(brake_front_active_buffer,BRAKE_FRONT_ACTIVE_PIPE);
-
-            //CONFIG_MODES
-            dataProcessing::sendIntegerData(abs_mode_buffer,ABS_MODE_PIPE);
-            dataProcessing::sendIntegerData(tc_mode_buffer,TC_MODE_PIPE);
-            dataProcessing::sendIntegerData(throttle_position_buffer,THROTTLE_POSITION_PIPE);
-
-            //IMU_MODULE
-            dataProcessing::sendFloatData(lean_angle_buffer,LEAN_ANGLE_PIPE);
-            
-            //ENGINE_SENSORS
-            dataProcessing::sendFloatData(battery_voltage_buffer,BATTERY_VOLTAGE_PIPE);
-            dataProcessing::sendFloatData(oil_pressure_buffer,OIL_PRESSURE_PIPE);
-            dataProcessing::sendIntegerData(gear_position_buffer,GEAR_POSITION_PIPE);
-            dataProcessing::sendFloatData(water_temperature_buffer,WATER_TEMPERATURE_PIPE);
-            dataProcessing::sendIntegerData(engine_speed_buffer,ENGINE_SPEED_PIPE);
-
-            //ACCELEROMETER
-            dataProcessing::sendFloatData(acceleration_x_buffer,ACCELERATION_X_PIPE);
-            dataProcessing::sendFloatData(acceleration_y_buffer,ACCELERATION_Y_PIPE);
-            dataProcessing::sendFloatData(acceleration_z_buffer,ACCELERATION_Z_PIPE);
+            for(int i = 0; i <  processing_inputs.size(); i++)
+            {
+                if(processing_inputs_type[i] == INTEGER_TYPE)
+                    sendIntegerData(integer_buffers[processing_inputs[i]], processing_inputs[i]);
+                else if(processing_inputs_type[i] == FLOAT_TYPE)
+                    sendFloatData(float_buffers[processing_inputs[i]], processing_inputs[i]);
+                else if(processing_inputs_type[i] == BOOLEAN_TYPE)
+                    sendBooleanData(boolean_buffers[processing_inputs[i]], processing_inputs[i]);
+            }
 
             dataProcessing::sendTimeData(time_stamp_buffer,TIMESTAMP_PIPE);
         }

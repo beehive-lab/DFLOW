@@ -36,6 +36,9 @@ extern const int CONFIG_MESSAGE_PIPE;
 extern const int IMU_MESSAGE_PIPE;
 extern const int ACCELEROMETER_MESSAGE_PIPE;
 
+extern const int INTEGER_TYPE;
+extern const int FLOAT_TYPE;
+extern const int BOOLEAN_TYPE;
 
 extern const int READ;
 extern const int WRITE;

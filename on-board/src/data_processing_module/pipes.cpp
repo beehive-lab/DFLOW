@@ -31,6 +31,9 @@ const int CONFIG_MESSAGE_PIPE       =4;
 const int IMU_MESSAGE_PIPE          =5;
 const int ACCELEROMETER_MESSAGE_PIPE =6;
 
+const int INTEGER_TYPE = 0;
+const int FLOAT_TYPE = 1;
+const int BOOLEAN_TYPE = 2;
 
 const int READ                      =0;
 const int WRITE                     =1;
