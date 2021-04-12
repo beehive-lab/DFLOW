@@ -75,14 +75,18 @@ class BluetoothLink(CommLink):
         self._sock.connect((self._mac_addr, self._channel))
         self._connected = True
 
-    def reconnect(self) -> None:
+    def reconnect(self, secure=None) -> None:
+        if secure is not None:
+            self._secure = secure
         self.disconnect()
         self._sock = self._create_bluetooth_socket()
         self.connect()
 
     def disconnect(self) -> None:
-        self._connected = False
-        self._sock.close()
+        if self._connected:
+            self._connected = False
+            self._sock.settimeout(1)  # Interrupt any recv going on.
+            self._sock.close()
 
     def send(self, data: bytes) -> None:
         self._sock.sendall(data)

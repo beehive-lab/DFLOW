@@ -31,6 +31,10 @@ WifiComms::WifiComms() {
     context = nullptr;
 }
 
+void WifiComms::set_encryption(bool encryption_set) {
+    this->encryption = encryption_set;
+}
+
 int WifiComms::send(char *data) {
 
     int no_of_bytes;

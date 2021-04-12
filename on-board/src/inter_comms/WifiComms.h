@@ -12,6 +12,8 @@ public:
 
     explicit WifiComms();
 
+    void set_encryption(bool encryption_set);
+
     int send(char *data) override;
 
     int receive(char buffer[BUFFER_SIZE]) override;

@@ -15,7 +15,7 @@ class CommLink(ABC):
         pass
 
     @abstractmethod
-    def reconnect(self) -> None:
+    def reconnect(self, secure=None) -> None:
         pass
 
     @abstractmethod
