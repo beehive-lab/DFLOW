@@ -87,6 +87,7 @@ void set_profiling_module(Pipes profiling_pipe)
     profiling_module.computeAndSendStats(profiling_pipe);
     usleep(1000000);
   }
+}
 
 void logic_module_thread()
 {
