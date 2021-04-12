@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include "tpm_module_message.hpp"
 
 void TPMModuleMessage::set_from_map(std::map<std::string,std::string> value_map)

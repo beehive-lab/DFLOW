@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include "can_module.hpp"
 
 //constructor

@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #ifndef FILE_INTERFACE_H
 #define FILE_INTERFACE_H
 

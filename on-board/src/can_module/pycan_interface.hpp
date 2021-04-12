@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include <string>
 #include <map>
 #include <Python.h>

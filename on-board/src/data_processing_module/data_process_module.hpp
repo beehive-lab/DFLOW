@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include <boost/circular_buffer.hpp>
 #include <pipes.hpp>
 #include <vector>
@@ -14,6 +15,7 @@
 #include"abs_module_message.hpp"
 #include"configurable_modes_message.hpp"
 #include"accelerometer_message.hpp"
+#include"profiling_message.hpp"
 
 #ifndef data_process_module_H
 #define data_process_module_H
@@ -55,49 +57,34 @@ class dataProcessing
         int time_interval;
         int tick_interval;
 
-        std::vector<float>   air_temperature_bucket;
-        std::vector<int>     throttle_position_bucket;
-        std::vector<float>   tyre_pressure_front_bucket;
-        std::vector<float>   tyre_pressure_rear_bucket;
-        std::vector<int>     motorcycle_speed_bucket;
-        std::vector<int>     rear_wheel_speed_bucket;
-        std::vector<int>     front_wheel_speed_bucket;
-        std::vector<int>     brake_rear_active_bucket;
-        std::vector<int>     brake_front_active_bucket;
-        std::vector<int>     abs_mode_bucket;
-        std::vector<int>     tc_mode_bucket;
-        std::vector<int>     throttle_response_mode_bucket;
-        std::vector<float>   lean_angle_bucket;
-        std::vector<float>   battery_voltage_bucket;
-        std::vector<float>   oil_pressure_bucket;
-        std::vector<int>     gear_position_bucket;
-        std::vector<float>   water_temperature_bucket;
-        std::vector<int>     engine_speed_bucket;
-        std::vector<float>   acceleration_x_bucket;
-        std::vector<float>   acceleration_y_bucket;
-        std::vector<float>   acceleration_z_bucket;
+        std::vector<int> processing_inputs = {AIR_TEMPERATURE_PIPE, THROTTLE_POSITION_PIPE,
+                                              TYRE_PRESSURE_FRONT_PIPE, TYRE_PRESSURE_REAR_PIPE, MOTORCYCLE_SPEED_PIPE,
+                                              REAR_WHEEL_SPEED_PIPE, FRONT_WHEEL_SPEED_PIPE, BRAKE_REAR_ACTIVE_PIPE,
+                                              BRAKE_FRONT_ACTIVE_PIPE, ABS_MODE_PIPE, TC_MODE_PIPE, 
+                                              THROTTLE_RESPONSE_MODE_PIPE, LEAN_ANGLE_PIPE, BATTERY_VOLTAGE_PIPE,
+                                              OIL_PRESSURE_PIPE, GEAR_POSITION_PIPE, WATER_TEMPERATURE_PIPE, 
+                                              ENGINE_SPEED_PIPE, ACCELERATION_X_PIPE, ACCELERATION_Y_PIPE,
+                                              ACCELERATION_Z_PIPE, CPU_USAGE_PIPE, CPU_FREQUENCY_PIPE,
+                                              CPU_TEMPERATURE_PIPE, MEMORY_USAGE_PIPE};
 
-        boost::circular_buffer<float>   air_temperature_buffer;
-        boost::circular_buffer<int>     throttle_position_buffer;
-        boost::circular_buffer<float>   tyre_pressure_front_buffer;
-        boost::circular_buffer<float>   tyre_pressure_rear_buffer;
-        boost::circular_buffer<int>     motorcycle_speed_buffer;
-        boost::circular_buffer<int>     rear_wheel_speed_buffer;
-        boost::circular_buffer<int>     front_wheel_speed_buffer;
-        boost::circular_buffer<int>     brake_rear_active_buffer;
-        boost::circular_buffer<int>     brake_front_active_buffer;
-        boost::circular_buffer<int>     abs_mode_buffer;
-        boost::circular_buffer<int>     tc_mode_buffer;
-        boost::circular_buffer<int>     throttle_response_mode_buffer;
-        boost::circular_buffer<float>   lean_angle_buffer;
-        boost::circular_buffer<float>   battery_voltage_buffer;
-        boost::circular_buffer<float>   oil_pressure_buffer;
-        boost::circular_buffer<int>     gear_position_buffer;
-        boost::circular_buffer<float>   water_temperature_buffer;
-        boost::circular_buffer<int>     engine_speed_buffer;
-        boost::circular_buffer<float>     acceleration_x_buffer;
-        boost::circular_buffer<float>     acceleration_y_buffer;
-        boost::circular_buffer<float>     acceleration_z_buffer;
+        std::vector<int> processing_inputs_type = {FLOAT_TYPE, INTEGER_TYPE,
+                                                   FLOAT_TYPE, FLOAT_TYPE, INTEGER_TYPE,
+                                                   INTEGER_TYPE, INTEGER_TYPE, INTEGER_TYPE,
+                                                   INTEGER_TYPE, INTEGER_TYPE, INTEGER_TYPE,
+                                                   INTEGER_TYPE, FLOAT_TYPE, FLOAT_TYPE,
+                                                   FLOAT_TYPE, INTEGER_TYPE, FLOAT_TYPE,
+                                                   INTEGER_TYPE, FLOAT_TYPE, FLOAT_TYPE,
+                                                   FLOAT_TYPE, FLOAT_TYPE, INTEGER_TYPE,
+                                                   INTEGER_TYPE, INTEGER_TYPE};
+
+        std::map<int,std::vector<float>>  float_buckets;
+        std::map<int,std::vector<int>>    integer_buckets;
+        std::map<int,std::vector<bool>> boolean_buckets;
+
+        std::map<int,boost::circular_buffer<float>>  float_buffers;
+        std::map<int,boost::circular_buffer<int>>    integer_buffers;
+        std::map<int,boost::circular_buffer<bool>>   boolean_buffers;
+
         boost::circular_buffer<time_t>  time_stamp_buffer;
 
         EngineSensorsMessage    received_engine_message;
@@ -107,6 +94,7 @@ class dataProcessing
         ConfigurableModesMessage received_config_message;
         IMUSensorMessage        received_imu_message;
         AccelerometerMessage    received_accel_message;
+        ProfilingMessage        received_profiling_message;
 
         bool new_engine_message;
         bool new_intake_message;
@@ -115,6 +103,7 @@ class dataProcessing
         bool new_config_message;
         bool new_imu_message;
         bool new_accel_message;
+        bool new_profiling_message;
 };
 
 

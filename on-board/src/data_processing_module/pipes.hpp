@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include <vector>
 
 
@@ -27,6 +28,10 @@ extern const int ACCELERATION_X_PIPE;
 extern const int ACCELERATION_Y_PIPE;
 extern const int ACCELERATION_Z_PIPE;
 extern const int TIMESTAMP_PIPE;
+extern const int CPU_USAGE_PIPE;
+extern const int CPU_FREQUENCY_PIPE;
+extern const int CPU_TEMPERATURE_PIPE;
+extern const int MEMORY_USAGE_PIPE;
 
 extern const int INTAKE_MESSAGE_PIPE;
 extern const int ABS_MESSAGE_PIPE;
@@ -35,7 +40,11 @@ extern const int ENGINE_MESSAGE_PIPE;
 extern const int CONFIG_MESSAGE_PIPE;
 extern const int IMU_MESSAGE_PIPE;
 extern const int ACCELEROMETER_MESSAGE_PIPE;
+extern const int PROFILING_MESSAGE_PIPE;
 
+extern const int INTEGER_TYPE;
+extern const int FLOAT_TYPE;
+extern const int BOOLEAN_TYPE;
 
 extern const int READ;
 extern const int WRITE;

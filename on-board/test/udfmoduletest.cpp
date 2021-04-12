@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include <string>
 #include <ctime>
 #include <vector>
@@ -23,7 +24,7 @@ TEST_F(UDFModuleTest, TestDataInterface) {
 
      //message which would come from cantools
     pipe(config_pipe.rdwr);
-    for(int i = 0; i<22; i++)
+    for(int i = 0; i<26; i++)
     {
         Pipes new_pipe;
         pipe(new_pipe.rdwr);
@@ -41,7 +42,7 @@ TEST_F(UDFModuleTest, TestDataInterface) {
     EXPECT_EQ(time_test, received_time);
     EXPECT_FLOAT_EQ(lean_angle,data_interface.getFloatData(LEAN_ANGLE_PIPE));
     EXPECT_EQ(1,data_interface.getIntegerData(GEAR_POSITION_PIPE));
-    EXPECT_EQ(-1, data_interface.getIntegerData(MOTORCYCLE_SPEED_PIPE));
+    EXPECT_EQ(INT_MIN, data_interface.getIntegerData(MOTORCYCLE_SPEED_PIPE));
 }
 
 TEST_F(UDFModuleTest, TestAddonFunctions) {
@@ -50,7 +51,7 @@ TEST_F(UDFModuleTest, TestAddonFunctions) {
 
      //message which would come from cantools
     pipe(config_pipe.rdwr);
-    for(int i = 0; i<22; i++)
+    for(int i = 0; i<26; i++)
     {
         Pipes new_pipe;
         pipe(new_pipe.rdwr);

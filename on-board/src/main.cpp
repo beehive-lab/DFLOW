@@ -11,7 +11,9 @@
 #include <boost/circular_buffer.hpp>
 #include "Logic.h"
 #include "on_board_data_interface.hpp"
+#include "profiling_module.hpp"
 #include "config.hpp"
+
 using namespace std;
 
 //second release prototype
@@ -35,7 +37,8 @@ void set_data_processing_module(std::shared_future<void> futureObj)
   std::vector<int> data_modes{AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
                               AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
                               AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
-                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER};
+                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
+                              AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER};
   dataProcessing processing_module = dataProcessing(can_pipes_vector, processed_pipes_vector, data_modes, 1, 3, 3);
   processing_module.startProcessing(futureObj);
 }
@@ -68,7 +71,21 @@ void check_data_from_dprocess()
   {
     time_t time_of_batch = data_interface.getSignalBatch();
     std::cout<<"Lean_Angle is "<<data_interface.getFloatData(LEAN_ANGLE_PIPE)<<std::endl;
-    std::cout<<"Gear Position is "<<data_interface.getIntegerData(GEAR_POSITION_PIPE)<<std::endl;
+    std::cout<<"CPU Usage is "<<data_interface.getFloatData(CPU_USAGE_PIPE)<<std::endl;
+    std::cout<<"CPU Freq is "<<data_interface.getIntegerData(CPU_FREQUENCY_PIPE)<<std::endl;
+    std::cout<<"CPU Temp is "<<data_interface.getIntegerData(CPU_TEMPERATURE_PIPE)<<std::endl;
+    std::cout<<"Memory Usage is "<<data_interface.getIntegerData(MEMORY_USAGE_PIPE)<<std::endl;
+  }
+}
+
+
+void set_profiling_module(Pipes profiling_pipe)
+{
+  ProfilingModule profiling_module;
+  while(true)
+  {
+    profiling_module.computeAndSendStats(profiling_pipe);
+    usleep(1000000);
   }
 }
 
@@ -88,28 +105,29 @@ int main() {
 
   pipe(config_pipe.rdwr);
   //initialize can pipes and data_proccesing pipes
-  for(int i = 0; i<7; i++)
+  for(int i = 0; i<8; i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       can_pipes_vector.push_back(new_pipe);
   }
-  for(int i = 0; i<22;i++)
+  for(int i = 0; i<26;i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       processed_pipes_vector.push_back(new_pipe);
   }
 
-  // create threads
-  std::thread first(retrieve,shrdFutureObj);
-  std::thread second(set_data_processing_module,shrdFutureObj);
-//  std::thread third(check_data_from_dprocess);
-    std::thread logic_thread(logic_module_thread);
-    first.join();
-  second.join();
-//  third.join();
-
-    logic_thread.join();
-   return 0;
+  //create threads
+  std::thread can_thread(retrieve,shrdFutureObj);
+  std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
+  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
+  std::thread udf_thread(check_data_from_dprocess);
+  std::thread logic_thread(logic_module_thread);
+  can_thread.join();
+  data_proccesing_thread.join();
+  profiling_thread.join();
+  udf_thread.join();
+  logic_thread.join();
+  return 0;
 }

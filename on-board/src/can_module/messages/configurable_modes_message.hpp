@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include <map>
 #include <string>
 
