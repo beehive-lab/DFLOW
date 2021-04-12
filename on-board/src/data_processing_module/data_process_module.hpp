@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include <boost/circular_buffer.hpp>
 #include <pipes.hpp>
 #include <vector>

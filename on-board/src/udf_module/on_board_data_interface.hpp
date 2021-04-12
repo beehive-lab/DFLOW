@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include <ctime>
 #include <fcntl.h>
 #include "pipes.hpp"

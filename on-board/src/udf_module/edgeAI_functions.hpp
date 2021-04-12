@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #ifndef EDGEAI_FUNCTIONS_H
 #define EDGEAI_FUNCTIONS_H
 

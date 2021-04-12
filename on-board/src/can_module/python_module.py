@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+#Author: Radu-Tudor Andra
 import os
 from binascii import hexlify
 import cantools

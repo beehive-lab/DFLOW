@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include <pipes.hpp>
 
 const int AIR_TEMPERATURE_PIPE      =0;

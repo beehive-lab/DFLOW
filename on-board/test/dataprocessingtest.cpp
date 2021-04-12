@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include "data_process_module.hpp"
 #include "pipes.hpp"
 #include <string>

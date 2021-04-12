@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include "accelerometer_message.hpp"
 
 void AccelerometerMessage::set_from_string(std::string str)

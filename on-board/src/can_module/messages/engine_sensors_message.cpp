@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include "engine_sensors_message.hpp"
 
 void EngineSensorsMessage::set_from_map(std::map<std::string,std::string> value_map)

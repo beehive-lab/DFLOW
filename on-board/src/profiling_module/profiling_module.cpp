@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include "profiling_module.hpp"
 
 ProfilingModule::ProfilingModule()

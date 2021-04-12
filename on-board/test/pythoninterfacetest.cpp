@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include "pycan_interface.hpp"
 #include <string>
 #include <pipes.hpp>

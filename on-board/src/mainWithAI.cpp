@@ -81,6 +81,16 @@ void check_data_from_dprocess()
   }
 }
 
+void set_profiling_module(Pipes profiling_pipe)
+{
+  ProfilingModule profiling_module;
+  while(true)
+  {
+    std::cout<<"CPU Usage is "<<profiling_module.getCPUUsage()<<std::endl;
+    std::cout<<"Memory Usage is "<<profiling_module.getMemoryUsage()<<std::endl;
+    usleep(1000000);
+  }
+}
 
 int main() {
 
@@ -102,19 +112,14 @@ int main() {
       pipe(new_pipe.rdwr);
       processed_pipes_vector.push_back(new_pipe);
   }
-  ProfilingModule pr_module;
-  //create threads
-  std::thread first(retrieve,shrdFutureObj);
-  std::thread second(set_data_processing_module,shrdFutureObj);
-  std::thread third(check_data_from_dprocess);
-  while(true)
-  {
-    std::cout<<"Overall memory usage "<<pr_module.getMemoryUsage()<<" "<<pr_module.getCPUUsage()<<std::endl;
-    usleep(1000000);
-  }
-  first.join();
-  second.join();
-  third.join();
+  std::thread can_thread(retrieve,shrdFutureObj);
+  std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
+  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
+  std::thread udf_thread(check_data_from_dprocess);
+  can_thread.join();
+  data_proccesing_thread.join();
+  profiling_thread.join();
+  udf_thread.join();
   return 0;
 }
 

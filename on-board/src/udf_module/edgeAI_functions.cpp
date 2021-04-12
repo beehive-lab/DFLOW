@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include "edgeAI_functions.hpp"
 const int CRASH_FUNCTION = 1;
 const int FLOAT_UDF_DATA_TYPE = 0;

@@ -1,3 +1,4 @@
+//Author: Radu-Tudor Andra
 #include "configurable_modes_message.hpp"
 
 void ConfigurableModesMessage::set_from_map(std::map<std::string,std::string> value_map)
