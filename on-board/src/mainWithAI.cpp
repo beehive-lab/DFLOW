@@ -19,12 +19,13 @@ using namespace std;
 //vectors holding the multiple pipes
 std::vector<Pipes> can_pipes_vector;
 std::vector<Pipes> processed_pipes_vector;
+Pipes config_pipe;
 
 //set can module
 void retrieve(std::shared_future<void> futureObj)
 {
   CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH,ACCELEROMETER_PATH);
-  can_module.setListener(can_pipes_vector, futureObj);
+  can_module.setListener(can_pipes_vector, config_pipe, futureObj);
 }
 
 //set data processing module
@@ -62,7 +63,7 @@ void set_data_processing_module(std::shared_future<void> futureObj)
 //set up listener to check data processing output
 void check_data_from_dprocess()
 {
-  OnBoardDataInterface data_interface(processed_pipes_vector);
+  OnBoardDataInterface data_interface(processed_pipes_vector, config_pipe);
   DFLOW_Onboard_Addon_Functions AI_func;
   while(true)
   {
@@ -89,6 +90,7 @@ int main() {
   std::shared_future<void> shrdFutureObj = futureObj.share();
   
   //initialize can pipes and data_proccesing pipes
+  pipe(config_pipe.rdwr);
   for(int i = 0; i<7; i++)
   {
       Pipes new_pipe;

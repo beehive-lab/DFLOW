@@ -4,13 +4,13 @@
 #include <pipes.hpp>
 #include "WifiComms.h"
 #include "BluetoothComms.h"
-
+#include <on_board_data_interface.hpp>
 
 class Logic {
 
 public:
 
-    explicit Logic(std::vector<Pipes> processed_pipes_vector);
+    explicit Logic(OnBoardDataInterface* data_interface);
 
     void Wifi_logic(bool logging, bool encryption, int port);
 
@@ -22,7 +22,7 @@ private:
 
     void read_and_send(WifiComms wifiComms);
 
-    std::vector<Pipes> processed_pipes_vector;
+    OnBoardDataInterface* data_interface;
 
     bool currently_streaming[18] {false};
 

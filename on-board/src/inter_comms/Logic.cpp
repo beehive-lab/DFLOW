@@ -3,18 +3,16 @@
 #include <cstring>
 #include <utility>
 #include <vector>
-#include <on_board_data_interface.hpp>
 #include "pipes.hpp"
 #include "thread"
 #include "can_module.hpp"
 #include "config.hpp"
 #include "BluetoothLogic.h"
+#include "configurable_modes_message.hpp"
 
 using namespace std;
 
 void Logic::read_and_send(WifiComms wifiComms) {
-
-    OnBoardDataInterface data_interface(processed_pipes_vector);
 
     while (true) {
 
@@ -29,8 +27,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             strcat(response, "stream-bike-sensor-data");
         }
         if (currently_streaming[AIR_TEMPERATURE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(AIR_TEMPERATURE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(AIR_TEMPERATURE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":AIR_TEMPERATURE:");
@@ -44,8 +42,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[THROTTLE_POSITION_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(THROTTLE_POSITION_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(THROTTLE_POSITION_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":THROTTLE_POSITION:");
@@ -59,8 +57,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[TYRE_PRESSURE_FRONT_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(TYRE_PRESSURE_FRONT_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(TYRE_PRESSURE_FRONT_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":TYRE_PRESSURE_FRONT:");
@@ -74,8 +72,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[TYRE_PRESSURE_REAR_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(TYRE_PRESSURE_REAR_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(TYRE_PRESSURE_REAR_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":TYRE_PRESSURE_REAR:");
@@ -89,8 +87,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[MOTORCYCLE_SPEED_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(MOTORCYCLE_SPEED_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(MOTORCYCLE_SPEED_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":MOTORCYCLE_SPEED:");
@@ -104,8 +102,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[REAR_WHEEL_SPEED_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(REAR_WHEEL_SPEED_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(REAR_WHEEL_SPEED_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":REAR_WHEEL_SPEED:");
@@ -119,8 +117,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[FRONT_WHEEL_SPEED_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(FRONT_WHEEL_SPEED_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(FRONT_WHEEL_SPEED_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":FRONT_WHEEL_SPEED:");
@@ -134,8 +132,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[BRAKE_REAR_ACTIVE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(BRAKE_REAR_ACTIVE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(BRAKE_REAR_ACTIVE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":BRAKE_REAR_ACTIVE:");
@@ -149,8 +147,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[BRAKE_FRONT_ACTIVE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(BRAKE_FRONT_ACTIVE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(BRAKE_FRONT_ACTIVE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":BRAKE_FRONT_ACTIVE:");
@@ -164,8 +162,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[ABS_MODE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(ABS_MODE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(ABS_MODE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":ABS_MODE:");
@@ -179,8 +177,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[TC_MODE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(TC_MODE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(TC_MODE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":TC_MODE:");
@@ -194,8 +192,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[THROTTLE_RESPONSE_MODE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(THROTTLE_POSITION_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(THROTTLE_POSITION_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":THROTTLE_RESPONSE_MODE:");
@@ -209,8 +207,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[LEAN_ANGLE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(LEAN_ANGLE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(LEAN_ANGLE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":LEAN_ANGLE:");
@@ -224,8 +222,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[BATTERY_VOLTAGE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(BATTERY_VOLTAGE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(BATTERY_VOLTAGE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":BATTERY_VOLTAGE:");
@@ -239,8 +237,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[OIL_PRESSURE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(OIL_PRESSURE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(OIL_PRESSURE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":OIL_PRESSURE:");
@@ -254,8 +252,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[GEAR_POSITION_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(GEAR_POSITION_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(GEAR_POSITION_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":GEAR_POSITION:");
@@ -269,8 +267,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[WATER_TEMPERATURE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(WATER_TEMPERATURE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(WATER_TEMPERATURE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":WATER_TEMPERATURE:");
@@ -284,8 +282,8 @@ void Logic::read_and_send(WifiComms wifiComms) {
             }
         }
         if (currently_streaming[ENGINE_SPEED_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(ENGINE_SPEED_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(ENGINE_SPEED_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":ENGINE_SPEED:");
@@ -390,8 +388,7 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                     tc_mode = stoi(token);
                 } else if (tr_mode == -1) {
                     tr_mode = stoi(token);
-                    CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
-//                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
+                    data_interface->sendConfigMessage(abs_mode,tc_mode,tr_mode);
                 }
             } else if (type_of_comms == 2) {
                 if (strcmp(token, "on") == 0) {
@@ -437,7 +434,7 @@ void Logic::Bluetooth_logic(bool logging, bool encryption, int channel) {
     while (true) {
         bt_comms.establish_connection();
 
-        BluetoothLogic bt_logic(processed_pipes_vector);
+        BluetoothLogic bt_logic(data_interface);
 
         bt_logic.stopping = false;
 
@@ -453,6 +450,6 @@ void Logic::Bluetooth_logic(bool logging, bool encryption, int channel) {
     }
 }
 
-Logic::Logic(vector<Pipes> processed_pipes_vector_init) {
-    Logic::processed_pipes_vector = std::move(processed_pipes_vector_init);
+Logic::Logic(OnBoardDataInterface* data_interface){
+    Logic::data_interface = data_interface;
 }

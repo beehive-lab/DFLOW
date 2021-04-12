@@ -96,7 +96,7 @@ std::map<std::string, std::string> CAN_Python_Interface::getMessageMap()
 }
 
 
-void CAN_Python_Interface::sendMessage(std::map<std::string,std::string> message_map)
+void CAN_Python_Interface::sendMessage(std::map<std::string,int> message_map)
 {
     if(CAN_Python_Interface::python_can_class == nullptr)
     {

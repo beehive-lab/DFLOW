@@ -3,7 +3,6 @@
 #include <cstring>
 #include <utility>
 #include <vector>
-#include <on_board_data_interface.hpp>
 #include "pipes.hpp"
 #include "thread"
 #include "can_module.hpp"
@@ -11,8 +10,8 @@
 
 using namespace std;
 
-BluetoothLogic::BluetoothLogic(std::vector<Pipes> processed_pipes_vector_init) {
-    BluetoothLogic::processed_pipes_vector = std::move(processed_pipes_vector_init);
+BluetoothLogic::BluetoothLogic(OnBoardDataInterface* data_interface) {
+    BluetoothLogic::data_interface = data_interface;
 }
 
 void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_buffer[BUFFER_SIZE]) {
@@ -98,8 +97,7 @@ void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_
                     tc_mode = stoi(token);
                 } else if (tr_mode == -1) {
                     tr_mode = stoi(token);
-                    CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH);
-//                    can_module.sendConfigMessage(abs_mode, tc_mode, tr_mode);
+                    data_interface->sendConfigMessage(abs_mode,tc_mode,tr_mode);
                 }
             } else if (type_of_comms == 2) {
                 if (strcmp(token, "on") == 0) {
@@ -116,8 +114,6 @@ void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_
 
 void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
 
-    OnBoardDataInterface data_interface(processed_pipes_vector);
-
     while (true) {
 
         if (stopping) {
@@ -131,8 +127,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             strcat(response, "stream-bike-sensor-data");
         }
         if (currently_streaming[AIR_TEMPERATURE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(AIR_TEMPERATURE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(AIR_TEMPERATURE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":AIR_TEMPERATURE:");
@@ -146,8 +142,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[THROTTLE_POSITION_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(THROTTLE_POSITION_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(THROTTLE_POSITION_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":THROTTLE_POSITION:");
@@ -161,8 +157,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[TYRE_PRESSURE_FRONT_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(TYRE_PRESSURE_FRONT_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(TYRE_PRESSURE_FRONT_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":TYRE_PRESSURE_FRONT:");
@@ -176,8 +172,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[TYRE_PRESSURE_REAR_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(TYRE_PRESSURE_REAR_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(TYRE_PRESSURE_REAR_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":TYRE_PRESSURE_REAR:");
@@ -191,8 +187,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[MOTORCYCLE_SPEED_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(MOTORCYCLE_SPEED_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(MOTORCYCLE_SPEED_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":MOTORCYCLE_SPEED:");
@@ -206,8 +202,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[REAR_WHEEL_SPEED_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(REAR_WHEEL_SPEED_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(REAR_WHEEL_SPEED_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":REAR_WHEEL_SPEED:");
@@ -221,8 +217,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[FRONT_WHEEL_SPEED_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(FRONT_WHEEL_SPEED_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(FRONT_WHEEL_SPEED_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":FRONT_WHEEL_SPEED:");
@@ -236,8 +232,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[BRAKE_REAR_ACTIVE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(BRAKE_REAR_ACTIVE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(BRAKE_REAR_ACTIVE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":BRAKE_REAR_ACTIVE:");
@@ -251,8 +247,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[BRAKE_FRONT_ACTIVE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(BRAKE_FRONT_ACTIVE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(BRAKE_FRONT_ACTIVE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":BRAKE_FRONT_ACTIVE:");
@@ -266,8 +262,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[ABS_MODE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(ABS_MODE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(ABS_MODE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":ABS_MODE:");
@@ -281,8 +277,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[TC_MODE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(TC_MODE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(TC_MODE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":TC_MODE:");
@@ -296,8 +292,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[THROTTLE_RESPONSE_MODE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(THROTTLE_POSITION_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(THROTTLE_POSITION_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":THROTTLE_RESPONSE_MODE:");
@@ -311,8 +307,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[LEAN_ANGLE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(LEAN_ANGLE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(LEAN_ANGLE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":LEAN_ANGLE:");
@@ -326,8 +322,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[BATTERY_VOLTAGE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(BATTERY_VOLTAGE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(BATTERY_VOLTAGE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":BATTERY_VOLTAGE:");
@@ -341,8 +337,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[OIL_PRESSURE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(OIL_PRESSURE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(OIL_PRESSURE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":OIL_PRESSURE:");
@@ -356,8 +352,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[GEAR_POSITION_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(GEAR_POSITION_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(GEAR_POSITION_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":GEAR_POSITION:");
@@ -371,8 +367,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[WATER_TEMPERATURE_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            float value = data_interface.getFloatData(WATER_TEMPERATURE_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            float value = data_interface->getFloatData(WATER_TEMPERATURE_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":WATER_TEMPERATURE:");
@@ -386,8 +382,8 @@ void BluetoothLogic::read_and_send(BluetoothComms bluetooth_comms) {
             }
         }
         if (currently_streaming[ENGINE_SPEED_PIPE]) {
-            time_t time_of_batch = data_interface.getSignalBatch();
-            int value = data_interface.getIntegerData(ENGINE_SPEED_PIPE);
+            time_t time_of_batch = data_interface->getSignalBatch();
+            int value = data_interface->getIntegerData(ENGINE_SPEED_PIPE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":ENGINE_SPEED:");

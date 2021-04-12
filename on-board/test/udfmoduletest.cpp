@@ -19,7 +19,10 @@ class UDFModuleTest : public ::testing::Test {
 //test listener
 TEST_F(UDFModuleTest, TestDataInterface) {
     std::vector<Pipes> dp_pipes_vector;
+    Pipes config_pipe;
+
      //message which would come from cantools
+    pipe(config_pipe.rdwr);
     for(int i = 0; i<22; i++)
     {
         Pipes new_pipe;
@@ -29,7 +32,7 @@ TEST_F(UDFModuleTest, TestDataInterface) {
     time_t time_test = time(0);
     float lean_angle = 55.5;
     int gear_position = 1;
-    OnBoardDataInterface data_interface(dp_pipes_vector);
+    OnBoardDataInterface data_interface(dp_pipes_vector,config_pipe);
     write(dp_pipes_vector[TIMESTAMP_PIPE].rdwr[WRITE], &time_test,sizeof(time_t));
     write(dp_pipes_vector[LEAN_ANGLE_PIPE].rdwr[WRITE], &lean_angle, sizeof(float));
     write(dp_pipes_vector[GEAR_POSITION_PIPE].rdwr[WRITE], &gear_position, sizeof(int));
@@ -43,14 +46,17 @@ TEST_F(UDFModuleTest, TestDataInterface) {
 
 TEST_F(UDFModuleTest, TestAddonFunctions) {
     std::vector<Pipes> dp_pipes_vector;
+    Pipes config_pipe;
+
      //message which would come from cantools
+    pipe(config_pipe.rdwr);
     for(int i = 0; i<22; i++)
     {
         Pipes new_pipe;
         pipe(new_pipe.rdwr);
         dp_pipes_vector.push_back(new_pipe);
     }
-    OnBoardDataInterface data_interface(dp_pipes_vector);
+    OnBoardDataInterface data_interface(dp_pipes_vector,config_pipe);
     DFLOW_Onboard_Addon_Functions AI_func;
 
     float lean_angle = 0,acceleration_x = 0, acceleration_y = 0;
