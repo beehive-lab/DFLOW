@@ -113,6 +113,7 @@ set(HEADER_FILES
 set(AI_SOURCE_FILES
         src/mainWithAI.cpp
         src/config.cpp)
+
 include_directories(src/can_module 
                 src/ 
                 src/inter_comms 
@@ -140,15 +141,15 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 target_link_libraries(DFLOW_OnBoard_WithAI PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
  
 # testing set up
-set(CAN_TEST_HEADER_FILES src/can_module/pycan_interface.hpp
+set(CAN_TEST_FILES
+                        src/can_module/pycan_interface.hpp
                         src/can_module/can_interface.hpp
                         src/can_module/can_module.hpp
                         src/can_module/messages/intake_sensors_message.hpp
-                        src/inter_comms/WifiComms.h 
-                        src/inter_comms/BluetoothComms.h 
                         src/config.hpp
                         src/data_processing_module/data_process_module.hpp
-                        src/data_processing_module/pipes.hpp)
+                        src/data_processing_module/pipes.hpp
+                        src/data_processing_module/pipes.cpp)
  
 set(DATAP_TEST_FILES 
                         src/config.cpp
@@ -182,10 +183,10 @@ set(COMMS_TEST_FILES
 )
 
 set(CRYPTO_TEST_FILES
-        src/config.cpp
-        src/config.hpp
-        src/crypto/SymmetricEncryption.h
-        src/crypto/SymmetricEncryption.cpp
+                        src/config.cpp
+                        src/config.hpp
+                        src/crypto/SymmetricEncryption.h
+                        src/crypto/SymmetricEncryption.cpp
 )
  
 set(UDF_TEST_FILES
@@ -196,21 +197,29 @@ set(UDF_TEST_FILES
                         src/data_processing_module/pipes.cpp
                         src/data_processing_module/pipes.hpp)
  
+set(PROFILING_TEST_FILES
+                        src/profiling_module/profiling_module.cpp
+                        src/profiling_module/profiling_module.hpp
+                        src/profiling_module/profiling_message.hpp
+                        src/data_processing_module/pipes.hpp
+                        src/data_processing_module/pipes.cpp)
  
 #link against gtest or gtest_main as needed. Eg
-add_executable(TestCan test/canmoduletest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES} ${CANMODULE_SOURCE})
-add_executable(TestPythonInterface test/pythoninterfacetest.cpp ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES} ${CANMODULE_SOURCE})
+add_executable(TestCan test/canmoduletest.cpp ${CAN_TEST_FILES} ${CANMODULE_SOURCE})
+add_executable(TestPythonInterface test/pythoninterfacetest.cpp ${CAN_TEST_FILES} ${CANMODULE_SOURCE})
 add_executable(TestComms test/communicationstest.cpp ${COMMS_TEST_FILES})
 add_executable(TestDataProcessing test/dataprocessingtest.cpp ${DATAP_TEST_FILES})
 add_executable(TestUDF test/udfmoduletest.cpp ${UDF_TEST_FILES})
 add_executable(TestCrypto test/cryptotest.cpp ${CRYPTO_TEST_FILES})
+add_executable(TestProfiling test/profilingmoduletest.cpp ${PROFILING_TEST_FILES})
 target_link_libraries(TestCan PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
 target_link_libraries(TestPythonInterface PUBLIC gtest_main gmock_main ${PYTHON_LIBRARIES})
 target_link_libraries(TestComms PUBLIC gtest_main gmock_main OpenSSL::SSL)
 target_link_libraries(TestDataProcessing PUBLIC gtest_main gmock_main)
 target_link_libraries(TestUDF PUBLIC gtest_main gmock_main)
 target_link_libraries(TestCrypto PUBLIC gtest_main OpenSSL::SSL)
-add_test(NAME canmoduletest COMMAND TestCan)
+target_link_libraries(TestProfiling PUBLIC gtest_main)
+
 
 
 CONFIGURE_FILE(src/can_module/python_module.py python_module.py COPYONLY)
