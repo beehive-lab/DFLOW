@@ -9,8 +9,11 @@
 #include <BluetoothComms.h>
 #include <data_process_module.hpp>
 #include <boost/circular_buffer.hpp>
+#include "Logic.h"
 #include "on_board_data_interface.hpp"
 #include "profiling_module.hpp"
+#include "config.hpp"
+
 using namespace std;
 
 //second release prototype
@@ -18,12 +21,13 @@ using namespace std;
 //vectors holding the multiple pipes
 std::vector<Pipes> can_pipes_vector;
 std::vector<Pipes> processed_pipes_vector;
+Pipes config_pipe;
 
 //set can module
 void retrieve(std::shared_future<void> futureObj)
 {
-  CAN_Module can_module = CAN_Module(std::string("./DFLOW.dbc"),std::string("notusedatthemom"),std::string("./accel_file.txt"));
-  can_module.setListener(can_pipes_vector, futureObj);
+  CAN_Module can_module = CAN_Module(DFLOW_DBC_PATH,PYTHON_PATH,ACCELEROMETER_PATH);
+  can_module.setListener(can_pipes_vector,config_pipe, futureObj);
 }
 
 //set data processing module
@@ -62,7 +66,7 @@ void set_data_processing_module(std::shared_future<void> futureObj)
 //set up listener to check data processing output
 void check_data_from_dprocess()
 {
-  OnBoardDataInterface data_interface(processed_pipes_vector);
+  OnBoardDataInterface data_interface(processed_pipes_vector,config_pipe);
   while(true)
   {
     time_t time_of_batch = data_interface.getSignalBatch();
@@ -74,6 +78,7 @@ void check_data_from_dprocess()
   }
 }
 
+
 void set_profiling_module(Pipes profiling_pipe)
 {
   ProfilingModule profiling_module;
@@ -82,6 +87,12 @@ void set_profiling_module(Pipes profiling_pipe)
     profiling_module.computeAndSendStats(profiling_pipe);
     usleep(1000000);
   }
+
+void logic_module_thread()
+{
+  OnBoardDataInterface data_interface(processed_pipes_vector, config_pipe);
+  Logic logic_module = Logic(&data_interface);
+  logic_module.Wifi_logic(true, true, 8080);
 }
 
 int main() {
@@ -90,7 +101,8 @@ int main() {
   std::promise<void> exitSignal;
   std::future<void> futureObj = exitSignal.get_future();
   std::shared_future<void> shrdFutureObj = futureObj.share();
-  
+
+  pipe(config_pipe.rdwr);
   //initialize can pipes and data_proccesing pipes
   for(int i = 0; i<8; i++)
   {
@@ -110,10 +122,11 @@ int main() {
   std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
   std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
   std::thread udf_thread(check_data_from_dprocess);
+  std::thread logic_thread(logic_module_thread);
   can_thread.join();
   data_proccesing_thread.join();
   profiling_thread.join();
   udf_thread.join();
+  logic_thread.join();
   return 0;
 }
-

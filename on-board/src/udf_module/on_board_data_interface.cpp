@@ -1,9 +1,10 @@
 //Author: Radu-Tudor Andra
 #include "on_board_data_interface.hpp"
-
-OnBoardDataInterface::OnBoardDataInterface(std::vector<Pipes> processed_pipes_vector)
+#include <iostream>
+OnBoardDataInterface::OnBoardDataInterface(std::vector<Pipes> processed_pipes_vector, Pipes config_pipe)
 {
     OnBoardDataInterface::processed_pipes_vector = processed_pipes_vector;
+    OnBoardDataInterface::config_pipe = config_pipe;
 }
 
 time_t OnBoardDataInterface::getSignalBatch(){
@@ -138,4 +139,13 @@ int OnBoardDataInterface::getIntegerData(int data_id)
 bool OnBoardDataInterface::getBooleanData(int data_id)
 {
     return NULL;
+}
+
+void OnBoardDataInterface::sendConfigMessage(int abs_mode, int tc_mode, int tr_mode)
+{
+    ConfigurableModesMessage config_message;
+    config_message.data.abs_mode = abs_mode;
+    config_message.data.tc_mode = tc_mode;
+    config_message.data.throttle_response_mode = tr_mode;
+    write(config_pipe.rdwr[WRITE], &config_message.data, sizeof(config_message.data));
 }

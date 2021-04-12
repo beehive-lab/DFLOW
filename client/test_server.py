@@ -1,7 +1,7 @@
+import os
 import socket
 import ssl
 import sys
-import os
 
 if __name__ == "__main__":
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)

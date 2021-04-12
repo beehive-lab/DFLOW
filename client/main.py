@@ -1,12 +1,17 @@
 """
 The main entrypoint for client.
 """
+import datetime as dt
 import os
+import readline
 from dataclasses import dataclass
 from enum import Enum
 
+import matplotlib.dates as md
+import matplotlib.pyplot as plt
 import yaml
 
+from client.communication.messages import SensorDataKey
 from client.communication.on_board import OnBoard, IncomingMessageHandler
 from client.interconnect.bluetooth import BluetoothLink
 from client.interconnect.commlink import CommLink
@@ -151,14 +156,18 @@ class Client:
             '   - help:<command_name>\n'
             '   - start_sensor_data_stream:<data_key_1>:...:<data_key_n>\n'
             '   - stop_sensor_data_stream:<data_key_1>:...:<data_key_n>\n'
-            '   - print_recorded_sensor_data:<data_key>'
+            '   - print_recorded_sensor_data:<data_key>\n'
+            '   - plot_sensor_data:<output_file_name>:<data_key_1>:...'
+            ':<data_key_n>\n'
+            '   - enable_secure_comms\n'
+            '   - disable_secure_comms'
         )
 
     def process_command(
         self,
         command: str,
         on_board,
-        msg_handler
+        msg_handler: IncomingMessageHandler
     ) -> None:
         command, *args = command.strip().split(':')
         command = command.lower().strip()
@@ -184,6 +193,23 @@ class Client:
             print('Recorded data for: ', args[0])
             print(msg_handler.get_recorded_sensor_data(args[0]))
             print('*****************************************')
+        elif command == 'plot_sensor_data':
+            if not args:
+                print(
+                    'Error no arguments supplied try '
+                    '\'help plot_sensor_data\' for help'
+                )
+            plot_name, *data_keys = args
+            fig, ax = self.generate_graph(msg_handler, data_keys)
+            fig.savefig(plot_name)
+        elif command == 'enable_secure_comms':
+            print('Enabling secure communication...')
+            on_board.enable_secure_comms()
+            print('Enabled')
+        elif command == 'disable_secure_comms':
+            print('Disabling secure communication...')
+            on_board.disable_secure_comms()
+            print('Disabled')
         else:
             print(
                 '\'{}\' is not a valid command. Type \'menu\' for a list of '
@@ -197,6 +223,35 @@ class Client:
             print(self._app_config.help_dict[arg])
         else:
             print('No help info available for \'{}\''.format(arg))
+
+    def generate_graph(
+        self,
+        msg_handler: IncomingMessageHandler,
+        data_keys: [SensorDataKey]
+    ):
+        fig, ax = plt.subplots()
+        ax.set_title('Plot of Sensor Data Over Time')
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Value')
+        xfmt = md.DateFormatter('%Y-%m-%d %H:%M:%S')
+        ax.xaxis.set_major_formatter(xfmt)
+        for key in data_keys:
+            data = msg_handler.get_recorded_sensor_data(key)
+            if data:
+                timestamps = []
+                values = []
+                for value, timestamp in data:
+                    timestamps.append(
+                        dt.datetime.fromtimestamp(int(timestamp))
+                    )
+                    values.append(float(value))
+                ax.plot(timestamps, values, label=str(key))
+            else:
+                ax.plot([], [], label=str(key))
+        ax.legend()
+        fig.autofmt_xdate()
+        fig.tight_layout()
+        return fig, ax
 
 
 def load_app_config() -> AppConfig:
@@ -215,7 +270,18 @@ def load_app_config() -> AppConfig:
     return app_config
 
 
+def setup_history_and_completer():
+    # Set up history file.
+    histfile = os.path.join(os.path.expanduser("~"), ".dflow_history")
+    try:
+        readline.read_history_file(histfile)
+        readline.set_history_length(1000)
+    except FileNotFoundError:
+        pass
+
+
 def main() -> None:
+    setup_history_and_completer()
     app_config: AppConfig = load_app_config()
     client: Client = Client(app_config)
     client.start()

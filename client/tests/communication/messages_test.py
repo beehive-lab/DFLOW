@@ -5,7 +5,7 @@ from parameterized import parameterized
 from client.communication.messages import (
     build_message,
     MessageCommand,
-    BikeSensorDataKey
+    SensorDataKey
 )
 
 
@@ -24,8 +24,8 @@ class MessagesTest(unittest.TestCase):
         [
             MessageCommand.STREAM_BIKE_SENSOR_DATA,
             [
-                BikeSensorDataKey.AIR_TEMPERATURE,
-                BikeSensorDataKey.THROTTLE_POSITION,
+                SensorDataKey.AIR_TEMPERATURE,
+                SensorDataKey.THROTTLE_POSITION,
                 'test'
             ],
             'stream-bike-sensor-data:AIR_TEMPERATURE:THROTTLE_POSITION:test'

@@ -19,26 +19,26 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build .
 if(result)
  message(FATAL_ERROR "Build step for googletest failed: ${result}")
 endif()
- 
+
 # Prevent overriding the parent project's compiler/linker
 # settings on Windows
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
- 
+
 # Add googletest directly to our build. This defines
 # the gtest and gtest_main targets.
 add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                 ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
                 EXCLUDE_FROM_ALL)
- 
+
 # The gtest/gtest_main targets carry header search path
 # dependencies automatically when using CMake 2.8.11 or
 # later. Otherwise we have to add them here ourselves.
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
  include_directories("${gtest_SOURCE_DIR}/include")
 endif()
- 
+
 #add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/../src/udf_module)
- 
+
 #SET UP PROJECT
 
 #execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/udf_module/install_frugally-deep.sh)
@@ -93,8 +93,12 @@ set(PROFILING_MODULE_SOURCE
 set(INTER_COMMS_SOURCE
         src/inter_comms/WifiComms.cpp
         src/inter_comms/BluetoothComms.cpp
+        src/inter_comms/Logic.cpp
+        src/inter_comms/BluetoothLogic.cpp
         src/inter_comms/WifiComms.h
         src/inter_comms/BluetoothComms.h
+        src/inter_comms/Logic.h
+        src/inter_comms/BluetoothLogic.h
         )
 
 set(SECURITY_SOURCE
@@ -134,6 +138,7 @@ find_package(frugally-deep REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
+
 find_package(OpenSSL REQUIRED)
 link_libraries(ssl crypto)
 target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
@@ -155,8 +160,8 @@ set(DATAP_TEST_FILES
                         src/config.cpp
                         src/data_processing_module/data_process_module.cpp
                         src/data_processing_module/pipes.cpp
-                        src/inter_comms/WifiComms.h 
-                        src/inter_comms/BluetoothComms.h 
+                        src/inter_comms/WifiComms.h
+                        src/inter_comms/BluetoothComms.h
                         src/config.hpp
                         src/data_processing_module/data_process_module.hpp
                         src/data_processing_module/pipes.hpp
@@ -173,10 +178,10 @@ set(DATAP_TEST_FILES
                         src/can_module/messages/tpm_module_message.cpp
                         src/can_module/messages/tpm_module_message.hpp)
 
-set(COMMS_TEST_FILES 
+set(COMMS_TEST_FILES
                         src/config.cpp
-                        src/inter_comms/WifiComms.h 
-                        src/inter_comms/BluetoothComms.h 
+                        src/inter_comms/WifiComms.h
+                        src/inter_comms/BluetoothComms.h
                         src/config.hpp
                         src/inter_comms/WifiComms.cpp
                         src/inter_comms/BluetoothComms.cpp
@@ -204,6 +209,7 @@ set(PROFILING_TEST_FILES
                         src/data_processing_module/pipes.hpp
                         src/data_processing_module/pipes.cpp)
  
+
 #link against gtest or gtest_main as needed. Eg
 add_executable(TestCan test/canmoduletest.cpp ${CAN_TEST_FILES} ${CANMODULE_SOURCE})
 add_executable(TestPythonInterface test/pythoninterfacetest.cpp ${CAN_TEST_FILES} ${CANMODULE_SOURCE})

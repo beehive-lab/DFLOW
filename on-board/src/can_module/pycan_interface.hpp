@@ -13,7 +13,7 @@ class CAN_Python_Interface : public CAN_Interface{
     public:
         void initializeInterface(std::string, std::string) override;
         std::map<std::string, std::string> getMessageMap() override;
-        void sendMessage(std::map<std::string,std::string>) override;
+        void sendMessage(std::map<std::string,int>) override;
         bool checkClassInstantiated();
     private:
         PyObject* python_can_class = nullptr;

@@ -22,7 +22,7 @@ CAN_Module::CAN_Module(std::string dbc_file_path, std::string python_file_path, 
 
 //will set the listener for the can_module, outputing to the given pipes
 //the shared future parameter is designed to stop the listener so that the program can exit properly
-void CAN_Module::setListener(std::vector<Pipes> output_pipes, std::shared_future<void> futureObj)
+void CAN_Module::setListener(std::vector<Pipes> output_pipes, Pipes config_pipe, std::shared_future<void> futureObj)
 {
     //instantiate the python class that will handle the cantools library
     interface_module->initializeInterface(CAN_Module::dbc_file_path,CAN_Module::python_file_path);
@@ -81,17 +81,24 @@ void CAN_Module::setListener(std::vector<Pipes> output_pipes, std::shared_future
                 write(output_pipes[ACCELEROMETER_MESSAGE_PIPE].rdwr[WRITE], &accel_message.data, sizeof(accel_message.data));
             }
         }
+
+        //check for incoming config messages
+        ConfigurableModesMessage config_message;
+        fcntl(config_pipe.rdwr[READ],F_SETFL,fcntl(config_pipe.rdwr[READ],F_GETFL) | O_NONBLOCK);
+        ssize_t config_r = read(config_pipe.rdwr[READ],&config_message.data,sizeof(config_message.data));
+        if(config_r>0)
+        {
+            sendConfigMessage(config_message);
+        }
+        fcntl(config_pipe.rdwr[READ],F_SETFL,fcntl(config_pipe.rdwr[READ],F_GETFL) | ~O_NONBLOCK);
     }
 
     //release python GLI
     Py_Finalize();
 }
 
-void CAN_Module::sendConfigMessage(ConfigurableModesMessage message)
+void CAN_Module::sendConfigMessage(ConfigurableModesMessage config_message)
 {
-    //instantiate python class
-    interface_module->initializeInterface(CAN_Module::dbc_file_path, CAN_Module::python_file_path);
-
     //send config message
-    interface_module->sendMessage(message.get_message_map());
+    interface_module->sendMessage(config_message.get_message_map());
 }

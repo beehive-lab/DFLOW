@@ -28,10 +28,14 @@ class NetworkLink(CommLink):
         self._key_file: str = key_file
         self._verify_host_name = verify_host_name
         self._timeout = timeout
-        self._sock: socket.socket = (
+        self._secure = secure
+        self._sock: socket.socket = self._create_network_socket()
+
+    def _create_network_socket(self):
+        return (
             self._create_secure_network_socket()
-            if secure else
-            self._create_network_socket()
+            if self._secure else
+            self._create_plain_network_socket()
         )
 
     def _create_secure_network_socket(self) -> socket.socket:
@@ -45,10 +49,10 @@ class NetworkLink(CommLink):
         ssl_context.check_hostname = self._verify_host_name
 
         return ssl_context.wrap_socket(
-            self._create_network_socket()
+            self._create_plain_network_socket()
         )
 
-    def _create_network_socket(self) -> socket.socket:
+    def _create_plain_network_socket(self) -> socket.socket:
         sock: socket.socket = socket.socket(
             socket.AF_INET,
             socket.SOCK_STREAM
@@ -66,14 +70,18 @@ class NetworkLink(CommLink):
         self._sock.connect((self._host, self._port))
         self._connected = True
 
-    def reconnect(self) -> None:
+    def reconnect(self, secure=None) -> None:
+        if secure is not None:
+            self._secure = secure
         self.disconnect()
-        self._sock = self._create_secure_network_socket()
+        self._sock = self._create_network_socket()
         self.connect()
 
     def disconnect(self) -> None:
-        self._connected = False
-        self._sock.close()
+        if self._connected:
+            self._connected = False
+            self._sock.settimeout(1)  # Interrupt any recv going on.
+            self._sock.close()
 
     def send(self, data: bytes) -> None:
         self._sock.sendall(data)

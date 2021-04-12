@@ -159,6 +159,7 @@ class BluetoothLinkTestCase(unittest.TestCase):
             self._test_cert,
             self._test_key
         )
+        bluetooth_link._connected = True
         bluetooth_link.reconnect()
 
         # Check that when reconnect is called the existing socket is first

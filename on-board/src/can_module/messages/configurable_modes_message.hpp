@@ -14,7 +14,7 @@ class ConfigurableModesMessage{
             int throttle_response_mode;
         }data;
         void set_from_map(std::map<std::string,std::string>);
-        std::map<std::string,std::string> get_message_map();
+        std::map<std::string,int> get_message_map();
 
 };
 

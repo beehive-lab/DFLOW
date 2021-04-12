@@ -10,7 +10,7 @@ class CAN_Interface{
     public:
         virtual void initializeInterface(std::string, std::string) = 0;
         virtual std::map<std::string, std::string> getMessageMap() = 0;
-        virtual void sendMessage(std::map<std::string,std::string>) = 0;
+        virtual void sendMessage(std::map<std::string,int>) = 0;
         virtual ~CAN_Interface(){};
 };
 

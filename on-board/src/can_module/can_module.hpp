@@ -4,6 +4,7 @@
 #include<string>
 #include<map>
 #include<future>
+#include<fcntl.h>
 #include"can_interface.hpp"
 #include"pycan_interface.hpp"
 #include"pipes.hpp"
@@ -23,11 +24,13 @@ class CAN_Module{
     public:
         CAN_Module(std::string,std::string,std::string,CAN_Interface* = new CAN_Python_Interface());
         CAN_Module(std::string,std::string,CAN_Interface* = new CAN_Python_Interface());
-        void setListener(std::vector<Pipes>, std::shared_future<void>);
+        void setListener(std::vector<Pipes>,Pipes, std::shared_future<void>);
         void sendConfigMessage(ConfigurableModesMessage);
     private:
         std::string dbc_file_path;
         std::string python_file_path;
+        std::vector<Pipes> output_pipes;
+        std::vector<Pipes> input_pipes;
         std::string accelerometer_file_path;
         CAN_Interface* interface_module;
 };
