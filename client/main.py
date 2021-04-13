@@ -196,7 +196,7 @@ class Client:
             on_board.disable_secure_comms()
             print('Disabled')
         elif command == 'test_throughput':
-            on_board.perform_bandwidth_test()
+            on_board.perform_throughput_test()
         else:
             print(
                 '\'{}\' is not a valid command. Type \'menu\' for a list of '

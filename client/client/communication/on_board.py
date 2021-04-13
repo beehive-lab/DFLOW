@@ -105,7 +105,7 @@ class OnBoard:
 
         # Get buffer size and data chunks.
         buffer_size = 1024
-        data_chunks_to_send: int = 1000000
+        data_chunks_to_send: int = 100
 
         # Build test message to completely fill buffer.
         test_data_prefix = str(MessageCommand.BANDWIDTH_TEST_DATA)
