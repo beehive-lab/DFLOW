@@ -48,9 +48,9 @@ class OnBoard:
         self.exit()
 
     def exit(self):
+        self._comm_link.disconnect()
         self._msg_handler.stop()
         self._msg_handler.join()
-        self._comm_link.disconnect()
 
     # ************** PROCESS CLIENT COMMANDS **************
 
@@ -164,7 +164,7 @@ class OnBoard:
                     parts[i + 2]
                 )
         else:
-            raise Exception('Unknown message type received: ' + msg.decode())
+            pass  # Just throw away unknown messages.
 
     def _record_received_sensor_data(
         self,
@@ -200,13 +200,9 @@ class IncomingMessageHandler(Thread):
 
     def run(self) -> None:
         while self._running:
-            if (
-                self._comm_link.is_connected() and
-                self._comm_link.ready_for_read()
-            ):
+            if self._comm_link.is_connected():
                 incoming_msg: bytes = self._comm_link.receive()
-                if len(incoming_msg) != 0:
-                    self._on_board.handle_incoming_message(incoming_msg)
+                self._on_board.handle_incoming_message(incoming_msg)
 
     def stop(self):
         self._running = False
