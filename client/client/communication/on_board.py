@@ -196,7 +196,6 @@ class IncomingMessageHandler(Thread):
         self._on_board: OnBoard = on_board
         self._comm_link = comm_link
         self._running = True
-        self._pause_lock = Lock()
 
     def run(self) -> None:
         while self._running:
