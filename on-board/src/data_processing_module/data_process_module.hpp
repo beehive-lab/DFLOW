@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <ctime>
+#include <climits>
+#include <cfloat>
 #include <numeric>
 #include <fcntl.h>
 #include <future>

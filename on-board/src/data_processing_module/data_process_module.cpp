@@ -88,7 +88,10 @@ float dataProcessing::compute_float_buffer_output(boost::circular_buffer<float> 
     switch (dataProcessing::data_mode_vector[data_index]){
         case AVERAGE_OF_BUFFER:
         {
-            return std::accumulate(buffer.begin(), buffer.end(),0.0)/buffer.size();
+            if(buffer.size()>0)
+                return std::accumulate(buffer.begin(), buffer.end(),0.0)/buffer.size();
+            else
+                return 0;
         }
         case SUM_OF_BUFFER:
         {
@@ -97,7 +100,7 @@ float dataProcessing::compute_float_buffer_output(boost::circular_buffer<float> 
         case MAX_OF_BUFFER:
         {
             float *linearized_buffer = buffer.linearize();
-            float max;
+            float max = FLT_MIN;
             for(int i = 0; i< buffer.size(); i++)
                 if(linearized_buffer[i]>max)
                     max = linearized_buffer[i];
@@ -106,7 +109,7 @@ float dataProcessing::compute_float_buffer_output(boost::circular_buffer<float> 
         case MIN_OF_BUFFER:
         {
             float *linearized_buffer = buffer.linearize();
-            float min;
+            float min = FLT_MAX;
             for(int i = 0; i< buffer.size(); i++)
                 if(linearized_buffer[i]<min)
                     min = linearized_buffer[i];
@@ -159,7 +162,10 @@ int dataProcessing::compute_int_buffer_output(boost::circular_buffer<int> buffer
     switch (dataProcessing::data_mode_vector[data_index]){
         case AVERAGE_OF_BUFFER:
         {
-            return std::accumulate(buffer.begin(), buffer.end(),0)/buffer.size();
+            if(buffer.size() > 0)
+                return std::accumulate(buffer.begin(), buffer.end(),0)/buffer.size();
+            else
+                return 0;
         }
         case SUM_OF_BUFFER:
         {
@@ -168,7 +174,7 @@ int dataProcessing::compute_int_buffer_output(boost::circular_buffer<int> buffer
         case MAX_OF_BUFFER:
         {
             int *linearized_buffer = buffer.linearize();
-            int max;
+            int max = INT_MIN;
             for(int i = 0; i< buffer.size(); i++)
                 if(linearized_buffer[i]>max)
                     max = linearized_buffer[i];
@@ -177,7 +183,7 @@ int dataProcessing::compute_int_buffer_output(boost::circular_buffer<int> buffer
         case MIN_OF_BUFFER:
         {
             int *linearized_buffer = buffer.linearize();
-            int min;
+            int min = INT_MAX;
             for(int i = 0; i< buffer.size(); i++)
                 if(linearized_buffer[i]<min)
                     min = linearized_buffer[i];
@@ -343,7 +349,7 @@ int getIntegerAverageOfVector(std::vector<int> v)
     if(v.size() > 0)
         return std::accumulate(v.begin(),v.end(), 0) / static_cast<int>(v.size());
     else
-        return 0;
+        return INT_MIN;
 }
 
 float getFloatAverageOfVector(std::vector<float> v)
@@ -351,7 +357,7 @@ float getFloatAverageOfVector(std::vector<float> v)
     if(v.size() > 0)
         return static_cast<float>(std::accumulate(v.begin(),v.end(), 0.0))/ static_cast<float>(v.size());
     else
-        return 0;
+        return FLT_MIN;
 }
 
 bool getBooleanAverageOfVector(std::vector<bool> v)
@@ -373,11 +379,21 @@ void dataProcessing::pushBackSignals(time_t time)
     for(int i = 0; i <  processing_inputs.size(); i++)
     {
         if(processing_inputs_type[i] == INTEGER_TYPE)
-            integer_buffers[processing_inputs[i]].push_back(getIntegerAverageOfVector(integer_buckets[processing_inputs[i]]));
+        {
+            int bucket_data = getIntegerAverageOfVector(integer_buckets[processing_inputs[i]]);
+            if(bucket_data != INT_MIN)
+                integer_buffers[processing_inputs[i]].push_back(bucket_data);
+        }
         else if(processing_inputs_type[i] == FLOAT_TYPE)
-            float_buffers[processing_inputs[i]].push_back(getFloatAverageOfVector(float_buckets[processing_inputs[i]]));
+        {
+            float bucket_data = getFloatAverageOfVector(float_buckets[processing_inputs[i]]);
+            if(bucket_data != FLT_MIN)
+                float_buffers[processing_inputs[i]].push_back(getFloatAverageOfVector(float_buckets[processing_inputs[i]]));
+        }
         else if(processing_inputs_type[i] == BOOLEAN_TYPE)
+        {
             boolean_buffers[processing_inputs[i]].push_back(getBooleanAverageOfVector(boolean_buckets[processing_inputs[i]]));
+        }
     }
 
     dataProcessing::clearBuckets();
