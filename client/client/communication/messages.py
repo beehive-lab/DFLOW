@@ -7,6 +7,9 @@ class MessageCommand(Enum):
     """
     STREAM_BIKE_SENSOR_DATA = 'stream-bike-sensor-data'
     ENCRYPTION = 'encryption'
+    BANDWIDTH_TEST_START = 'start-bandwidth-test'
+    BANDWIDTH_TEST_REQUEST_CONFIRM = 'bandwidth-test-request-confirm'
+    BANDWIDTH_TEST_DATA = 'bandwidth-test-data'
 
     def __str__(self):
         return self.value
@@ -40,7 +43,10 @@ class SensorDataKey(Enum):
         return self.value
 
 
-def build_message(command: MessageCommand, args: [str]) -> str:
+def build_command_message_with_args(
+    command: MessageCommand,
+    args: [str]
+) -> str:
     """
     Builds a message to send to the on-board.
 

@@ -19,7 +19,7 @@ class OnBoardTest(unittest.TestCase):
         ).start()
         self.addCleanup(patch.stopall)
 
-    @patch('client.communication.on_board.build_message')
+    @patch('client.communication.on_board.build_command_message_with_args')
     def test_start_streaming_data(self, mock_build_message):
         """
         Test the start streaming data send message.
@@ -36,7 +36,7 @@ class OnBoardTest(unittest.TestCase):
         )
         mock_comm_link.send.assert_called_with(mock_message.encode())
 
-    @patch('client.communication.on_board.build_message')
+    @patch('client.communication.on_board.build_command_message_with_args')
     def test_stop_streaming_data(self, mock_build_message):
         """
         Test the start streaming data send message.

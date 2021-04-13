@@ -3,7 +3,7 @@ import unittest
 from parameterized import parameterized
 
 from client.communication.messages import (
-    build_message,
+    build_command_message_with_args,
     MessageCommand,
     SensorDataKey
 )
@@ -37,5 +37,5 @@ class MessagesTest(unittest.TestCase):
         """
         self.assertEqual(
             expected_message,
-            build_message(command, args)
+            build_command_message_with_args(command, args)
         )

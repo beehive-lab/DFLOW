@@ -27,7 +27,6 @@ class AppConfig:
     priv_key_file_path: str
     ca_cert_file_path: str
     help_dict: {str: str}
-    socket_timeout: int
 
 
 class ConnectionMethod(Enum):
@@ -83,8 +82,7 @@ class Client:
                 self._app_config.ca_cert_file_path,
                 self._app_config.cert_file_path,
                 self._app_config.priv_key_file_path,
-                secure=use_secure_connection,
-                timeout=self._app_config.socket_timeout
+                secure=use_secure_connection
             )
         else:
             host = input('Enter on-board hostname: ')
@@ -95,8 +93,7 @@ class Client:
                 self._app_config.ca_cert_file_path,
                 self._app_config.cert_file_path,
                 self._app_config.priv_key_file_path,
-                secure=use_secure_connection,
-                timeout=self._app_config.socket_timeout
+                secure=use_secure_connection
             )
 
         return comm_link
@@ -148,7 +145,8 @@ class Client:
             '   - plot_sensor_data:<output_file_name>:<data_key_1>:...'
             ':<data_key_n>\n'
             '   - enable_secure_comms\n'
-            '   - disable_secure_comms'
+            '   - disable_secure_comms\n'
+            '   - test_bandwidth'
         )
 
     def process_command(
@@ -197,6 +195,8 @@ class Client:
             print('Disabling secure communication...')
             on_board.disable_secure_comms()
             print('Disabled')
+        elif command == 'test_bandwidth':
+            on_board.perform_bandwidth_test()
         else:
             print(
                 '\'{}\' is not a valid command. Type \'menu\' for a list of '
@@ -250,8 +250,7 @@ def load_app_config() -> AppConfig:
             os.path.expanduser(config['security']['cert_file_path']),
             os.path.expanduser(config['security']['priv_key_file_path']),
             os.path.expanduser(config['security']['ca_cert_file_path']),
-            config['help'],
-            config['socket']['timeout']
+            config['help']
         )
 
     return app_config
