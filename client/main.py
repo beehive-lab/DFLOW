@@ -146,7 +146,7 @@ class Client:
             ':<data_key_n>\n'
             '   - enable_secure_comms\n'
             '   - disable_secure_comms\n'
-            '   - test_bandwidth'
+            '   - test_throughput'
         )
 
     def process_command(
@@ -195,7 +195,7 @@ class Client:
             print('Disabling secure communication...')
             on_board.disable_secure_comms()
             print('Disabled')
-        elif command == 'test_bandwidth':
+        elif command == 'test_throughput':
             on_board.perform_bandwidth_test()
         else:
             print(

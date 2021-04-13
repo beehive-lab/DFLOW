@@ -24,7 +24,7 @@ help:
     Enable secure communication between the client and on-board. Will cause a reconnection.
   disable_secure_comms: |-
     Disable secure communication between the client and on-board. Will cause a reconnection.
-  test_bandwidth: |-
+  test_throughput: |-
     Test the throughput between client and on-board.
   sensor_data_types: |-
     AIR_TEMPERATURE

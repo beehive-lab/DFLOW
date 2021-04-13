@@ -94,9 +94,9 @@ class OnBoard:
     def reconnect(self, secure=None):
         self._comm_link.reconnect(secure)
 
-    def perform_bandwidth_test(self):
-        print('Starting bandwidth test...')
-        print('testing bandwidth to client...')
+    def perform_throughput_test(self):
+        print('Starting throughput test...')
+        print('testing throughput to client...')
 
         # Signal start of bandwidth test to on-board.
         self._comm_link.send(
@@ -107,14 +107,14 @@ class OnBoard:
         buffer_size = 1024
         data_chunks_to_send: int = 1000000
 
-        # # Build test message to completely fill buffer.
+        # Build test message to completely fill buffer.
         test_data_prefix = str(MessageCommand.BANDWIDTH_TEST_DATA)
         test_data = (
             test_data_prefix + "\x00" * (buffer_size - len(test_data_prefix))
         )
         test_data = test_data.encode()
-        # Record start time and send all the messages.
 
+        # Record start time and send all the messages.
         time1 = time()
         self._bandwidth_testing_status = BandwidthTestingStatus.SENDING
         for i in range(data_chunks_to_send):
@@ -138,7 +138,7 @@ class OnBoard:
             float(data_chunks_to_send * buffer_size) / ((time2 - time1) * 1000)
         )
 
-        print('Completed bandwidth test...')
+        print('Completed throughput test...')
         print('Throughput was {:.3f} KB/s'.format(bandwidth))
 
         # Reset after bandwidth test is complete.
