@@ -1,5 +1,5 @@
 from enum import Enum
-from threading import Thread, Lock
+from threading import Thread
 from time import time
 
 from client.communication.messages import (
