@@ -141,10 +141,6 @@ class NetworkLinkTestCase(unittest.TestCase):
         # calls is correct.
         mock_call_manager = MagicMock()
         mock_call_manager.attach_mock(self._mock_socket_constructor, 'create')
-        mock_call_manager.attach_mock(
-            self._mock_socket_instance.settimeout,
-            'settimeout'
-        )
         mock_call_manager.attach_mock(self._mock_ssl_socket.connect, 'connect')
         mock_call_manager.attach_mock(self._mock_ssl_socket.close, 'close')
 
@@ -164,10 +160,8 @@ class NetworkLinkTestCase(unittest.TestCase):
         self.assertEqual(
             [
                 call.create(socket.AF_INET, socket.SOCK_STREAM),
-                call.settimeout(20),
                 call.close(),
                 call.create(socket.AF_INET, socket.SOCK_STREAM),
-                call.settimeout(20),
                 call.connect((self._test_host_name, self._test_port_num))
             ],
             mock_call_manager.mock_calls
@@ -186,6 +180,7 @@ class NetworkLinkTestCase(unittest.TestCase):
             self._test_cert,
             self._test_key
         )
+        network_link._connected = True
 
         # Create a byte string and attempt to send it through the network link.
         network_link.send(self._test_data)
@@ -211,6 +206,7 @@ class NetworkLinkTestCase(unittest.TestCase):
             self._test_cert,
             self._test_key
         )
+        network_link._connected = True
 
         # Call the receive method on the network link and store the data
         # returned.

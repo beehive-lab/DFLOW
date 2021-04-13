@@ -1,3 +1,4 @@
+import select
 import socket
 import ssl
 
@@ -17,7 +18,6 @@ class NetworkLink(CommLink):
         cert_file: str,
         key_file: str,
         verify_host_name: bool = False,
-        timeout: int = 20,
         secure: bool = True
     ):
         self._connected = False
@@ -26,9 +26,8 @@ class NetworkLink(CommLink):
         self._ca_cert_file: str = ca_cert_file
         self._cert_file: str = cert_file
         self._key_file: str = key_file
-        self._verify_host_name = verify_host_name
-        self._timeout = timeout
-        self._secure = secure
+        self._verify_host_name: bool = verify_host_name
+        self._secure: bool = secure
         self._sock: socket.socket = self._create_network_socket()
 
     def _create_network_socket(self):
@@ -57,7 +56,6 @@ class NetworkLink(CommLink):
             socket.AF_INET,
             socket.SOCK_STREAM
         )
-        sock.settimeout(self._timeout)
         return sock
 
     def __enter__(self):
@@ -78,16 +76,33 @@ class NetworkLink(CommLink):
         self.connect()
 
     def disconnect(self) -> None:
-        if self._connected:
+        if self.is_connected():
             self._connected = False
-            self._sock.settimeout(1)  # Interrupt any recv going on.
+            self._sock.shutdown(socket.SHUT_RDWR)
             self._sock.close()
 
     def send(self, data: bytes) -> None:
+        if not self.is_connected():
+            return
         self._sock.sendall(data)
 
     def receive(self, buffer_size: int = 1024) -> bytes:
+        if not self.is_connected():
+            return b''
         return self._sock.recv(buffer_size)
 
     def is_connected(self) -> bool:
         return self._connected
+
+    def ready_for_read(self) -> bool:
+        if not self.is_connected():
+            return False
+
+        read, *_ = select.select([self._sock], [], [], 1)
+        if read:
+            return True
+        else:
+            return False
+
+    def get_raw_socket(self):
+        return self._sock

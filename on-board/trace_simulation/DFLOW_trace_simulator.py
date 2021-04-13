@@ -5,7 +5,6 @@ import time
 from pprint import pprint
 db = cantools.database.load_file('./DFLOW.dbc')
 db.messages
-#[message('ExampleMessage', 0x1f0, False, 8, 'Example message used as template in MotoHawk models.')]
 intake_message = db.get_message_by_name('INTAKE_SENSORS')
 airTemp = 30.1
 throttlePos = 0
