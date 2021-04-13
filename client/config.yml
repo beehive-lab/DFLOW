@@ -1,6 +1,3 @@
-socket:
-  timeout: 20
-
 security:
   cert_file_path: ~/.dflow/certs/client/client.crt
   priv_key_file_path: ~/.dflow/certs/client/client.key
@@ -27,6 +24,8 @@ help:
     Enable secure communication between the client and on-board. Will cause a reconnection.
   disable_secure_comms: |-
     Disable secure communication between the client and on-board. Will cause a reconnection.
+  test_throughput: |-
+    Test the throughput between client and on-board.
   sensor_data_types: |-
     AIR_TEMPERATURE
     THROTTLE_POSITION
