@@ -122,12 +122,12 @@ int main() {
   std::thread can_thread(retrieve,shrdFutureObj);
   std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
   std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
-  std::thread udf_thread(check_data_from_dprocess);
+//  std::thread udf_thread(check_data_from_dprocess);
   std::thread logic_thread(logic_module_thread);
   can_thread.join();
   data_proccesing_thread.join();
   profiling_thread.join();
-  udf_thread.join();
+//  udf_thread.join();
   logic_thread.join();
   return 0;
 }
