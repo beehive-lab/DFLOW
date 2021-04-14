@@ -454,13 +454,13 @@ void Logic::send_bike_metrics(WifiComms wifiComms) {
 
 void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE]) {
 
+    bool logging_helper = wifiComms->logging, encryption_helper = encrypt_locally;
+
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
         int bytes_received = wifiComms->receive(receive_buffer);
 
         int abs_mode = -1, tc_mode = -1, tr_mode = -1;
-
-        bool logging_helper, encryption_helper;
 
         if (bytes_received <= 0) {
             stopping = true;
@@ -477,8 +477,6 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
             } else if (strcmp(token, "stream-profiling-data") == 0) {
                 type_of_comms = 4;
             } else if (strcmp(token, "start-bandwidth-test") == 0) {
-                logging_helper = wifiComms->logging;
-                encryption_helper = store_locally;
                 wifiComms->logging = false;
                 this->store_locally = false;
                 type_of_comms = 3;
@@ -591,9 +589,11 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
 void Logic::start_bandwidth_test(WifiComms *wifi_comms) {
     int messages = 100000;
 
-    char message[1024] = "bandwidth-test-data";
+    char message[BUFFER_SIZE] = "bandwidth-test-data";
 
-    fill(begin(message) + 19, end(message), '#');
+    fill(begin(message) + 19, end(message) - 1, '#');
+
+    message[BUFFER_SIZE - 1] = '\0';
 
     auto start = chrono::system_clock::now();
 
@@ -601,18 +601,17 @@ void Logic::start_bandwidth_test(WifiComms *wifi_comms) {
         wifi_comms->send(message);
     }
 
-    auto end = chrono::system_clock::now();
-
-    chrono::duration<double> send_time = end - start;
-
     char end_confirmation[] = "bandwidth-test-request-confirm";
 
     wifi_comms->send(end_confirmation);
 
     char receive_buffer[BUFFER_SIZE];
-    memset(receive_buffer, 0, BUFFER_SIZE);
 
     wifi_comms->receive(receive_buffer);
+
+    auto end = chrono::system_clock::now();
+
+    chrono::duration<double> send_time = end - start;
 
     assert(strcmp(receive_buffer, "bandwidth-test-confirm") == 0);
 
@@ -684,9 +683,6 @@ Logic::Logic(OnBoardDataInterface* data_interface, bool store_locally, bool encr
     this->file.open("Data", ios::ate);
     if (!file) {
         cerr << "Local storage file not created";
-    }
-    else {
-        cout << "Local storage file created";
     }
     this->key = key;
 }

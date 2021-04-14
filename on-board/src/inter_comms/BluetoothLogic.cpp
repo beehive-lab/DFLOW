@@ -18,9 +18,6 @@ BluetoothLogic::BluetoothLogic(OnBoardDataInterface* data_interface, bool store_
     if (!file) {
         cerr << "Local storage file not created";
     }
-    else {
-        cout << "Local storage file created";
-    }
     this->key = key;
 }
 
