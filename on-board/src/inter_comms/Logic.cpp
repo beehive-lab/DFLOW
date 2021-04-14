@@ -8,6 +8,7 @@
 #include "config.hpp"
 #include "BluetoothLogic.h"
 #include "configurable_modes_message.hpp"
+#include "crypto/SymmetricEncryption.h"
 
 using namespace std;
 
@@ -97,6 +98,8 @@ void Logic::send_bike_metrics(WifiComms wifiComms) {
 
         bool sending_data = false;
         char *response = new char[BUFFER_SIZE];
+
+        memset(response, 0, BUFFER_SIZE);
 
         time_t time_of_batch = data_interface->getSignalBatch();
 
@@ -403,6 +406,46 @@ void Logic::send_bike_metrics(WifiComms wifiComms) {
 
         if (sending_data) {
             wifiComms.send(response);
+
+            if (store_locally) {
+                if (!encrypt_locally) {
+                    if (wifiComms.logging) {
+                        cout << "Storing locally (unencrypted)" << endl;
+                    }
+
+                    auto start = chrono::system_clock::now();
+
+                    file << response << endl;
+
+                    auto end = chrono::system_clock::now();
+
+                    chrono::duration<double, milli> write_time = end - start;
+
+                    if (wifiComms.logging) {
+                        cout << "Time taken: " << write_time.count() << " milliseconds" << endl;
+                    }
+
+                } else {
+                    if (wifiComms.logging) {
+                        cout << "Storing locally (encrypted)" << endl;
+                    }
+
+                    auto start = chrono::system_clock::now();
+
+                    auto *encrypted_msg = new uint8_t[1024];
+                    SymmetricEncryption::encrypt(key, strlen(response), reinterpret_cast<const uint8_t *>(response), encrypted_msg);
+
+                    file << encrypted_msg << endl;
+
+                    auto end = chrono::system_clock::now();
+
+                    chrono::duration<double, milli> write_time = end - start;
+
+                    if (wifiComms.logging) {
+                        cout << "Time taken: " << write_time.count() << " milliseconds" << endl;
+                    }
+                }
+            }
         }
 
         this_thread::sleep_for(chrono::milliseconds(1000));
@@ -433,6 +476,7 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                 type_of_comms = 4;
             } else if (strcmp(token, "start-bandwidth-test") == 0) {
                 wifiComms->logging = false;
+                this->store_locally = false;
                 type_of_comms = 3;
             } else if (strcmp(token, "encryption") == 0) {
                 type_of_comms = 2;
@@ -530,6 +574,7 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                     char to_send[23] = "bandwidth-test-confirm";
                     wifiComms->send(to_send);
                     wifiComms->logging = true;
+                    this->store_locally = true;
                 }
             }
 
@@ -560,6 +605,7 @@ void Logic::Wifi_logic(bool logging, bool encryption, int port) {
         profiling_thread.join();
 
         if (exit_application) {
+            file.close();
             return;
         }
     }
@@ -593,6 +639,16 @@ void Logic::Bluetooth_logic(bool logging, bool encryption, int channel) {
     }
 }
 
-Logic::Logic(OnBoardDataInterface* data_interface){
+Logic::Logic(OnBoardDataInterface* data_interface, bool store_locally, bool encrypt_locally, uint8_t *key){
     Logic::data_interface = data_interface;
+    this->store_locally = store_locally;
+    this->encrypt_locally = encrypt_locally;
+    this->file.open("Data", ios::ate);
+    if (!file) {
+        cerr << "Local storage file not created";
+    }
+    else {
+        cout << "Local storage file created";
+    }
+    this->key = key;
 }
