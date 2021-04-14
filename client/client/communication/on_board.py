@@ -174,7 +174,6 @@ class OnBoard:
     ) -> None:
         if data_type not in self.received_data[self._SENSOR_DATA_KEY]:
             self.received_data[self._SENSOR_DATA_KEY][data_type] = []
-        print('timestamp:{},value:{}'.format(timestamp, data_value))
         self.received_data[self._SENSOR_DATA_KEY][data_type].append(
             (timestamp, data_value)
         )

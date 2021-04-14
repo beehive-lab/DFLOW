@@ -86,7 +86,11 @@ class ServerThread(threading.Thread):
 server: ServerThread
 
 
-def start_api_server(on_board_for_server: OnBoard, api_host: str, api_port: int):
+def start_api_server(
+    on_board_for_server: OnBoard,
+    api_host: str,
+    api_port: int
+):
     global server
     global on_board
     on_board = on_board_for_server
