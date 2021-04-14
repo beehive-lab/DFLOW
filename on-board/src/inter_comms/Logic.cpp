@@ -454,7 +454,7 @@ void Logic::send_bike_metrics(WifiComms wifiComms) {
 
 void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE]) {
 
-    bool logging_helper = wifiComms->logging, encryption_helper = encrypt_locally;
+    bool logging_helper = wifiComms->logging, store_locally_helper = store_locally;
 
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
@@ -577,7 +577,7 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                     wifiComms->send(to_send);
                     start_bandwidth_test(wifiComms);
                     wifiComms->logging = logging_helper;
-                    this->store_locally = encryption_helper;
+                    this->store_locally = store_locally_helper;
                 }
             }
 
@@ -589,11 +589,11 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
 void Logic::start_bandwidth_test(WifiComms *wifi_comms) {
     int messages = 100000;
 
-    char message[BUFFER_SIZE] = "bandwidth-test-data";
+    char message[BUFFER_SIZE + 1] = "bandwidth-test-data";
 
-    fill(begin(message) + 19, end(message) - 1, '#');
+    fill(begin(message) + 19, end(message), '#');
 
-    message[BUFFER_SIZE - 1] = '\0';
+    message[BUFFER_SIZE] = '\0';
 
     auto start = chrono::system_clock::now();
 
