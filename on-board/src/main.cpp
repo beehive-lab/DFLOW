@@ -92,7 +92,8 @@ void set_profiling_module(Pipes profiling_pipe)
 void logic_module_thread()
 {
   OnBoardDataInterface data_interface(processed_pipes_vector, config_pipe);
-  Logic logic_module = Logic(&data_interface);
+  uint8_t key[10] = "password";
+  Logic logic_module = Logic(&data_interface, false, false, key);
   logic_module.Wifi_logic(true, true, 8080);
 }
 

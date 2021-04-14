@@ -30,12 +30,12 @@ public:
 
     int listen_socket() override;
 
+    bool logging;
+
 private:
     int server_socket_fd;
 
     int client_socket_fd;
-
-    bool logging;
 
     bool encryption;
 
