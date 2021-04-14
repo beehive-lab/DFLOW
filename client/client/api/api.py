@@ -8,17 +8,17 @@ from werkzeug.serving import make_server
 from client.communication.messages import SensorDataKey
 from client.communication.on_board import OnBoard
 
-app = flask.Flask(__name__, )
+app = flask.Flask(__name__)
 app.logger.disabled = True
 log = logging.getLogger('werkzeug')
 log.disabled = True
 log.disabled = True
 
-on_board: OnBoard
+on_board: OnBoard = None
 
 
 @app.route('/', methods=['GET'])
-def root():
+def api_root():
     return render_template("index.html")
 
 
@@ -86,7 +86,7 @@ class ServerThread(threading.Thread):
 server: ServerThread
 
 
-def start_server(on_board_for_server: OnBoard, api_host: str, api_port: int):
+def start_api_server(on_board_for_server: OnBoard, api_host: str, api_port: int):
     global server
     global on_board
     on_board = on_board_for_server
@@ -94,6 +94,6 @@ def start_server(on_board_for_server: OnBoard, api_host: str, api_port: int):
     server.start()
 
 
-def stop_server():
+def stop_api_server():
     global server
     server.shutdown()

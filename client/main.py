@@ -11,7 +11,7 @@ import matplotlib.dates as md
 import matplotlib.pyplot as plt
 import yaml
 
-from client.api.api import start_server, stop_server
+from client.api.api import start_api_server, stop_api_server
 from client.communication.messages import SensorDataKey
 from client.communication.on_board import OnBoard
 from client.interconnect.bluetooth import BluetoothLink
@@ -52,7 +52,7 @@ class Client:
                 # Start up the API.
                 api_host: str = self._app_config.api_host
                 api_port: str = self._app_config.api_port
-                start_server(on_board, api_host, api_port)
+                start_api_server(on_board, api_host, api_port)
                 print(
                     'Live charts of data streamed from on-board can be viewed '
                     'at: http://{}:{}'.format(api_host, api_port)
@@ -70,7 +70,7 @@ class Client:
 
                     self.process_command(next_command, on_board)
             finally:
-                stop_server()
+                stop_api_server()
 
         print('Client successfully stopped.')
 
