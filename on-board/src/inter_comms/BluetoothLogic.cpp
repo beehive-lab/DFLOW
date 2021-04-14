@@ -6,12 +6,24 @@
 #include "thread"
 #include "can_module.hpp"
 #include "config.hpp"
+#include "crypto/SymmetricEncryption.h"
 
 using namespace std;
 
-BluetoothLogic::BluetoothLogic(OnBoardDataInterface* data_interface) {
+BluetoothLogic::BluetoothLogic(OnBoardDataInterface* data_interface, bool store_locally, bool encrypt_locally, uint8_t *key){
     BluetoothLogic::data_interface = data_interface;
+    this->store_locally = store_locally;
+    this->encrypt_locally = encrypt_locally;
+    this->file.open("Data", ios::ate);
+    if (!file) {
+        cerr << "Local storage file not created";
+    }
+    else {
+        cout << "Local storage file created";
+    }
+    this->key = key;
 }
+
 
 void BluetoothLogic::send_profiling_data(BluetoothComms bluetoothComms) {
 
@@ -113,6 +125,7 @@ void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_
             if (strcmp(token, "exit-application") == 0) {
                 stopping = true;
                 exit_application = true;
+                file.close();
             } else if (strcmp(token, "stream-profiling-data") == 0) {
                 type_of_comms = 4;
             } else if (strcmp(token, "encryption") == 0) {
@@ -219,6 +232,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
 
         bool sending_data = false;
         char *response = new char[BUFFER_SIZE];
+
+        memset(response, 0, BUFFER_SIZE);
 
         time_t time_of_batch = data_interface->getSignalBatch();
 
@@ -525,6 +540,46 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
 
         if (sending_data) {
             bluetooth_comms.send(response);
+
+            if (store_locally) {
+                if (!encrypt_locally) {
+                    if (bluetooth_comms.logging) {
+                        cout << "Storing locally (unencrypted)" << endl;
+                    }
+
+                    auto start = chrono::system_clock::now();
+
+                    file << response << endl;
+
+                    auto end = chrono::system_clock::now();
+
+                    chrono::duration<double, milli> write_time = end - start;
+
+                    if (bluetooth_comms.logging) {
+                        cout << "Time taken: " << write_time.count() << " milliseconds" << endl;
+                    }
+
+                } else {
+                    if (bluetooth_comms.logging) {
+                        cout << "Storing locally (encrypted)" << endl;
+                    }
+
+                    auto start = chrono::system_clock::now();
+
+                    auto *encrypted_msg = new uint8_t[1024];
+                    SymmetricEncryption::encrypt(key, strlen(response), reinterpret_cast<const uint8_t *>(response), encrypted_msg);
+
+                    file << encrypted_msg << endl;
+
+                    auto end = chrono::system_clock::now();
+
+                    chrono::duration<double, milli> write_time = end - start;
+
+                    if (bluetooth_comms.logging) {
+                        cout << "Time taken: " << write_time.count() << " milliseconds" << endl;
+                    }
+                }
+            }
         }
 
         this_thread::sleep_for(chrono::milliseconds(1000));

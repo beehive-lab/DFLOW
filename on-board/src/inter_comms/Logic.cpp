@@ -619,13 +619,13 @@ void Logic::Bluetooth_logic(bool logging, bool encryption, int channel) {
     while (true) {
         bt_comms.establish_connection();
 
-        BluetoothLogic bt_logic(data_interface);
+        BluetoothLogic bt_logic(data_interface, store_locally, encrypt_locally, key);
 
         bt_logic.stopping = false;
 
-        thread send_thread_bt(&BluetoothLogic::send_bike_metrics, bt_logic, bt_comms);
+        thread send_thread_bt(&BluetoothLogic::send_bike_metrics, &bt_logic, bt_comms);
 
-        thread profiling_thread_bt(&BluetoothLogic::send_profiling_data, bt_logic, bt_comms);
+        thread profiling_thread_bt(&BluetoothLogic::send_profiling_data, &bt_logic, bt_comms);
 
         bt_logic.receive_loop(&bt_comms, receive_buffer);
 
