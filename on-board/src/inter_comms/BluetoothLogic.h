@@ -10,9 +10,11 @@ class BluetoothLogic {
 public:
     explicit BluetoothLogic(OnBoardDataInterface* data_interface);
 
+    void send_profiling_data(BluetoothComms bluetoothComms);
+
     void receive_loop(BluetoothComms *bluetooth_comms, char receive_buffer[BUFFER_SIZE]);
 
-    void read_and_send(BluetoothComms bluetoothComms);
+    void send_bike_metrics(BluetoothComms bluetoothComms);
 
     bool stopping = false;
 

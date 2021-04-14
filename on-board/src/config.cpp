@@ -1,7 +1,7 @@
 #include "config.hpp"
 
 // Set this variable before running the program. Only absolute paths.
-const char *DFLOW_HOME = "";
+const char *DFLOW_HOME = "/home/maxi/DFLOW";
 
 const std::string DFLOW_DBC_PATH = "./DFLOW.dbc";
 

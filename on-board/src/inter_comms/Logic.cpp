@@ -1,7 +1,6 @@
 #include "Logic.h"
 #include "ctime"
 #include <cstring>
-#include <utility>
 #include <vector>
 #include "pipes.hpp"
 #include "thread"
@@ -12,7 +11,87 @@
 
 using namespace std;
 
-void Logic::read_and_send(WifiComms wifiComms) {
+void Logic::send_profiling_module(WifiComms wifiComms) {
+
+    while (true) {
+        bool sending_data = false;
+        char *response = new char[BUFFER_SIZE];
+
+        time_t time_of_batch = data_interface->getSignalBatch();
+
+        if (type_of_comms == 4) {
+            strcat(response, "stream-profiling-module");
+        }
+        if (currently_streaming[CPU_USAGE_PIPE]) {
+            float value = data_interface->getFloatData(CPU_USAGE_PIPE);
+            if (value != -1) {
+                sending_data = true;
+                strcat(response, ":CPU_USAGE:");
+                char value_char[256];
+                sprintf(value_char, "%G", value);
+                strcat(response, value_char);
+                strcat(response, ":");
+                char time_stamp_char[256];
+                sprintf(time_stamp_char, "%ld", time_of_batch);
+                strcat(response, time_stamp_char);
+            }
+        }
+        if (currently_streaming[CPU_TEMPERATURE_PIPE]) {
+            int value = data_interface->getIntegerData(CPU_TEMPERATURE_PIPE);
+            if (value != -1) {
+                sending_data = true;
+                strcat(response, ":CPU_TEMPERATURE:");
+                char value_char[256];
+                sprintf(value_char, "%d", value);
+                strcat(response, value_char);
+                strcat(response, ":");
+                char time_stamp_char[256];
+                sprintf(time_stamp_char, "%ld", time_of_batch);
+                strcat(response, time_stamp_char);
+            }
+        }
+        if (currently_streaming[CPU_FREQUENCY_PIPE]) {
+            int value = data_interface->getIntegerData(CPU_FREQUENCY_PIPE);
+            if (value != -1) {
+                sending_data = true;
+                strcat(response, ":CPU_FREQUENCY:");
+                char value_char[256];
+                sprintf(value_char, "%d", value);
+                strcat(response, value_char);
+                strcat(response, ":");
+                char time_stamp_char[256];
+                sprintf(time_stamp_char, "%ld", time_of_batch);
+                strcat(response, time_stamp_char);
+            }
+        }
+        if (currently_streaming[MEMORY_USAGE_PIPE]) {
+            int value = data_interface->getIntegerData(MEMORY_USAGE_PIPE);
+            if (value != -1) {
+                sending_data = true;
+                strcat(response, ":MEMORY_USAGE:");
+                char value_char[256];
+                sprintf(value_char, "%d", value);
+                strcat(response, value_char);
+                strcat(response, ":");
+                char time_stamp_char[256];
+                sprintf(time_stamp_char, "%ld", time_of_batch);
+                strcat(response, time_stamp_char);
+            }
+        }
+
+        if (stopping) {
+            return;
+        }
+
+        if (sending_data) {
+            wifiComms.send(response);
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(1000));
+    }
+}
+
+void Logic::send_bike_metrics(WifiComms wifiComms) {
 
     while (true) {
 
@@ -276,7 +355,48 @@ void Logic::read_and_send(WifiComms wifiComms) {
                 strcat(response, time_stamp_char);
             }
         }
-
+        if (currently_streaming[ACCELERATION_X_PIPE]) {
+            float value = data_interface->getFloatData(ACCELERATION_X_PIPE);
+            if (value != -1) {
+                sending_data = true;
+                strcat(response, ":ACCELERATION_X:");
+                char value_char[256];
+                sprintf(value_char, "%G", value);
+                strcat(response, value_char);
+                strcat(response, ":");
+                char time_stamp_char[256];
+                sprintf(time_stamp_char, "%ld", time_of_batch);
+                strcat(response, time_stamp_char);
+            }
+        }
+        if (currently_streaming[ACCELERATION_Y_PIPE]) {
+            float value = data_interface->getFloatData(ACCELERATION_Y_PIPE);
+            if (value != -1) {
+                sending_data = true;
+                strcat(response, ":ACCELERATION_Y:");
+                char value_char[256];
+                sprintf(value_char, "%G", value);
+                strcat(response, value_char);
+                strcat(response, ":");
+                char time_stamp_char[256];
+                sprintf(time_stamp_char, "%ld", time_of_batch);
+                strcat(response, time_stamp_char);
+            }
+        }
+        if (currently_streaming[ACCELERATION_Z_PIPE]) {
+            float value = data_interface->getFloatData(ACCELERATION_Z_PIPE);
+            if (value != -1) {
+                sending_data = true;
+                strcat(response, ":ACCELERATION_Z:");
+                char value_char[256];
+                sprintf(value_char, "%G", value);
+                strcat(response, value_char);
+                strcat(response, ":");
+                char time_stamp_char[256];
+                sprintf(time_stamp_char, "%ld", time_of_batch);
+                strcat(response, time_stamp_char);
+            }
+        }
         if (stopping) {
             return;
         }
@@ -299,9 +419,7 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
 
         if (bytes_received <= 0) {
             stopping = true;
-            for (bool & i : currently_streaming) {
-                i = false;
-            }
+            fill(begin(currently_streaming), end(currently_streaming), false);
             return;
         }
 
@@ -311,8 +429,12 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
             if (strcmp(token, "exit-application") == 0) {
                 stopping = true;
                 exit_application = true;
-            }
-            if (strcmp(token, "encryption") == 0) {
+            } else if (strcmp(token, "stream-profiling-data") == 0) {
+                type_of_comms = 4;
+            } else if (strcmp(token, "start-bandwidth-test") == 0) {
+                wifiComms->logging = false;
+                type_of_comms = 3;
+            } else if (strcmp(token, "encryption") == 0) {
                 type_of_comms = 2;
             } else if (strcmp(token, "configure-pipe") == 0) {
                 type_of_comms = 1;
@@ -324,10 +446,18 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
             } else if (strcmp(token, "stop") == 0) {
                 starting = false;
             } else if (strcmp(token, "all") == 0) {
-                if (starting) {
-                    fill(begin(currently_streaming), end(currently_streaming), true);
-                } else {
-                    fill(begin(currently_streaming), end(currently_streaming), false);
+                if (type_of_comms == 0) {
+                    if (starting) {
+                        fill(begin(currently_streaming), end(currently_streaming) - 4, true);
+                    } else {
+                        fill(begin(currently_streaming), end(currently_streaming) - 4, false);
+                    }
+                } else if (type_of_comms == 4) {
+                    if (starting) {
+                        fill(end(currently_streaming) - 4, end(currently_streaming), true);
+                    } else {
+                        fill(end(currently_streaming) - 4, end(currently_streaming), false);
+                    }
                 }
             } else if (strcmp(token, "AIR_TEMPERATURE") == 0) {
                 currently_streaming[AIR_TEMPERATURE_PIPE] = starting;
@@ -365,6 +495,20 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                 currently_streaming[WATER_TEMPERATURE_PIPE] = starting;
             } else if (strcmp(token, "ENGINE_SPEED") == 0) {
                 currently_streaming[ENGINE_SPEED_PIPE] = starting;
+            } else if (strcmp(token, "ACCELERATION_X") == 0) {
+                currently_streaming[ACCELERATION_X_PIPE] = starting;
+            } else if (strcmp(token, "ACCELERATION_Y") == 0) {
+                currently_streaming[ACCELERATION_Y_PIPE] = starting;
+            } else if (strcmp(token, "ACCELERATION_Z") == 0) {
+                currently_streaming[ACCELERATION_Z_PIPE] = starting;
+            } else if (strcmp(token, "CPU_USAGE") == 0) {
+                currently_streaming[CPU_USAGE_PIPE] = starting;
+            } else if (strcmp(token, "CPU_TEMPERATURE") == 0) {
+                currently_streaming[CPU_TEMPERATURE_PIPE] = starting;
+            } else if (strcmp(token, "CPU_FREQUENCY") == 0) {
+                currently_streaming[CPU_FREQUENCY_PIPE] = starting;
+            } else if (strcmp(token, "MEMORY_USAGE") == 0) {
+                currently_streaming[MEMORY_USAGE_PIPE] = starting;
             } else if (type_of_comms == 1) {
                 if (abs_mode == -1) {
                     abs_mode = stoi(token);
@@ -379,6 +523,13 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                     wifiComms->set_encryption(true);
                 } else if (strcmp(token, "off") == 0) {
                     wifiComms->set_encryption(false);
+                }
+            } else if (type_of_comms == 3) {
+                // Bandwidth test. Ignore message unless it is the last one
+                if (strcmp(token, "bandwidth-test-request-confirm") == 0) {
+                    char to_send[23] = "bandwidth-test-confirm";
+                    wifiComms->send(to_send);
+                    wifiComms->logging = true;
                 }
             }
 
@@ -398,11 +549,15 @@ void Logic::Wifi_logic(bool logging, bool encryption, int port) {
 
         stopping = false;
 
-        thread send_thread(&Logic::read_and_send, this, wifi_comms);
+        thread sensor_thread(&Logic::send_bike_metrics, this, wifi_comms);
+
+        thread profiling_thread(&Logic::send_profiling_module, this, wifi_comms);
 
         Logic::receive_loop(&wifi_comms, receive_buffer);
 
-        send_thread.join();
+        sensor_thread.join();
+
+        profiling_thread.join();
 
         if (exit_application) {
             return;
@@ -422,11 +577,15 @@ void Logic::Bluetooth_logic(bool logging, bool encryption, int channel) {
 
         bt_logic.stopping = false;
 
-        thread send_thread_bt(&BluetoothLogic::read_and_send, bt_logic, bt_comms);
+        thread send_thread_bt(&BluetoothLogic::send_bike_metrics, bt_logic, bt_comms);
+
+        thread profiling_thread_bt(&BluetoothLogic::send_profiling_data, bt_logic, bt_comms);
 
         bt_logic.receive_loop(&bt_comms, receive_buffer);
 
         send_thread_bt.join();
+
+        profiling_thread_bt.join();
 
         if (bt_logic.exit_application) {
             return;

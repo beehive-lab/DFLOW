@@ -20,11 +20,13 @@ private:
 
     void receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE]);
 
-    void read_and_send(WifiComms wifiComms);
+    void send_bike_metrics(WifiComms wifiComms);
+
+    void send_profiling_module(WifiComms wifiComms);
 
     OnBoardDataInterface* data_interface;
 
-    bool currently_streaming[18] {false};
+    bool currently_streaming[26] {false};
 
     bool starting = false;
 

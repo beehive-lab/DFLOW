@@ -144,10 +144,6 @@ class BluetoothLinkTestCase(unittest.TestCase):
         # calls is correct.
         mock_call_manager = MagicMock()
         mock_call_manager.attach_mock(self._mock_socket_constructor, 'create')
-        mock_call_manager.attach_mock(
-            self._mock_socket_instance.settimeout,
-            'settimeout'
-        )
         mock_call_manager.attach_mock(self._mock_ssl_socket.connect, 'connect')
         mock_call_manager.attach_mock(self._mock_ssl_socket.close, 'close')
 
@@ -171,14 +167,12 @@ class BluetoothLinkTestCase(unittest.TestCase):
                     socket.SOCK_STREAM,
                     socket.BTPROTO_RFCOMM
                 ),
-                call.settimeout(20),
                 call.close(),
                 call.create(
                     socket.AF_BLUETOOTH,
                     socket.SOCK_STREAM,
                     socket.BTPROTO_RFCOMM
                 ),
-                call.settimeout(20),
                 call.connect((self._test_mac_address, self._test_channel_num))
             ],
             mock_call_manager.mock_calls
@@ -197,6 +191,7 @@ class BluetoothLinkTestCase(unittest.TestCase):
             self._test_cert,
             self._test_key
         )
+        bluetooth_link._connected = True
 
         # Create a byte string and attempt to send it through the bluetooth
         # link.
@@ -223,6 +218,7 @@ class BluetoothLinkTestCase(unittest.TestCase):
             self._test_cert,
             self._test_key
         )
+        bluetooth_link._connected = True
 
         # Call the receive method on the bluetooth link and store the data
         # returned.
