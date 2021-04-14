@@ -82,16 +82,16 @@ class OnBoardTest(unittest.TestCase):
         # Verify all messages are handled correctly.
         expected_data = {
             'AIR_TEMPERATURE': [
-                (b'30', b'TIMESTAMP1'),
-                (b'20', b'TIMESTAMP2'),
-                (b'10', b'TIMESTAMP3'),
-                (b'0', b'TIMESTAMP6')
+                (b'TIMESTAMP1', b'30'),
+                (b'TIMESTAMP2', b'20'),
+                (b'TIMESTAMP3', b'10'),
+                (b'TIMESTAMP6', b'0')
             ],
             'TYRE_PRESSURE_REAR': [
-                (b'5', b'TIMESTAMP4')
+                (b'TIMESTAMP4', b'5')
             ],
             'BRAKE_FRONT_ACTIVE': [
-                (b'50', b'TIMESTAMP5')
+                (b'TIMESTAMP5', b'50')
             ],
         }
 

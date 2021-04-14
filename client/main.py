@@ -11,6 +11,7 @@ import matplotlib.dates as md
 import matplotlib.pyplot as plt
 import yaml
 
+from client.api.api import start_api_server, stop_api_server
 from client.communication.messages import SensorDataKey
 from client.communication.on_board import OnBoard
 from client.interconnect.bluetooth import BluetoothLink
@@ -27,6 +28,8 @@ class AppConfig:
     priv_key_file_path: str
     ca_cert_file_path: str
     help_dict: {str: str}
+    api_host: str
+    api_port: int
 
 
 class ConnectionMethod(Enum):
@@ -44,19 +47,30 @@ class Client:
 
         with OnBoard(self.get_connection_to_on_board()) as on_board:
 
-            print('Successfully connected to on-board...')
+            try:
+                print('Successfully connected to on-board...')
+                # Start up the API.
+                api_host: str = self._app_config.api_host
+                api_port: str = self._app_config.api_port
+                start_api_server(on_board, api_host, api_port)
+                print(
+                    'Live charts of data streamed from on-board can be viewed '
+                    'at: http://{}:{}'.format(api_host, api_port)
+                )
 
-            self.print_menu()
+                self.print_menu()
 
-            next_command: str
-            while True:
-                next_command = input('command: ').strip()
+                next_command: str
+                while True:
+                    next_command: str = input('command: ').strip()
 
-                if next_command.lower().strip() == 'exit':
-                    print('stopping...')
-                    break
+                    if next_command.lower().strip() == 'exit':
+                        print('stopping...')
+                        break
 
-                self.process_command(next_command, on_board)
+                    self.process_command(next_command, on_board)
+            finally:
+                stop_api_server()
 
         print('Client successfully stopped.')
 
@@ -174,6 +188,8 @@ class Client:
                     'Error no argument supplied try '
                     '\'help print_recorded_sensor_data\' for help'
                 )
+                return
+
             print('*****************************************')
             print('Recorded data for: ', args[0])
             print(on_board.get_recorded_sensor_data(args[0]))
@@ -184,6 +200,8 @@ class Client:
                     'Error no arguments supplied try '
                     '\'help plot_sensor_data\' for help'
                 )
+                return
+
             plot_name, *data_keys = args
             fig, ax = self.generate_graph(on_board, data_keys)
             fig.savefig(plot_name)
@@ -227,7 +245,7 @@ class Client:
             if data:
                 timestamps = []
                 values = []
-                for value, timestamp in data:
+                for timestamp, value in data:
                     timestamps.append(
                         dt.datetime.fromtimestamp(int(timestamp))
                     )
@@ -250,7 +268,9 @@ def load_app_config() -> AppConfig:
             os.path.expanduser(config['security']['cert_file_path']),
             os.path.expanduser(config['security']['priv_key_file_path']),
             os.path.expanduser(config['security']['ca_cert_file_path']),
-            config['help']
+            config['help'],
+            config['api']['host'],
+            config['api']['port']
         )
 
     return app_config

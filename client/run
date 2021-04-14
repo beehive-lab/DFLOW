@@ -9,5 +9,8 @@ if [ ! -d "$DIR"/venv ]; then
     pip install -r "$DIR"/requirements.txt &&
     python3 "$DIR"/main.py
 else
-  source "$DIR"/venv/bin/activate && python3 "$DIR"/main.py
+  source "$DIR"/venv/bin/activate &&
+    pip install -r "$DIR"/requirements.txt &&
+    clear &&
+    python3 "$DIR"/main.py
 fi

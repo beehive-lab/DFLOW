@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>DFLOW - Sensor Data Stream</title>
+    <link href="{{ url_for('static', filename='/css/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+
+
+<body>
+<nav class="navbar navbar-light bg-li=ght">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">DFLOW - Data Stream</a>
+    </div>
+</nav>
+
+<br>
+<div class="container-fluid">
+    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 row-cols-xxl-5 mg-4n" id="graph-area">
+    </div>
+</div>
+
+
+<script src="{{ url_for('static', filename='js/smoothie.js') }}" type="text/javascript"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}" type="text/javascript"></script>
+<script src="{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

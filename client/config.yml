@@ -3,6 +3,10 @@ security:
   priv_key_file_path: ~/.dflow/certs/client/client.key
   ca_cert_file_path: ~/.dflow/certs/rootCA/rootCA.crt
 
+api:
+  host: localhost
+  port: 5000
+
 help:
   default: Type 'help:<command_name>' where <command_name> is the name of the command to show help info for.
   exit: Disconnect from the on-board and exit.
@@ -45,4 +49,6 @@ help:
     GEAR_POSITION
     WATER_TEMPERATURE
     ENGINE_SPEED
-    TIMESTAMP
+    ACCELERATION_X
+    ACCELERATION_Y
+    ACCELERATION_Z
