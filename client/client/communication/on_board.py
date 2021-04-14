@@ -1,5 +1,4 @@
-from enum import Enum
-from threading import Thread
+from threading import Thread, Event
 from time import time
 
 from client.communication.messages import (
@@ -8,12 +7,6 @@ from client.communication.messages import (
     build_command_message_with_args
 )
 from client.interconnect.commlink import CommLink
-
-
-class BandwidthTestingStatus(Enum):
-    SENDING = 1
-    AWAITING_CONFIRMATION = 2
-    CONFIRMED = 3
 
 
 class OnBoard:
@@ -29,8 +22,10 @@ class OnBoard:
         self._comm_link.connect()
 
         # Variables used for bandwidth testing.
-        self._bandwidth_testing_status: BandwidthTestingStatus = None
-        self._received_bandwidth_testing_data_count = 0
+        self._wait_for_bandwidth_test_confirmation: Event = Event()
+        self._wait_to_finish_receiving_bandwidth_test_data: Event = Event()
+        self._wait_for_result_of_bandwidth_test: Event = Event()
+        self._result_of_bandwidth_test: float = None
 
         # Data received from the on-board.
         self.received_data: dict[str, dict[str, list[tuple[bytes, bytes]]]] = \
@@ -98,6 +93,12 @@ class OnBoard:
         print('Starting throughput test...')
         print('testing throughput to client...')
 
+        # Reset all the variables for bandwidth testing.
+        self._wait_for_bandwidth_test_confirmation.clear()
+        self._wait_to_finish_receiving_bandwidth_test_data.clear()
+        self._wait_for_result_of_bandwidth_test.clear()
+        self._result_of_bandwidth_test = None
+
         # Signal start of bandwidth test to on-board.
         self._comm_link.send(
             str(MessageCommand.BANDWIDTH_TEST_START).encode()
@@ -116,45 +117,45 @@ class OnBoard:
 
         # Record start time and send all the messages.
         time1 = time()
-        self._bandwidth_testing_status = BandwidthTestingStatus.SENDING
         for i in range(data_chunks_to_send):
             self._comm_link.send(test_data)
 
-        # Go into waiting state and wait for confirmation from on-board.
-        self._bandwidth_testing_status = \
-            BandwidthTestingStatus.AWAITING_CONFIRMATION
+        # Request confirmation from on-board and wait.
         self._comm_link.send(
             str(MessageCommand.BANDWIDTH_TEST_REQUEST_CONFIRM).encode()
         )
-
-        while (
-            self._bandwidth_testing_status ==
-            BandwidthTestingStatus.AWAITING_CONFIRMATION
-        ):
-            continue
+        self._wait_for_bandwidth_test_confirmation.wait()
         time2 = time()
 
-        bandwidth = (
+        bandwidth_to_on_board = (
             float(data_chunks_to_send * buffer_size) / ((time2 - time1) * 1000)
         )
 
-        print('Completed throughput test...')
-        print('Throughput was {:.3f} KB/s'.format(bandwidth))
+        # The on-board will now do the same test so we wait until it
+        # requests confirmation.
+        self._wait_to_finish_receiving_bandwidth_test_data.wait()
 
-        # Reset after bandwidth test is complete.
-        self._bandwidth_testing_status = None
-        self._received_bandwidth_testing_data_count = 0
+        # Confirm data was received.
+        self._comm_link.send(
+            str(MessageCommand.BANDWIDTH_TEST_CONFIRM).encode()
+        )
+
+        print('Completed throughput test...')
+        print('Throughput was {:.3f} KB/s'.format(bandwidth_to_on_board))
+
+        # Reset all the variables for bandwidth testing.
+        self._wait_for_bandwidth_test_confirmation.clear()
+        self._wait_to_finish_receiving_bandwidth_test_data.clear()
+        self._wait_for_result_of_bandwidth_test.clear()
+        self._result_of_bandwidth_test = None
 
     # ************** PROCESS INCOMING MESSAGES FROM ONBOARD **************
 
     def handle_incoming_message(self, msg: bytes) -> None:
         if msg.startswith(b'bandwidth-test-confirm'):
-            if (
-                self._bandwidth_testing_status ==
-                BandwidthTestingStatus.AWAITING_CONFIRMATION
-            ):
-                self._bandwidth_testing_status = \
-                    BandwidthTestingStatus.CONFIRMED
+            self._wait_for_bandwidth_test_confirmation.set()
+        elif msg.startswith(b'bandwidth-test-request-confirm'):
+            self._wait_to_finish_receiving_bandwidth_test_data.set()
         elif msg.startswith(b'stream-bike-sensor-data'):
             msg_type, *parts = msg.split(b':')
             for i in range(0, len(parts), 3):
