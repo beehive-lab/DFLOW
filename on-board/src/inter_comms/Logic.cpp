@@ -460,6 +460,8 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
 
         int abs_mode = -1, tc_mode = -1, tr_mode = -1;
 
+        bool logging_helper, encryption_helper;
+
         if (bytes_received <= 0) {
             stopping = true;
             fill(begin(currently_streaming), end(currently_streaming), false);
@@ -475,6 +477,8 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
             } else if (strcmp(token, "stream-profiling-data") == 0) {
                 type_of_comms = 4;
             } else if (strcmp(token, "start-bandwidth-test") == 0) {
+                logging_helper = wifiComms->logging;
+                encryption_helper = store_locally;
                 wifiComms->logging = false;
                 this->store_locally = false;
                 type_of_comms = 3;
@@ -573,14 +577,48 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                 if (strcmp(token, "bandwidth-test-request-confirm") == 0) {
                     char to_send[23] = "bandwidth-test-confirm";
                     wifiComms->send(to_send);
-                    wifiComms->logging = true;
-                    this->store_locally = true;
+                    start_bandwidth_test(wifiComms);
+                    wifiComms->logging = logging_helper;
+                    this->store_locally = encryption_helper;
                 }
             }
 
             token = strtok(nullptr, ":");
         }
     }
+}
+
+void Logic::start_bandwidth_test(WifiComms *wifi_comms) {
+    int messages = 100000;
+
+    char message[1024] = "bandwidth-test-data";
+
+    fill(begin(message) + 19, end(message), '#');
+
+    auto start = chrono::system_clock::now();
+
+    for (int i = 0; i < messages; i++) {
+        wifi_comms->send(message);
+    }
+
+    auto end = chrono::system_clock::now();
+
+    chrono::duration<double> send_time = end - start;
+
+    char end_confirmation[] = "bandwidth-test-request-confirm";
+
+    wifi_comms->send(end_confirmation);
+
+    char receive_buffer[BUFFER_SIZE];
+    memset(receive_buffer, 0, BUFFER_SIZE);
+
+    wifi_comms->receive(receive_buffer);
+
+    assert(strcmp(receive_buffer, "bandwidth-test-confirm") == 0);
+
+    double throughput = (BUFFER_SIZE * messages) / (send_time.count() * 1000);
+
+    cout << "Throughput is " << throughput << "Kb/s"<<endl;
 }
 
 void Logic::Wifi_logic(bool logging, bool encryption, int port) {

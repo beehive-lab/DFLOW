@@ -44,6 +44,8 @@ private:
     uint8_t *key;
 
     std::ofstream file;
+
+    static void start_bandwidth_test(WifiComms *wifi_comms);
 };
 
 
