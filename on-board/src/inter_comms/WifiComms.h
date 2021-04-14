@@ -30,6 +30,8 @@ public:
 
     int listen_socket() override;
 
+    bool logging;
+
 private:
     int port;
 
@@ -40,8 +42,6 @@ private:
     int client_socket_fd;
 
     int server_socket_fd;
-
-    bool logging;
 
     SSL *ssl;
 
