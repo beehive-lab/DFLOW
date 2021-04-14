@@ -169,8 +169,8 @@ class OnBoard:
     def _record_received_sensor_data(
         self,
         data_type: str,
-        timestamp: bytes,
         data_value: bytes,
+        timestamp: bytes
     ) -> None:
         if data_type not in self.received_data[self._SENSOR_DATA_KEY]:
             self.received_data[self._SENSOR_DATA_KEY][data_type] = []
@@ -179,11 +179,21 @@ class OnBoard:
             (timestamp, data_value)
         )
 
+    # ************** SERVICE REQUESTS FOR DATA **************
+
     def get_recorded_sensor_data(self, data_type: SensorDataKey) -> []:
-        if data_type in self.received_data[self._SENSOR_DATA_KEY]:
+        if str(data_type) in self.received_data[self._SENSOR_DATA_KEY]:
             return self.received_data[self._SENSOR_DATA_KEY][str(data_type)]
         else:
             return []
+
+    def get_latest_sensor_data(self, data_type: SensorDataKey) -> ():
+        if str(data_type) in self.received_data[self._SENSOR_DATA_KEY]:
+            return (
+                self.received_data[self._SENSOR_DATA_KEY][str(data_type)][-1]
+            )
+        else:
+            return ()
 
 
 class IncomingMessageHandler(Thread):
