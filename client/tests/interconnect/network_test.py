@@ -193,8 +193,7 @@ class NetworkLinkTestCase(unittest.TestCase):
         Test that network link receives data correctly.
         """
 
-        # Create some data and set it as the return value for the recv
-        # method of the underlying socket.
+        # Create some messages that we expect to receive.
         expected_data_values = [
             b'msg1',
             b'msg2',
@@ -203,6 +202,9 @@ class NetworkLinkTestCase(unittest.TestCase):
             b'msg5',
             b'msg6',
         ]
+
+        # Set the socket recv method to return the data in an unpredictable
+        # manner such as may be seen when streaming bytes over the network.
         self._mock_ssl_socket.recv.side_effect = [
             b'msg1\nmsg2\nmsg3\n',
             b'msg',
@@ -222,13 +224,12 @@ class NetworkLinkTestCase(unittest.TestCase):
         )
         network_link._connected = True
 
-        # Call the receive method on the network link and store the data
-        # returned.
+        # Repeatedly call the receive() method on the network link and verify
+        # that the messages returned are correct.
         for expected_data in expected_data_values:
             actual_data = network_link.receive()
             # Make sure the recv() method of the underlying socket was called
             # and the data was returned as expected.
-            self._mock_ssl_socket.recv.assert_called()
             self.assertEqual(expected_data, actual_data)
 
 
