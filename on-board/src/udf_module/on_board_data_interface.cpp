@@ -1,6 +1,6 @@
 //Author: Radu-Tudor Andra
 #include "on_board_data_interface.hpp"
-#include <iostream>
+
 OnBoardDataInterface::OnBoardDataInterface(std::vector<Pipes> processed_pipes_vector, Pipes config_pipe)
 {
     OnBoardDataInterface::processed_pipes_vector = processed_pipes_vector;

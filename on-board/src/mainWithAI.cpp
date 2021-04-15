@@ -1,14 +1,9 @@
 #include <unistd.h>
 #include <string>
 #include <thread>
-#include <ctime>
-#include <numeric>
 #include "can_module.hpp"
-#include <pipes.hpp>
-#include <WifiComms.h>
-#include <BluetoothComms.h>
-#include <data_process_module.hpp>
-#include <boost/circular_buffer.hpp>
+#include "pipes.hpp"
+#include "data_process_module.hpp"
 #include "on_board_data_interface.hpp"
 #include "edgeAI_functions.hpp"
 #include "profiling_module.hpp"
@@ -16,7 +11,7 @@
 
 using namespace std;
 
-//second release prototype
+//second release
 
 //vectors holding the multiple pipes
 std::vector<Pipes> can_pipes_vector;
@@ -42,26 +37,6 @@ void set_data_processing_module(std::shared_future<void> futureObj)
   dataProcessing processing_module = dataProcessing(can_pipes_vector, processed_pipes_vector, data_modes, 1, 3, 3);
   processing_module.startProcessing(futureObj);
 }
-
-//UNUSED FOR NOW UNTIL INTER_COMS IS FINISHED
-/*void inter_coms_send(int *pip)
-{
-  //CAN_example_message received_message = CAN_example_message();
-  char ostring[200];
-  WifiComms wifi_socket = WifiComms(true);
-  wifi_socket.establish_connection(8080);
-  char wifi_buffer[1024];
-  while(true)
-  {
-      read(pip[0],ostring,200);
-     // received_message.decodeFromPipe(ostring);
-      std::string message_string = std::string();
-      message_string = "Received message with data: temperature = " + std::to_string(received_message.temperature) + "; average radius = " + std::to_string(received_message.average_radius) + "; switch value = " + std::to_string(received_message.switch_value);
-      wifi_socket.receive(wifi_buffer);
-      if(strcmp(wifi_buffer,"Listening") == 0)
-          wifi_socket.send((char*)message_string.c_str());
-  }
-}*/
 
 //set up listener to check data processing output
 void check_data_from_dprocess()
@@ -91,7 +66,7 @@ void set_profiling_module(Pipes profiling_pipe)
   {
     std::cout<<"CPU Usage is "<<profiling_module.getCPUUsage()<<std::endl;
     std::cout<<"Memory Usage is "<<profiling_module.getMemoryUsage()<<std::endl;
-    usleep(1000000);
+    usleep(3000000);
   }
 }
 

@@ -1,15 +1,14 @@
+//Author:Radu-Tudor Andra
 #include <unistd.h>
 #include <string>
 #include <thread>
 #include "can_module.hpp"
 #include "pipes.hpp"
-#include "WifiComms.h"
-#include "BluetoothComms.h"
 #include "data_process_module.hpp"
-#include "Logic.h"
 #include "on_board_data_interface.hpp"
 #include "profiling_module.hpp"
 #include "config.hpp"
+#include "edgeAI_functions.hpp"
 
 using namespace std;
 
@@ -36,7 +35,7 @@ void set_data_processing_module(std::shared_future<void> futureObj)
                               AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
                               AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER,
                               AVERAGE_OF_BUFFER,AVERAGE_OF_BUFFER};
-  dataProcessing processing_module = dataProcessing(can_pipes_vector, processed_pipes_vector, data_modes, 1, 2, 2);
+  dataProcessing processing_module = dataProcessing(can_pipes_vector, processed_pipes_vector, data_modes, 1, 1, 1);
   processing_module.startProcessing(futureObj);
 }
 
@@ -44,14 +43,47 @@ void set_data_processing_module(std::shared_future<void> futureObj)
 void check_data_from_dprocess()
 {
   OnBoardDataInterface data_interface(processed_pipes_vector,config_pipe);
+  DFLOW_Onboard_Addon_Functions AI_func;
   while(true)
   {
     time_t time_of_batch = data_interface.getSignalBatch();
     std::cout<<"Lean_Angle is "<<data_interface.getFloatData(LEAN_ANGLE_PIPE)<<std::endl;
+    std::cout<<"Air Temp is "<<data_interface.getFloatData(AIR_TEMPERATURE_PIPE)<<std::endl;
+    std::cout<<"Front Tyre Pressure is "<<data_interface.getFloatData(TYRE_PRESSURE_FRONT_PIPE)<<std::endl;
+    std::cout<<"Rear Tyre Press is "<<data_interface.getFloatData(TYRE_PRESSURE_REAR_PIPE)<<std::endl;
+    std::cout<<"Battery Voltage is "<<data_interface.getFloatData(BATTERY_VOLTAGE_PIPE)<<std::endl;
+    std::cout<<"Oil Pressure is "<<data_interface.getFloatData(OIL_PRESSURE_PIPE)<<std::endl;
+    std::cout<<"Water Temp is "<<data_interface.getFloatData(WATER_TEMPERATURE_PIPE)<<std::endl;
+    std::cout<<"----------------------"<<std::endl;
+    std::cout<<"Throttle Pos is "<<data_interface.getIntegerData(THROTTLE_POSITION_PIPE)<<std::endl;
+    std::cout<<"Motorcycle Speed is "<<data_interface.getIntegerData(MOTORCYCLE_SPEED_PIPE)<<std::endl;
+    std::cout<<"Rear Wheel Speed is "<<data_interface.getIntegerData(REAR_WHEEL_SPEED_PIPE)<<std::endl;
+    std::cout<<"Front Wheel Speed is "<<data_interface.getIntegerData(FRONT_WHEEL_SPEED_PIPE)<<std::endl;
+    std::cout<<"Rear Brake is "<<data_interface.getIntegerData(BRAKE_REAR_ACTIVE_PIPE)<<std::endl;
+    std::cout<<"Front Brake is "<<data_interface.getIntegerData(BRAKE_FRONT_ACTIVE_PIPE)<<std::endl;
+    std::cout<<"ABS is "<<data_interface.getIntegerData(ABS_MODE_PIPE)<<std::endl;
+    std::cout<<"TC is "<<data_interface.getIntegerData(TC_MODE_PIPE)<<std::endl;
+    std::cout<<"Throttle Response is "<<data_interface.getIntegerData(THROTTLE_RESPONSE_MODE_PIPE)<<std::endl;
+    std::cout<<"Gear is "<<data_interface.getIntegerData(GEAR_POSITION_PIPE)<<std::endl;
+    std::cout<<"Engine Speed is "<<data_interface.getIntegerData(ENGINE_SPEED_PIPE)<<std::endl;
+    std::cout<<"----------------------"<<std::endl;
     std::cout<<"CPU Usage is "<<data_interface.getFloatData(CPU_USAGE_PIPE)<<std::endl;
     std::cout<<"CPU Freq is "<<data_interface.getIntegerData(CPU_FREQUENCY_PIPE)<<std::endl;
     std::cout<<"CPU Temp is "<<data_interface.getIntegerData(CPU_TEMPERATURE_PIPE)<<std::endl;
     std::cout<<"Memory Usage is "<<data_interface.getIntegerData(MEMORY_USAGE_PIPE)<<std::endl;
+    std::cout<<"==================================================="<<std::endl;
+
+    float result_of_function = AI_func.AIfunction(data_interface,std::vector<int>{LEAN_ANGLE_PIPE,ACCELERATION_X_PIPE,ACCELERATION_Y_PIPE},
+                                   std::vector<int>{FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE},
+                                   "./fdeep_crash_model.json");
+    if(result_of_function > 0.6)
+    {
+      std::cout<<"XXXXXXXXXXMotorcycle crashedXXXXXXXXXXXXXX"<<std::endl;
+    }
+    else
+    {
+      std::cout<<"XXXXXXXXXXMotorcycle did not crashXXXXXXXXXXXXXX"<<std::endl;
+    }
   }
 }
 
@@ -64,14 +96,6 @@ void set_profiling_module(Pipes profiling_pipe)
     profiling_module.computeAndSendStats(profiling_pipe);
     usleep(1000000);
   }
-}
-
-void logic_module_thread()
-{
-  OnBoardDataInterface data_interface(processed_pipes_vector, config_pipe);
-  uint8_t key[10] = "password";
-  Logic logic_module = Logic(&data_interface, false, false, key);
-  logic_module.Wifi_logic(true, true, 8080);
 }
 
 int main() {
@@ -100,12 +124,10 @@ int main() {
   std::thread can_thread(retrieve,shrdFutureObj);
   std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
   std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
-//  std::thread udf_thread(check_data_from_dprocess);
-  std::thread logic_thread(logic_module_thread);
+  std::thread udf_thread(check_data_from_dprocess);
   can_thread.join();
   data_proccesing_thread.join();
   profiling_thread.join();
-//  udf_thread.join();
-  logic_thread.join();
+  udf_thread.join();
   return 0;
 }

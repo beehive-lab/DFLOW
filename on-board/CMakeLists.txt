@@ -106,6 +106,10 @@ set(SECURITY_SOURCE
         src/crypto/SymmetricEncryption.h
         )
 
+set(RADU_SOURCE_FILES
+        src/mainRadu.cpp
+        src/config.cpp)
+
 set(SOURCE_FILES
         src/main.cpp
         src/config.cpp)
@@ -133,6 +137,9 @@ add_executable(DFLOW_OnBoard  ${SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE
 add_executable(DFLOW_OnBoard_WithAI ${AI_SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${DATA_PROCESSING_SOURCE}
                                 ${UDFMODULE_AI_SOURCE} ${PROFILING_MODULE_SOURCE} ${INTER_COMMS_SOURCE} ${SECURITY_SOURCE})
 
+add_executable(Radu_DFLOW_OnBoard ${RADU_SOURCE_FILES} ${HEADER_FILES} ${CANMODULE_SOURCE} ${DATA_PROCESSING_SOURCE}
+                                ${UDFMODULE_AI_SOURCE} ${PROFILING_MODULE_SOURCE})
+
 find_package(PythonLibs REQUIRED)
 find_package(frugally-deep REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
@@ -144,6 +151,9 @@ link_libraries(ssl crypto)
 target_link_libraries(DFLOW_OnBoard PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
 include_directories(${PYTHON_INCLUDE_DIRS})
 target_link_libraries(DFLOW_OnBoard_WithAI PRIVATE Threads::Threads OpenSSL::SSL PUBLIC ${PYTHON_LIBRARIES} )
+
+include_directories(${PYTHON_INCLUDE_DIRS})
+target_link_libraries(Radu_DFLOW_OnBoard PRIVATE Threads::Threads PUBLIC ${PYTHON_LIBRARIES} )
  
 # testing set up
 set(CAN_TEST_FILES

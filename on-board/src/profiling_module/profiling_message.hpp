@@ -1,8 +1,4 @@
 //Author: Radu-Tudor Andra
-#include <string>
-#include <cstring>
-#include <vector>
-#include <sstream>
 
 
 #ifndef PROFILING_MESSAGE_H

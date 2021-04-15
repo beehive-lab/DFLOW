@@ -1,6 +1,5 @@
 //Author: Radu-Tudor Andra
 #include<stdlib.h>
-#include<iostream>
 #include<string>
 #include<map>
 #include<future>

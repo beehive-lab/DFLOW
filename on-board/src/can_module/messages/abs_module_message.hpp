@@ -1,7 +1,6 @@
 //Author: Radu-Tudor Andra
 #include <map>
 #include <string>
-#include <iostream>
 
 #ifndef ABS_MODULE_MESSAGE_H
 #define ABS_MODULE_MESSAGE_H

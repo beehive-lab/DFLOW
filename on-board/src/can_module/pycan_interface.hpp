@@ -3,7 +3,7 @@
 #include <map>
 #include <Python.h>
 #include <iostream>
-#include <can_interface.hpp>
+#include "can_interface.hpp"
 
 #ifndef CAN_Python_Interface_H
 #define CAN_Python_Interface_H

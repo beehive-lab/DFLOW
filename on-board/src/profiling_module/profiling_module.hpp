@@ -1,12 +1,11 @@
 //Author: Radu-Tudor Andra
-#include <iostream>
 #include <fstream>
 #include <string>
+#include <unistd.h>
 #include <sys/times.h>
 #include <sys/resource.h>
 #include "profiling_message.hpp"
 #include "pipes.hpp"
-#include <unistd.h>
 
 #ifndef PROFILING_MODULE_H
 #define PROFILING_MODULE_H
