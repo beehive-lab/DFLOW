@@ -35,9 +35,13 @@ void WifiComms::set_encryption(bool encryption_set) {
     this->encryption = encryption_set;
 }
 
-int WifiComms::send(char *data) {
+int WifiComms::send(char *data_1) {
 
     int no_of_bytes;
+
+    char *data = new char[strlen(data_1) + 1];
+    strcpy(data, data_1);
+    strcat(data, "\n");
 
     if (encryption) {
         if (logging) {
@@ -127,7 +131,7 @@ int WifiComms::disconnect() {
     try {
 
         if (logging) {
-            cout<<"Disconnecting..."<<endl;
+            cout << "Disconnecting..." << endl;
             cout << "Closing the client socket" << endl;
         }
 
@@ -257,7 +261,7 @@ int WifiComms::accept_connection() {
             if (encryption) {
                 cout << "Accepting a new secure connection" << endl;
             } else {
-                cout<< "Accepting a new insecure connection" << endl;
+                cout << "Accepting a new insecure connection" << endl;
             }
         }
 
@@ -286,7 +290,7 @@ int WifiComms::accept_connection() {
     }
 }
 
-int WifiComms::load_certificates(SSL_CTX * context, char * certificate_file, char * key_file, char * ca_file) {
+int WifiComms::load_certificates(SSL_CTX *context, char *certificate_file, char *key_file, char *ca_file) {
     try {
         if (SSL_CTX_use_certificate_file(context, certificate_file, SSL_FILETYPE_PEM) <= 0) {
             ERR_print_errors_fp(stderr);
