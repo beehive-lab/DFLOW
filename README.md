@@ -1,4 +1,6 @@
 # DFLOW
+[![Build Status](https://travis-ci.com/beehive-lab/DFLOW.svg?token=qDp8gaGxvVS2UKxxk2f5&branch=main)](https://travis-ci.com/beehive-lab/DFLOW)
+
 **A framework for rapidly prototyping data flow proof-of-concepts**
 
 Participants: Maximilian Gama, Osher Landes, Radu-Tudor Andra
