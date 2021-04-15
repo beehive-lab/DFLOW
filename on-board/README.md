@@ -1,3 +1,27 @@
+Authors of System
+------------------
+Radu-Tudor Andra: `src/can_module`, `src/data_processing_module`, `src/udf_module`, `src/profiling_module`, `on-board_benchmarking`, `trace_simulation`, and any respective tests inside `test`
+Maximilian Gama: `src/inter-comms`, `src/crypto` and any respective tests inside `test`
+
+System parameters
+-----------------
+* CAN-module : only parameters here are the DBC file path, path of the python module implementing decoding, and an optional file path for the file data interface.
+* Data-Processing-module : a vector providing the desired processing operation for each individual message identifier(whose values can be found in `src/data_processing_module/pipes.cpp`). At the moment every signal is set to Average over buffer however the possible processing functions are: AVERAGE_OF_BUFFER, MAX_OF_BUFFER, MIN_OF_BUFFER, SUM_OFF_BUFFER, FULL_BUFFER, DO_NOT_COMPUTE. 
+  
+  Also other parameters of the module in the order they are required by the constructor are: the tick interval(at which rate values will be pushed to buffers), time_interval(at which rate buffers are offloaded to pipes) and buffer size).
+* UDF-module : the parameters that can and must be passed to the UDF module's AI function, besides the instance of on-board data interface are: a vector containing the desired input signal identifiers, another vector containing their type, the path to the json frugally-deep DNN model. 
+
+Mention regarding the Profiling module
+--------------------------------------
+The Profiling module is designed to be instantiated only once initially and then be run in a loop to compute CPU Usage, either through `computeAndSendStats()`, sending the profiling data as an on-board signal, or through `getCPUUsage()`, retrieving the percentage locally, to be used directly on the device running the on-board system.
+
+Different main functions and build targets
+-------------------------------------------
+There are 3 different main functions and main build targets:
+* mainRadu.cpp -> Radu_DFLOW_OnBoard - designed to showcase Radu's contribution and run the on-board system without communication to the client
+* main.cpp -> DFLOW_OnBoard designed to provide full functionality of the system, providing Maxi's contribution on top of Radu's work
+* mainWithAi.cpp -> DFLOW_OnBoard_WithAi - designed to provide the edge AI functionality, it has been separated into a different build as frugally-deep takes longer to compile.
+
 Modifying system/CAN messages/signals
 -------------------------------------
 
