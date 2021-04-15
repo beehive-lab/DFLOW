@@ -1,6 +1,7 @@
 Authors of System
 ------------------
 Radu-Tudor Andra: `src/can_module`, `src/data_processing_module`, `src/udf_module`, `src/profiling_module`, `on-board_benchmarking`, `trace_simulation`, and any respective tests inside `test`
+
 Maximilian Gama: `src/inter-comms`, `src/crypto` and any respective tests inside `test`
 
 System parameters
