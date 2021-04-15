@@ -11,7 +11,7 @@ class BluetoothLogic {
 public:
     explicit BluetoothLogic(OnBoardDataInterface* data_interface, bool store_locally, bool encrypt_locally, uint8_t *key);
 
-    void send_profiling_data(BluetoothComms bluetoothComms);
+    void send_profiling_data(BluetoothComms bluetooth_comms);
 
     void receive_loop(BluetoothComms *bluetooth_comms, char receive_buffer[BUFFER_SIZE]);
 
@@ -38,6 +38,8 @@ private:
     bool encrypt_locally{};
 
     uint8_t *key{};
+
+    static void start_bandwidth_test(BluetoothComms *bluetooth_comms);
 };
 
 

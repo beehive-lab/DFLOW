@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void Logic::send_profiling_module(WifiComms wifiComms) {
+void Logic::send_profiling_data(WifiComms wifiComms) {
 
     while (true) {
         bool sending_data = false;
@@ -633,7 +633,7 @@ void Logic::Wifi_logic(bool logging, bool encryption, int port) {
 
         thread sensor_thread(&Logic::send_bike_metrics, this, wifi_comms);
 
-        thread profiling_thread(&Logic::send_profiling_module, this, wifi_comms);
+        thread profiling_thread(&Logic::send_profiling_data, this, wifi_comms);
 
         Logic::receive_loop(&wifi_comms, receive_buffer);
 
