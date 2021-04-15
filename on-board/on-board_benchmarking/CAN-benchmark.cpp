@@ -43,7 +43,7 @@ void set_test_bench()
     while(true)
     {
         ABSModuleMessage abs_message;
-        read(can_pipes_vector[ABS_MESSAGE_PIPE].rdwr[READ],&abs_message.data, sizeof(abs_message.data));
+        read(can_pipes_vector[ABS_MESSAGE].rdwr[READ],&abs_message.data, sizeof(abs_message.data));
         if(test_value == -1 || test_value == 10000)
             test_value = abs_message.data.rear_wheel_speed;
         else
@@ -68,7 +68,7 @@ int main() {
 
   //initialize can pipes and data_proccesing pipes
   pipe(config_pipe.rdwr);
-  for(int i = 0; i<8; i++)
+  for(int i = 0; i<MESSAGE_NUMBER; i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
@@ -77,7 +77,7 @@ int main() {
 
   //create threads
   std::thread can_thread(retrieve,shrdFutureObj);
-  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
+  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE]);
   std::thread testing_thread(set_test_bench);
   can_thread.join();
   profiling_thread.join();

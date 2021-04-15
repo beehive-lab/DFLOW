@@ -38,37 +38,37 @@ void CAN_Module::setListener(std::vector<Pipes> output_pipes, Pipes config_pipe,
 
             IMUSensorMessage imu_message;
             imu_message.set_from_map(message_map);
-            write(output_pipes[IMU_MESSAGE_PIPE].rdwr[WRITE], &imu_message.data, sizeof(imu_message.data));
+            write(output_pipes[IMU_MESSAGE].rdwr[WRITE], &imu_message.data, sizeof(imu_message.data));
         }
         else if(message_map["MessageType"]== "EngineSensors")
         {
             EngineSensorsMessage engine_message;
             engine_message.set_from_map(message_map);
-            write(output_pipes[ENGINE_MESSAGE_PIPE].rdwr[WRITE], &engine_message.data, sizeof(engine_message.data));
+            write(output_pipes[ENGINE_MESSAGE].rdwr[WRITE], &engine_message.data, sizeof(engine_message.data));
         }
         else if(message_map["MessageType"]== "ABSModule")
         {
             ABSModuleMessage abs_message;
             abs_message.set_from_map(message_map);
-            write(output_pipes[ABS_MESSAGE_PIPE].rdwr[WRITE], &abs_message.data, sizeof(abs_message.data));
+            write(output_pipes[ABS_MESSAGE].rdwr[WRITE], &abs_message.data, sizeof(abs_message.data));
         }
         else if(message_map["MessageType"]== "TPMModule")
         {
             TPMModuleMessage tpm_message;
             tpm_message.set_from_map(message_map);
-            write(output_pipes[TPM_MESSAGE_PIPE].rdwr[WRITE], &tpm_message.data, sizeof(tpm_message.data));
+            write(output_pipes[TPM_MESSAGE].rdwr[WRITE], &tpm_message.data, sizeof(tpm_message.data));
         }
         else if(message_map["MessageType"]== "IntakeSensors")
         {
             IntakeSensorsMessage intake_message;
             intake_message.set_from_map(message_map);
-            write(output_pipes[INTAKE_MESSAGE_PIPE].rdwr[WRITE], &intake_message.data, sizeof(intake_message.data));
+            write(output_pipes[INTAKE_MESSAGE].rdwr[WRITE], &intake_message.data, sizeof(intake_message.data));
         }
         else if(message_map["MessageType"]== "ConfigurableMode")
         {
             ConfigurableModesMessage config_message;
             config_message.set_from_map(message_map);
-            write(output_pipes[CONFIG_MESSAGE_PIPE].rdwr[WRITE], &config_message.data, sizeof(config_message.data));
+            write(output_pipes[CONFIG_MESSAGE].rdwr[WRITE], &config_message.data, sizeof(config_message.data));
         }
 
         //if the file path for the accelerometer data is set, add any incoming messages to the ACCELEROMETER PIPE
@@ -78,7 +78,7 @@ void CAN_Module::setListener(std::vector<Pipes> output_pipes, Pipes config_pipe,
             AccelerometerMessage accel_message = file_interface.readAccelerometerFile();
             if(!accel_message.empty_message)
             {
-                write(output_pipes[ACCELEROMETER_MESSAGE_PIPE].rdwr[WRITE], &accel_message.data, sizeof(accel_message.data));
+                write(output_pipes[ACCELEROMETER_MESSAGE].rdwr[WRITE], &accel_message.data, sizeof(accel_message.data));
             }
         }
 

@@ -47,33 +47,33 @@ void check_data_from_dprocess()
   while(true)
   {
     time_t time_of_batch = data_interface.getSignalBatch();
-    std::cout<<"Lean_Angle is "<<data_interface.getFloatData(LEAN_ANGLE_PIPE)<<std::endl;
-    std::cout<<"Air Temp is "<<data_interface.getFloatData(AIR_TEMPERATURE_PIPE)<<std::endl;
-    std::cout<<"Front Tyre Pressure is "<<data_interface.getFloatData(TYRE_PRESSURE_FRONT_PIPE)<<std::endl;
-    std::cout<<"Rear Tyre Press is "<<data_interface.getFloatData(TYRE_PRESSURE_REAR_PIPE)<<std::endl;
-    std::cout<<"Battery Voltage is "<<data_interface.getFloatData(BATTERY_VOLTAGE_PIPE)<<std::endl;
-    std::cout<<"Oil Pressure is "<<data_interface.getFloatData(OIL_PRESSURE_PIPE)<<std::endl;
-    std::cout<<"Water Temp is "<<data_interface.getFloatData(WATER_TEMPERATURE_PIPE)<<std::endl;
+    std::cout<<"Lean_Angle is "<<data_interface.getFloatData(LEAN_ANGLE)<<std::endl;
+    std::cout<<"Air Temp is "<<data_interface.getFloatData(AIR_TEMPERATURE)<<std::endl;
+    std::cout<<"Front Tyre Pressure is "<<data_interface.getFloatData(TYRE_PRESSURE_FRONT)<<std::endl;
+    std::cout<<"Rear Tyre Press is "<<data_interface.getFloatData(TYRE_PRESSURE_REAR)<<std::endl;
+    std::cout<<"Battery Voltage is "<<data_interface.getFloatData(BATTERY_VOLTAGE)<<std::endl;
+    std::cout<<"Oil Pressure is "<<data_interface.getFloatData(OIL_PRESSURE)<<std::endl;
+    std::cout<<"Water Temp is "<<data_interface.getFloatData(WATER_TEMPERATURE)<<std::endl;
     std::cout<<"----------------------"<<std::endl;
-    std::cout<<"Throttle Pos is "<<data_interface.getIntegerData(THROTTLE_POSITION_PIPE)<<std::endl;
-    std::cout<<"Motorcycle Speed is "<<data_interface.getIntegerData(MOTORCYCLE_SPEED_PIPE)<<std::endl;
-    std::cout<<"Rear Wheel Speed is "<<data_interface.getIntegerData(REAR_WHEEL_SPEED_PIPE)<<std::endl;
-    std::cout<<"Front Wheel Speed is "<<data_interface.getIntegerData(FRONT_WHEEL_SPEED_PIPE)<<std::endl;
-    std::cout<<"Rear Brake is "<<data_interface.getIntegerData(BRAKE_REAR_ACTIVE_PIPE)<<std::endl;
-    std::cout<<"Front Brake is "<<data_interface.getIntegerData(BRAKE_FRONT_ACTIVE_PIPE)<<std::endl;
-    std::cout<<"ABS is "<<data_interface.getIntegerData(ABS_MODE_PIPE)<<std::endl;
-    std::cout<<"TC is "<<data_interface.getIntegerData(TC_MODE_PIPE)<<std::endl;
-    std::cout<<"Throttle Response is "<<data_interface.getIntegerData(THROTTLE_RESPONSE_MODE_PIPE)<<std::endl;
-    std::cout<<"Gear is "<<data_interface.getIntegerData(GEAR_POSITION_PIPE)<<std::endl;
-    std::cout<<"Engine Speed is "<<data_interface.getIntegerData(ENGINE_SPEED_PIPE)<<std::endl;
+    std::cout<<"Throttle Pos is "<<data_interface.getIntegerData(THROTTLE_POSITION)<<std::endl;
+    std::cout<<"Motorcycle Speed is "<<data_interface.getIntegerData(MOTORCYCLE_SPEED)<<std::endl;
+    std::cout<<"Rear Wheel Speed is "<<data_interface.getIntegerData(REAR_WHEEL_SPEED)<<std::endl;
+    std::cout<<"Front Wheel Speed is "<<data_interface.getIntegerData(FRONT_WHEEL_SPEED)<<std::endl;
+    std::cout<<"Rear Brake is "<<data_interface.getIntegerData(BRAKE_REAR_ACTIVE)<<std::endl;
+    std::cout<<"Front Brake is "<<data_interface.getIntegerData(BRAKE_FRONT_ACTIVE)<<std::endl;
+    std::cout<<"ABS is "<<data_interface.getIntegerData(ABS_MODE)<<std::endl;
+    std::cout<<"TC is "<<data_interface.getIntegerData(TC_MODE)<<std::endl;
+    std::cout<<"Throttle Response is "<<data_interface.getIntegerData(THROTTLE_RESPONSE_MODE)<<std::endl;
+    std::cout<<"Gear is "<<data_interface.getIntegerData(GEAR_POSITION)<<std::endl;
+    std::cout<<"Engine Speed is "<<data_interface.getIntegerData(ENGINE_SPEED)<<std::endl;
     std::cout<<"----------------------"<<std::endl;
-    std::cout<<"CPU Usage is "<<data_interface.getFloatData(CPU_USAGE_PIPE)<<std::endl;
-    std::cout<<"CPU Freq is "<<data_interface.getIntegerData(CPU_FREQUENCY_PIPE)<<std::endl;
-    std::cout<<"CPU Temp is "<<data_interface.getIntegerData(CPU_TEMPERATURE_PIPE)<<std::endl;
-    std::cout<<"Memory Usage is "<<data_interface.getIntegerData(MEMORY_USAGE_PIPE)<<std::endl;
+    std::cout<<"CPU Usage is "<<data_interface.getFloatData(CPU_USAGE)<<std::endl;
+    std::cout<<"CPU Freq is "<<data_interface.getIntegerData(CPU_FREQUENCY)<<std::endl;
+    std::cout<<"CPU Temp is "<<data_interface.getIntegerData(CPU_TEMPERATURE)<<std::endl;
+    std::cout<<"Memory Usage is "<<data_interface.getIntegerData(MEMORY_USAGE)<<std::endl;
     std::cout<<"==================================================="<<std::endl;
 
-    float result_of_function = AI_func.AIfunction(data_interface,std::vector<int>{LEAN_ANGLE_PIPE,ACCELERATION_X_PIPE,ACCELERATION_Y_PIPE},
+    float result_of_function = AI_func.AIfunction(data_interface,std::vector<int>{LEAN_ANGLE,ACCELERATION_X,ACCELERATION_Y},
                                    std::vector<int>{FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE},
                                    "./fdeep_crash_model.json");
     if(result_of_function > 0.6)
@@ -107,13 +107,13 @@ int main() {
 
   pipe(config_pipe.rdwr);
   //initialize can pipes and data_proccesing pipes
-  for(int i = 0; i<8; i++)
+  for(int i = 0; i<MESSAGE_NUMBER; i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       can_pipes_vector.push_back(new_pipe);
   }
-  for(int i = 0; i<26;i++)
+  for(int i = 0; i<SIGNAL_NUMBER;i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
@@ -123,7 +123,7 @@ int main() {
   //create threads
   std::thread can_thread(retrieve,shrdFutureObj);
   std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
-  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
+  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE]);
   std::thread udf_thread(check_data_from_dprocess);
   can_thread.join();
   data_proccesing_thread.join();

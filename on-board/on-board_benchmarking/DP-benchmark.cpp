@@ -64,11 +64,11 @@ void set_dp_tester()
     times += 1;
     testing_value +=1;
     test_message.data.throttle_position = 0;
-    write(can_pipes_vector[INTAKE_MESSAGE_PIPE].rdwr[WRITE],&test_message.data,sizeof(test_message.data));
+    write(can_pipes_vector[INTAKE_MESSAGE].rdwr[WRITE],&test_message.data,sizeof(test_message.data));
     usleep(2000);
     if(difftime(time(0),last_time) >= 10)
     {
-      read(processed_pipes_vector[AIR_TEMPERATURE_PIPE].rdwr[READ],&air_temperature,sizeof(float));
+      read(processed_pipes_vector[AIR_TEMPERATURE].rdwr[READ],&air_temperature,sizeof(float));
       std::cout<<air_temperature<<" "<<sum/times<<std::endl;
       if(air_temperature == sum/times)
         std::cout<<"TEST SUCCESFULL"<<std::endl;
@@ -85,13 +85,13 @@ int main() {
   std::shared_future<void> shrdFutureObj = futureObj.share();
 
   //initialize can pipes and data_proccesing pipes
-  for(int i = 0; i<8; i++)
+  for(int i = 0; i<MESSAGE_NUMBER; i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       can_pipes_vector.push_back(new_pipe);
   }
-  for(int i = 0; i<26;i++)
+  for(int i = 0; i<SIGNAL_NUMBER;i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
@@ -100,7 +100,7 @@ int main() {
 
   //create threads
   std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
-  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
+  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE]);
   std::thread testing_thread(set_dp_tester);
 
   data_proccesing_thread.join();

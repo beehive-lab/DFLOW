@@ -47,11 +47,11 @@ void check_data_from_dprocess()
   while(true)
   {
     time_t time_of_batch = data_interface.getSignalBatch();
-    std::cout<<"Lean_Angle is "<<data_interface.getFloatData(LEAN_ANGLE_PIPE)<<std::endl;
-    std::cout<<"CPU Usage is "<<data_interface.getFloatData(CPU_USAGE_PIPE)<<std::endl;
-    std::cout<<"CPU Freq is "<<data_interface.getIntegerData(CPU_FREQUENCY_PIPE)<<std::endl;
-    std::cout<<"CPU Temp is "<<data_interface.getIntegerData(CPU_TEMPERATURE_PIPE)<<std::endl;
-    std::cout<<"Memory Usage is "<<data_interface.getIntegerData(MEMORY_USAGE_PIPE)<<std::endl;
+    std::cout<<"Lean_Angle is "<<data_interface.getFloatData(LEAN_ANGLE)<<std::endl;
+    std::cout<<"CPU Usage is "<<data_interface.getFloatData(CPU_USAGE)<<std::endl;
+    std::cout<<"CPU Freq is "<<data_interface.getIntegerData(CPU_FREQUENCY)<<std::endl;
+    std::cout<<"CPU Temp is "<<data_interface.getIntegerData(CPU_TEMPERATURE)<<std::endl;
+    std::cout<<"Memory Usage is "<<data_interface.getIntegerData(MEMORY_USAGE)<<std::endl;
   }
 }
 
@@ -83,13 +83,13 @@ int main() {
 
   pipe(config_pipe.rdwr);
   //initialize can pipes and data_proccesing pipes
-  for(int i = 0; i<8; i++)
+  for(int i = 0; i < MESSAGE_NUMBER; i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       can_pipes_vector.push_back(new_pipe);
   }
-  for(int i = 0; i<26;i++)
+  for(int i = 0; i < SIGNAL_NUMBER;i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
@@ -99,7 +99,7 @@ int main() {
   //create threads
   std::thread can_thread(retrieve,shrdFutureObj);
   std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
-  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
+  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE]);
 //  std::thread udf_thread(check_data_from_dprocess);
   std::thread logic_thread(logic_module_thread);
   can_thread.join();

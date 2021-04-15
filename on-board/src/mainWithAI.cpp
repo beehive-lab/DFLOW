@@ -45,7 +45,7 @@ void check_data_from_dprocess()
   DFLOW_Onboard_Addon_Functions AI_func;
   while(true)
   {
-    float result_of_function = AI_func.AIfunction(data_interface,std::vector<int>{LEAN_ANGLE_PIPE,ACCELERATION_X_PIPE,ACCELERATION_Y_PIPE},
+    float result_of_function = AI_func.AIfunction(data_interface,std::vector<int>{LEAN_ANGLE,ACCELERATION_X,ACCELERATION_Y},
                                    std::vector<int>{FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE},
                                    "./fdeep_crash_model.json");
     if(result_of_function > 0.6)
@@ -78,14 +78,14 @@ int main() {
   std::shared_future<void> shrdFutureObj = futureObj.share();
   
   //initialize can pipes and data_proccesing pipes
-  for(int i = 0; i<8; i++)
+  for(int i = 0; i<MESSAGE_NUMBER; i++)
 
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       can_pipes_vector.push_back(new_pipe);
   }
-  for(int i = 0; i<26;i++)
+  for(int i = 0; i<SIGNAL_NUMBER;i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
@@ -93,7 +93,7 @@ int main() {
   }
   std::thread can_thread(retrieve,shrdFutureObj);
   std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
-  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
+  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE]);
   std::thread udf_thread(check_data_from_dprocess);
   can_thread.join();
   data_proccesing_thread.join();
