@@ -29,6 +29,7 @@ class NetworkLink(CommLink):
         self._verify_host_name: bool = verify_host_name
         self._secure: bool = secure
         self._sock: socket.socket = self._create_network_socket()
+        self._leftover = b''
 
     def _create_network_socket(self):
         return (
@@ -89,7 +90,24 @@ class NetworkLink(CommLink):
     def receive(self, buffer_size: int = 1024) -> bytes:
         if not self.is_connected():
             return b''
-        return self._sock.recv(buffer_size)
+
+        data_read = self._leftover
+
+        try:
+            msg_end = data_read.find(b'\n')
+            while msg_end == -1:
+                data_read += self._sock.recv(buffer_size)
+                msg_end = data_read.find(b'\n')
+            if msg_end == len(data_read) - 1:
+                self._leftover = b''
+            else:
+                self._leftover = data_read[msg_end + 1:]
+        except:
+            self._connected = False
+            self._leftover = b''
+            return b''
+
+        return data_read[:msg_end]
 
     def is_connected(self) -> bool:
         return self._connected
