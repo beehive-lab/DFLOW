@@ -19,19 +19,19 @@ while(True):
     absMode += absChange
     if(absMode > 6):
         absChange = -1
-    elif(absMode < 0):
+    elif(absMode < 1):
         absChange = 1
 
     tcMode += tcChange
     if(tcMode > 6):
         tcChange = -1
-    elif(absMode < 0):
+    elif(tcMode < 1):
         tcChange = 1
 
     trMode += trChange
     if(trMode > 6):
         trChange = -1
-    elif(trMode < 0):
+    elif(trMode < 1):
         trChange = 1
 
     config_data = config_message.encode({'ABSMode': absMode, 'TCMode':tcMode, 'ThrottleResponseMode': trMode})
