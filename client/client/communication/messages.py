@@ -6,6 +6,7 @@ class MessageCommand(Enum):
     The different commands that can be given to the on-board.
     """
     STREAM_BIKE_SENSOR_DATA = 'stream-bike-sensor-data'
+    STREAM_PROFILING_DATA = 'stream-profiling-data'
     ENCRYPTION = 'encryption'
     BANDWIDTH_TEST_START = 'start-bandwidth-test'
     BANDWIDTH_TEST_REQUEST_CONFIRM = 'bandwidth-test-request-confirm'
@@ -38,7 +39,22 @@ class SensorDataKey(Enum):
     GEAR_POSITION = 'GEAR_POSITION'
     WATER_TEMPERATURE = 'WATER_TEMPERATURE'
     ENGINE_SPEED = 'ENGINE_SPEED'
-    TIMESTAMP = 'TIMESTAMP'
+    ACCELERATION_X = 'ACCELERATION_X'
+    ACCELERATION_Y = 'ACCELERATION_Y'
+    ACCELERATION_Z = 'ACCELERATION_Z'
+
+    def __str__(self):
+        return self.value
+
+
+class ProfilingDataKey(Enum):
+    """
+    The keys for different types of profiling data.
+    """
+    CPU_USAGE = 'CPU_USAGE'
+    CPU_TEMPERATURE = 'CPU_TEMPERATURE'
+    CPU_FREQUENCY = 'CPU_FREQUENCY'
+    MEMORY_USAGE = 'MEMORY_USAGE'
 
     def __str__(self):
         return self.value

@@ -59,15 +59,15 @@ class dataProcessing
         int time_interval;
         int tick_interval;
 
-        std::vector<int> processing_inputs = {AIR_TEMPERATURE_PIPE, THROTTLE_POSITION_PIPE,
-                                              TYRE_PRESSURE_FRONT_PIPE, TYRE_PRESSURE_REAR_PIPE, MOTORCYCLE_SPEED_PIPE,
-                                              REAR_WHEEL_SPEED_PIPE, FRONT_WHEEL_SPEED_PIPE, BRAKE_REAR_ACTIVE_PIPE,
-                                              BRAKE_FRONT_ACTIVE_PIPE, ABS_MODE_PIPE, TC_MODE_PIPE, 
-                                              THROTTLE_RESPONSE_MODE_PIPE, LEAN_ANGLE_PIPE, BATTERY_VOLTAGE_PIPE,
-                                              OIL_PRESSURE_PIPE, GEAR_POSITION_PIPE, WATER_TEMPERATURE_PIPE, 
-                                              ENGINE_SPEED_PIPE, ACCELERATION_X_PIPE, ACCELERATION_Y_PIPE,
-                                              ACCELERATION_Z_PIPE, CPU_USAGE_PIPE, CPU_FREQUENCY_PIPE,
-                                              CPU_TEMPERATURE_PIPE, MEMORY_USAGE_PIPE};
+        std::vector<int> processing_inputs = {AIR_TEMPERATURE, THROTTLE_POSITION,
+                                              TYRE_PRESSURE_FRONT, TYRE_PRESSURE_REAR, MOTORCYCLE_SPEED,
+                                              REAR_WHEEL_SPEED, FRONT_WHEEL_SPEED, BRAKE_REAR_ACTIVE,
+                                              BRAKE_FRONT_ACTIVE, ABS_MODE, TC_MODE, 
+                                              THROTTLE_RESPONSE_MODE, LEAN_ANGLE, BATTERY_VOLTAGE,
+                                              OIL_PRESSURE, GEAR_POSITION, WATER_TEMPERATURE, 
+                                              ENGINE_SPEED, ACCELERATION_X, ACCELERATION_Y,
+                                              ACCELERATION_Z, CPU_USAGE, CPU_FREQUENCY,
+                                              CPU_TEMPERATURE, MEMORY_USAGE};
 
         std::vector<int> processing_inputs_type = {FLOAT_TYPE, INTEGER_TYPE,
                                                    FLOAT_TYPE, FLOAT_TYPE, INTEGER_TYPE,

@@ -33,8 +33,8 @@ void BluetoothLogic::send_profiling_data(BluetoothComms bluetooth_comms) {
         if (type_of_comms == 4) {
             strcat(response, "stream-profiling-module");
         }
-        if (currently_streaming[CPU_USAGE_PIPE]) {
-            float value = data_interface->getFloatData(CPU_USAGE_PIPE);
+        if (currently_streaming[CPU_USAGE]) {
+            float value = data_interface->getFloatData(CPU_USAGE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":CPU_USAGE:");
@@ -47,8 +47,8 @@ void BluetoothLogic::send_profiling_data(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[CPU_TEMPERATURE_PIPE]) {
-            int value = data_interface->getIntegerData(CPU_TEMPERATURE_PIPE);
+        if (currently_streaming[CPU_TEMPERATURE]) {
+            int value = data_interface->getIntegerData(CPU_TEMPERATURE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":CPU_TEMPERATURE:");
@@ -61,8 +61,8 @@ void BluetoothLogic::send_profiling_data(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[CPU_FREQUENCY_PIPE]) {
-            int value = data_interface->getIntegerData(CPU_FREQUENCY_PIPE);
+        if (currently_streaming[CPU_FREQUENCY]) {
+            int value = data_interface->getIntegerData(CPU_FREQUENCY);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":CPU_FREQUENCY:");
@@ -75,8 +75,8 @@ void BluetoothLogic::send_profiling_data(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[MEMORY_USAGE_PIPE]) {
-            int value = data_interface->getIntegerData(MEMORY_USAGE_PIPE);
+        if (currently_streaming[MEMORY_USAGE]) {
+            int value = data_interface->getIntegerData(MEMORY_USAGE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":MEMORY_USAGE:");
@@ -157,55 +157,55 @@ void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_
                     }
                 }
             } else if (strcmp(token, "AIR_TEMPERATURE") == 0) {
-                currently_streaming[AIR_TEMPERATURE_PIPE] = starting;
+                currently_streaming[AIR_TEMPERATURE] = starting;
             } else if (strcmp(token, "THROTTLE_POSITION") == 0) {
-                currently_streaming[THROTTLE_POSITION_PIPE] = starting;
+                currently_streaming[THROTTLE_POSITION] = starting;
             } else if (strcmp(token, "TYRE_PRESSURE_FRONT") == 0) {
-                currently_streaming[TYRE_PRESSURE_FRONT_PIPE] = starting;
+                currently_streaming[TYRE_PRESSURE_FRONT] = starting;
             } else if (strcmp(token, "TYRE_PRESSURE_REAR") == 0) {
-                currently_streaming[TYRE_PRESSURE_REAR_PIPE] = starting;
+                currently_streaming[TYRE_PRESSURE_REAR] = starting;
             } else if (strcmp(token, "MOTORCYCLE_SPEED") == 0) {
-                currently_streaming[MOTORCYCLE_SPEED_PIPE] = starting;
+                currently_streaming[MOTORCYCLE_SPEED] = starting;
             } else if (strcmp(token, "REAR_WHEEL_SPEED") == 0) {
-                currently_streaming[REAR_WHEEL_SPEED_PIPE] = starting;
+                currently_streaming[REAR_WHEEL_SPEED] = starting;
             } else if (strcmp(token, "FRONT_WHEEL_SPEED") == 0) {
-                currently_streaming[FRONT_WHEEL_SPEED_PIPE] = starting;
+                currently_streaming[FRONT_WHEEL_SPEED] = starting;
             } else if (strcmp(token, "BRAKE_REAR_ACTIVE") == 0) {
-                currently_streaming[BRAKE_REAR_ACTIVE_PIPE] = starting;
+                currently_streaming[BRAKE_REAR_ACTIVE] = starting;
             } else if (strcmp(token, "BRAKE_FRONT_ACTIVE") == 0) {
-                currently_streaming[BRAKE_FRONT_ACTIVE_PIPE] = starting;
+                currently_streaming[BRAKE_FRONT_ACTIVE] = starting;
             } else if (strcmp(token, "ABS_MODE") == 0) {
-                currently_streaming[ABS_MODE_PIPE] = starting;
+                currently_streaming[ABS_MODE] = starting;
             } else if (strcmp(token, "TC_MODE") == 0) {
-                currently_streaming[TC_MODE_PIPE] = starting;
+                currently_streaming[TC_MODE] = starting;
             } else if (strcmp(token, "THROTTLE_RESPONSE_MODE") == 0) {
-                currently_streaming[THROTTLE_RESPONSE_MODE_PIPE] = starting;
+                currently_streaming[THROTTLE_RESPONSE_MODE] = starting;
             } else if (strcmp(token, "LEAN_ANGLE") == 0) {
-                currently_streaming[LEAN_ANGLE_PIPE] = starting;
+                currently_streaming[LEAN_ANGLE] = starting;
             } else if (strcmp(token, "BATTERY_VOLTAGE") == 0) {
-                currently_streaming[BATTERY_VOLTAGE_PIPE] = starting;
+                currently_streaming[BATTERY_VOLTAGE] = starting;
             } else if (strcmp(token, "OIL_PRESSURE") == 0) {
-                currently_streaming[OIL_PRESSURE_PIPE] = starting;
+                currently_streaming[OIL_PRESSURE] = starting;
             } else if (strcmp(token, "GEAR_POSITION") == 0) {
-                currently_streaming[GEAR_POSITION_PIPE] = starting;
+                currently_streaming[GEAR_POSITION] = starting;
             } else if (strcmp(token, "WATER_TEMPERATURE") == 0) {
-                currently_streaming[WATER_TEMPERATURE_PIPE] = starting;
+                currently_streaming[WATER_TEMPERATURE] = starting;
             } else if (strcmp(token, "ENGINE_SPEED") == 0) {
-                currently_streaming[ENGINE_SPEED_PIPE] = starting;
+                currently_streaming[ENGINE_SPEED] = starting;
             } else if (strcmp(token, "ACCELERATION_X") == 0) {
-                currently_streaming[ACCELERATION_X_PIPE] = starting;
+                currently_streaming[ACCELERATION_X] = starting;
             } else if (strcmp(token, "ACCELERATION_Y") == 0) {
-                currently_streaming[ACCELERATION_Y_PIPE] = starting;
+                currently_streaming[ACCELERATION_Y] = starting;
             } else if (strcmp(token, "ACCELERATION_Z") == 0) {
-                currently_streaming[ACCELERATION_Z_PIPE] = starting;
+                currently_streaming[ACCELERATION_Z] = starting;
             } else if (strcmp(token, "CPU_USAGE") == 0) {
-                currently_streaming[CPU_USAGE_PIPE] = starting;
+                currently_streaming[CPU_USAGE] = starting;
             } else if (strcmp(token, "CPU_TEMPERATURE") == 0) {
-                currently_streaming[CPU_TEMPERATURE_PIPE] = starting;
+                currently_streaming[CPU_TEMPERATURE] = starting;
             } else if (strcmp(token, "CPU_FREQUENCY") == 0) {
-                currently_streaming[CPU_FREQUENCY_PIPE] = starting;
+                currently_streaming[CPU_FREQUENCY] = starting;
             } else if (strcmp(token, "MEMORY_USAGE") == 0) {
-                currently_streaming[MEMORY_USAGE_PIPE] = starting;
+                currently_streaming[MEMORY_USAGE] = starting;
             } else if (type_of_comms == 1) {
                 if (abs_mode == -1) {
                     abs_mode = stoi(token);
@@ -292,8 +292,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
         if (type_of_comms == 0) {
             strcat(response, "stream-bike-sensor-data");
         }
-        if (currently_streaming[AIR_TEMPERATURE_PIPE]) {
-            float value = data_interface->getFloatData(AIR_TEMPERATURE_PIPE);
+        if (currently_streaming[AIR_TEMPERATURE]) {
+            float value = data_interface->getFloatData(AIR_TEMPERATURE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":AIR_TEMPERATURE:");
@@ -306,8 +306,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[THROTTLE_POSITION_PIPE]) {
-            int value = data_interface->getIntegerData(THROTTLE_POSITION_PIPE);
+        if (currently_streaming[THROTTLE_POSITION]) {
+            int value = data_interface->getIntegerData(THROTTLE_POSITION);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":THROTTLE_POSITION:");
@@ -320,8 +320,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[TYRE_PRESSURE_FRONT_PIPE]) {
-            float value = data_interface->getFloatData(TYRE_PRESSURE_FRONT_PIPE);
+        if (currently_streaming[TYRE_PRESSURE_FRONT]) {
+            float value = data_interface->getFloatData(TYRE_PRESSURE_FRONT);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":TYRE_PRESSURE_FRONT:");
@@ -334,8 +334,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[TYRE_PRESSURE_REAR_PIPE]) {
-            float value = data_interface->getFloatData(TYRE_PRESSURE_REAR_PIPE);
+        if (currently_streaming[TYRE_PRESSURE_REAR]) {
+            float value = data_interface->getFloatData(TYRE_PRESSURE_REAR);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":TYRE_PRESSURE_REAR:");
@@ -348,8 +348,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[MOTORCYCLE_SPEED_PIPE]) {
-            int value = data_interface->getIntegerData(MOTORCYCLE_SPEED_PIPE);
+        if (currently_streaming[MOTORCYCLE_SPEED]) {
+            int value = data_interface->getIntegerData(MOTORCYCLE_SPEED);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":MOTORCYCLE_SPEED:");
@@ -362,8 +362,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[REAR_WHEEL_SPEED_PIPE]) {
-            int value = data_interface->getIntegerData(REAR_WHEEL_SPEED_PIPE);
+        if (currently_streaming[REAR_WHEEL_SPEED]) {
+            int value = data_interface->getIntegerData(REAR_WHEEL_SPEED);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":REAR_WHEEL_SPEED:");
@@ -376,8 +376,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[FRONT_WHEEL_SPEED_PIPE]) {
-            int value = data_interface->getIntegerData(FRONT_WHEEL_SPEED_PIPE);
+        if (currently_streaming[FRONT_WHEEL_SPEED]) {
+            int value = data_interface->getIntegerData(FRONT_WHEEL_SPEED);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":FRONT_WHEEL_SPEED:");
@@ -390,8 +390,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[BRAKE_REAR_ACTIVE_PIPE]) {
-            int value = data_interface->getIntegerData(BRAKE_REAR_ACTIVE_PIPE);
+        if (currently_streaming[BRAKE_REAR_ACTIVE]) {
+            int value = data_interface->getIntegerData(BRAKE_REAR_ACTIVE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":BRAKE_REAR_ACTIVE:");
@@ -404,8 +404,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[BRAKE_FRONT_ACTIVE_PIPE]) {
-            int value = data_interface->getIntegerData(BRAKE_FRONT_ACTIVE_PIPE);
+        if (currently_streaming[BRAKE_FRONT_ACTIVE]) {
+            int value = data_interface->getIntegerData(BRAKE_FRONT_ACTIVE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":BRAKE_FRONT_ACTIVE:");
@@ -418,8 +418,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[ABS_MODE_PIPE]) {
-            int value = data_interface->getIntegerData(ABS_MODE_PIPE);
+        if (currently_streaming[ABS_MODE]) {
+            int value = data_interface->getIntegerData(ABS_MODE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":ABS_MODE:");
@@ -432,8 +432,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[TC_MODE_PIPE]) {
-            int value = data_interface->getIntegerData(TC_MODE_PIPE);
+        if (currently_streaming[TC_MODE]) {
+            int value = data_interface->getIntegerData(TC_MODE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":TC_MODE:");
@@ -446,8 +446,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[THROTTLE_RESPONSE_MODE_PIPE]) {
-            int value = data_interface->getIntegerData(THROTTLE_POSITION_PIPE);
+        if (currently_streaming[THROTTLE_RESPONSE_MODE]) {
+            int value = data_interface->getIntegerData(THROTTLE_POSITION);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":THROTTLE_RESPONSE_MODE:");
@@ -460,8 +460,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[LEAN_ANGLE_PIPE]) {
-            float value = data_interface->getFloatData(LEAN_ANGLE_PIPE);
+        if (currently_streaming[LEAN_ANGLE]) {
+            float value = data_interface->getFloatData(LEAN_ANGLE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":LEAN_ANGLE:");
@@ -474,8 +474,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[BATTERY_VOLTAGE_PIPE]) {
-            float value = data_interface->getFloatData(BATTERY_VOLTAGE_PIPE);
+        if (currently_streaming[BATTERY_VOLTAGE]) {
+            float value = data_interface->getFloatData(BATTERY_VOLTAGE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":BATTERY_VOLTAGE:");
@@ -488,8 +488,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[OIL_PRESSURE_PIPE]) {
-            float value = data_interface->getFloatData(OIL_PRESSURE_PIPE);
+        if (currently_streaming[OIL_PRESSURE]) {
+            float value = data_interface->getFloatData(OIL_PRESSURE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":OIL_PRESSURE:");
@@ -502,8 +502,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[GEAR_POSITION_PIPE]) {
-            int value = data_interface->getIntegerData(GEAR_POSITION_PIPE);
+        if (currently_streaming[GEAR_POSITION]) {
+            int value = data_interface->getIntegerData(GEAR_POSITION);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":GEAR_POSITION:");
@@ -516,8 +516,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[WATER_TEMPERATURE_PIPE]) {
-            float value = data_interface->getFloatData(WATER_TEMPERATURE_PIPE);
+        if (currently_streaming[WATER_TEMPERATURE]) {
+            float value = data_interface->getFloatData(WATER_TEMPERATURE);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":WATER_TEMPERATURE:");
@@ -530,8 +530,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[ENGINE_SPEED_PIPE]) {
-            int value = data_interface->getIntegerData(ENGINE_SPEED_PIPE);
+        if (currently_streaming[ENGINE_SPEED]) {
+            int value = data_interface->getIntegerData(ENGINE_SPEED);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":ENGINE_SPEED:");
@@ -544,8 +544,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[ACCELERATION_X_PIPE]) {
-            float value = data_interface->getFloatData(ACCELERATION_X_PIPE);
+        if (currently_streaming[ACCELERATION_X]) {
+            float value = data_interface->getFloatData(ACCELERATION_X);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":ACCELERATION_X:");
@@ -558,8 +558,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[ACCELERATION_Y_PIPE]) {
-            float value = data_interface->getFloatData(ACCELERATION_Y_PIPE);
+        if (currently_streaming[ACCELERATION_Y]) {
+            float value = data_interface->getFloatData(ACCELERATION_Y);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":ACCELERATION_Y:");
@@ -572,8 +572,8 @@ void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
                 strcat(response, time_stamp_char);
             }
         }
-        if (currently_streaming[ACCELERATION_Z_PIPE]) {
-            float value = data_interface->getFloatData(ACCELERATION_Z_PIPE);
+        if (currently_streaming[ACCELERATION_Z]) {
+            float value = data_interface->getFloatData(ACCELERATION_Z);
             if (value != -1) {
                 sending_data = true;
                 strcat(response, ":ACCELERATION_Z:");

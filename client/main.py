@@ -11,7 +11,8 @@ import matplotlib.dates as md
 import matplotlib.pyplot as plt
 import yaml
 
-from client.communication.messages import SensorDataKey
+from client.api.api import start_api_server, stop_api_server
+from client.communication.messages import SensorDataKey, ProfilingDataKey
 from client.communication.on_board import OnBoard
 from client.interconnect.bluetooth import BluetoothLink
 from client.interconnect.commlink import CommLink
@@ -27,6 +28,8 @@ class AppConfig:
     priv_key_file_path: str
     ca_cert_file_path: str
     help_dict: {str: str}
+    api_host: str
+    api_port: int
 
 
 class ConnectionMethod(Enum):
@@ -44,19 +47,30 @@ class Client:
 
         with OnBoard(self.get_connection_to_on_board()) as on_board:
 
-            print('Successfully connected to on-board...')
+            try:
+                print('Successfully connected to on-board...')
+                # Start up the API.
+                api_host: str = self._app_config.api_host
+                api_port: str = self._app_config.api_port
+                start_api_server(on_board, api_host, api_port)
+                print(
+                    'Live charts of data streamed from on-board can be viewed '
+                    'at: http://{}:{}'.format(api_host, api_port)
+                )
 
-            self.print_menu()
+                self.print_menu()
 
-            next_command: str
-            while True:
-                next_command = input('command: ').strip()
+                next_command: str
+                while True:
+                    next_command: str = input('command: ').strip()
 
-                if next_command.lower().strip() == 'exit':
-                    print('stopping...')
-                    break
+                    if next_command.lower().strip() == 'exit':
+                        print('stopping...')
+                        break
 
-                self.process_command(next_command, on_board)
+                    self.process_command(next_command, on_board)
+            finally:
+                stop_api_server()
 
         print('Client successfully stopped.')
 
@@ -144,6 +158,11 @@ class Client:
             '   - print_recorded_sensor_data:<data_key>\n'
             '   - plot_sensor_data:<output_file_name>:<data_key_1>:...'
             ':<data_key_n>\n'
+            '   - start_profiling_data_stream:<data_key_1>:...:<data_key_n>\n'
+            '   - stop_profiling_data_stream:<data_key_1>:...:<data_key_n>\n'
+            '   - print_recorded_profiling_data:<data_key>\n'
+            '   - plot_profiling_data:<output_file_name>:<data_key_1>:...'
+            ':<data_key_n>\n'
             '   - enable_secure_comms\n'
             '   - disable_secure_comms\n'
             '   - test_throughput'
@@ -165,15 +184,17 @@ class Client:
         elif command == 'menu':
             self.print_menu()
         elif command == 'start_sensor_data_stream':
-            on_board.start_streaming_data(args)
+            on_board.start_streaming_sensor_data(args)
         elif command == 'stop_sensor_data_stream':
-            on_board.stop_streaming_data(args)
+            on_board.stop_streaming_sensor_data(args)
         elif command == 'print_recorded_sensor_data':
             if not args:
                 print(
                     'Error no argument supplied try '
                     '\'help print_recorded_sensor_data\' for help'
                 )
+                return
+
             print('*****************************************')
             print('Recorded data for: ', args[0])
             print(on_board.get_recorded_sensor_data(args[0]))
@@ -184,8 +205,37 @@ class Client:
                     'Error no arguments supplied try '
                     '\'help plot_sensor_data\' for help'
                 )
+                return
+
             plot_name, *data_keys = args
-            fig, ax = self.generate_graph(on_board, data_keys)
+            fig, ax = self.generate_sensor_data_graph(on_board, data_keys)
+            fig.savefig(plot_name)
+        elif command == 'start_profiling_data_stream':
+            on_board.start_streaming_profiling_data(args)
+        elif command == 'stop_profiling_data_stream':
+            on_board.stop_streaming_profiling_data(args)
+        elif command == 'print_recorded_profiling_data':
+            if not args:
+                print(
+                    'Error no argument supplied try '
+                    '\'help print_recorded_profiling_data\' for help'
+                )
+                return
+
+            print('*****************************************')
+            print('Recorded data for: ', args[0])
+            print(on_board.get_recorded_profiling_data(args[0]))
+            print('*****************************************')
+        elif command == 'plot_profiling_data':
+            if not args:
+                print(
+                    'Error no arguments supplied try '
+                    '\'help plot_profiling_data\' for help'
+                )
+                return
+
+            plot_name, *data_keys = args
+            fig, ax = self.generate_profiling_data_graph(on_board, data_keys)
             fig.savefig(plot_name)
         elif command == 'enable_secure_comms':
             print('Enabling secure communication...')
@@ -211,7 +261,7 @@ class Client:
         else:
             print('No help info available for \'{}\''.format(arg))
 
-    def generate_graph(
+    def generate_sensor_data_graph(
         self,
         on_board: OnBoard,
         data_keys: [SensorDataKey]
@@ -227,7 +277,36 @@ class Client:
             if data:
                 timestamps = []
                 values = []
-                for value, timestamp in data:
+                for timestamp, value in data:
+                    timestamps.append(
+                        dt.datetime.fromtimestamp(int(timestamp))
+                    )
+                    values.append(float(value))
+                ax.plot(timestamps, values, label=str(key))
+            else:
+                ax.plot([], [], label=str(key))
+        ax.legend()
+        fig.autofmt_xdate()
+        fig.tight_layout()
+        return fig, ax
+
+    def generate_profiling_data_graph(
+        self,
+        on_board: OnBoard,
+        data_keys: [ProfilingDataKey]
+    ):
+        fig, ax = plt.subplots()
+        ax.set_title('Plot of Profiling Data Over Time')
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Value')
+        xfmt = md.DateFormatter('%Y-%m-%d %H:%M:%S')
+        ax.xaxis.set_major_formatter(xfmt)
+        for key in data_keys:
+            data = on_board.get_recorded_profiling_data(key)
+            if data:
+                timestamps = []
+                values = []
+                for timestamp, value in data:
                     timestamps.append(
                         dt.datetime.fromtimestamp(int(timestamp))
                     )
@@ -250,7 +329,9 @@ def load_app_config() -> AppConfig:
             os.path.expanduser(config['security']['cert_file_path']),
             os.path.expanduser(config['security']['priv_key_file_path']),
             os.path.expanduser(config['security']['ca_cert_file_path']),
-            config['help']
+            config['help'],
+            config['api']['host'],
+            config['api']['port']
         )
 
     return app_config

@@ -1,14 +1,9 @@
 #include <unistd.h>
 #include <string>
 #include <thread>
-#include <ctime>
-#include <numeric>
 #include "can_module.hpp"
-#include <pipes.hpp>
-#include <WifiComms.h>
-#include <BluetoothComms.h>
-#include <data_process_module.hpp>
-#include <boost/circular_buffer.hpp>
+#include "pipes.hpp"
+#include "data_process_module.hpp"
 #include "on_board_data_interface.hpp"
 #include "edgeAI_functions.hpp"
 #include "profiling_module.hpp"
@@ -16,7 +11,7 @@
 
 using namespace std;
 
-//second release prototype
+//second release
 
 //vectors holding the multiple pipes
 std::vector<Pipes> can_pipes_vector;
@@ -43,26 +38,6 @@ void set_data_processing_module(std::shared_future<void> futureObj)
   processing_module.startProcessing(futureObj);
 }
 
-//UNUSED FOR NOW UNTIL INTER_COMS IS FINISHED
-/*void inter_coms_send(int *pip)
-{
-  //CAN_example_message received_message = CAN_example_message();
-  char ostring[200];
-  WifiComms wifi_socket = WifiComms(true);
-  wifi_socket.establish_connection(8080);
-  char wifi_buffer[1024];
-  while(true)
-  {
-      read(pip[0],ostring,200);
-     // received_message.decodeFromPipe(ostring);
-      std::string message_string = std::string();
-      message_string = "Received message with data: temperature = " + std::to_string(received_message.temperature) + "; average radius = " + std::to_string(received_message.average_radius) + "; switch value = " + std::to_string(received_message.switch_value);
-      wifi_socket.receive(wifi_buffer);
-      if(strcmp(wifi_buffer,"Listening") == 0)
-          wifi_socket.send((char*)message_string.c_str());
-  }
-}*/
-
 //set up listener to check data processing output
 void check_data_from_dprocess()
 {
@@ -70,7 +45,7 @@ void check_data_from_dprocess()
   DFLOW_Onboard_Addon_Functions AI_func;
   while(true)
   {
-    float result_of_function = AI_func.AIfunction(data_interface,std::vector<int>{LEAN_ANGLE_PIPE,ACCELERATION_X_PIPE,ACCELERATION_Y_PIPE},
+    float result_of_function = AI_func.AIfunction(data_interface,std::vector<int>{LEAN_ANGLE,ACCELERATION_X,ACCELERATION_Y},
                                    std::vector<int>{FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE,FLOAT_UDF_DATA_TYPE},
                                    "./fdeep_crash_model.json");
     if(result_of_function > 0.6)
@@ -91,7 +66,7 @@ void set_profiling_module(Pipes profiling_pipe)
   {
     std::cout<<"CPU Usage is "<<profiling_module.getCPUUsage()<<std::endl;
     std::cout<<"Memory Usage is "<<profiling_module.getMemoryUsage()<<std::endl;
-    usleep(1000000);
+    usleep(3000000);
   }
 }
 
@@ -103,14 +78,14 @@ int main() {
   std::shared_future<void> shrdFutureObj = futureObj.share();
   
   //initialize can pipes and data_proccesing pipes
-  for(int i = 0; i<8; i++)
+  for(int i = 0; i<MESSAGE_NUMBER; i++)
 
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
       can_pipes_vector.push_back(new_pipe);
   }
-  for(int i = 0; i<26;i++)
+  for(int i = 0; i<SIGNAL_NUMBER;i++)
   {
       Pipes new_pipe;
       pipe(new_pipe.rdwr);
@@ -118,7 +93,7 @@ int main() {
   }
   std::thread can_thread(retrieve,shrdFutureObj);
   std::thread data_proccesing_thread(set_data_processing_module,shrdFutureObj);
-  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE_PIPE]);
+  std::thread profiling_thread(set_profiling_module, can_pipes_vector[PROFILING_MESSAGE]);
   std::thread udf_thread(check_data_from_dprocess);
   can_thread.join();
   data_proccesing_thread.join();

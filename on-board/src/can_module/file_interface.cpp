@@ -1,6 +1,6 @@
 //Author: Radu-Tudor Andra
 #include "file_interface.hpp"
-#include <iostream>
+
 File_Interface::File_Interface(std::string accelerometer_file_path)
 {
     File_Interface::accelerometer_file_path = accelerometer_file_path;

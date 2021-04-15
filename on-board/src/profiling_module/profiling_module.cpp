@@ -59,7 +59,7 @@ float ProfilingModule::getCPUUsage()
     else
     {
         percent = user_usage_since_last_time + sys_usage_since_last_time;
-        percent /= (now - lastCPU)*2500;
+        percent /= (now - lastCPU)*10000;
         percent /= numProcessors;
         percent *= 100;
     }

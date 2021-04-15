@@ -209,14 +209,14 @@ void dataProcessing::readCanPipes()
     ProfilingMessage        temp_profiling_message;
 
     //perform non-blocking reads
-    ssize_t intake_r = read(can_pipes_vector[INTAKE_MESSAGE_PIPE].rdwr[READ],&temp_intake_message.data,sizeof(temp_intake_message.data));
-    ssize_t tpm_r = read(can_pipes_vector[TPM_MESSAGE_PIPE].rdwr[READ],&temp_tpm_message.data,sizeof(temp_tpm_message.data));
-    ssize_t abs_r = read(can_pipes_vector[ABS_MESSAGE_PIPE].rdwr[READ],&temp_abs_message.data,sizeof(temp_abs_message.data));
-    ssize_t config_r = read(can_pipes_vector[CONFIG_MESSAGE_PIPE].rdwr[READ],&temp_config_message.data,sizeof(temp_config_message.data));
-    ssize_t imu_r = read(can_pipes_vector[IMU_MESSAGE_PIPE].rdwr[READ],&temp_imu_message.data,sizeof(temp_imu_message.data));
-    ssize_t engine_r = read(can_pipes_vector[ENGINE_MESSAGE_PIPE].rdwr[READ],&temp_engine_message.data,sizeof(temp_engine_message.data));
-    ssize_t accel_r = read(can_pipes_vector[ACCELEROMETER_MESSAGE_PIPE].rdwr[READ],&temp_accel_message.data,sizeof(temp_accel_message.data));
-    ssize_t profiling_r = read(can_pipes_vector[PROFILING_MESSAGE_PIPE].rdwr[READ],&temp_profiling_message.data,sizeof(temp_profiling_message.data));
+    ssize_t intake_r = read(can_pipes_vector[INTAKE_MESSAGE].rdwr[READ],&temp_intake_message.data,sizeof(temp_intake_message.data));
+    ssize_t tpm_r = read(can_pipes_vector[TPM_MESSAGE].rdwr[READ],&temp_tpm_message.data,sizeof(temp_tpm_message.data));
+    ssize_t abs_r = read(can_pipes_vector[ABS_MESSAGE].rdwr[READ],&temp_abs_message.data,sizeof(temp_abs_message.data));
+    ssize_t config_r = read(can_pipes_vector[CONFIG_MESSAGE].rdwr[READ],&temp_config_message.data,sizeof(temp_config_message.data));
+    ssize_t imu_r = read(can_pipes_vector[IMU_MESSAGE].rdwr[READ],&temp_imu_message.data,sizeof(temp_imu_message.data));
+    ssize_t engine_r = read(can_pipes_vector[ENGINE_MESSAGE].rdwr[READ],&temp_engine_message.data,sizeof(temp_engine_message.data));
+    ssize_t accel_r = read(can_pipes_vector[ACCELEROMETER_MESSAGE].rdwr[READ],&temp_accel_message.data,sizeof(temp_accel_message.data));
+    ssize_t profiling_r = read(can_pipes_vector[PROFILING_MESSAGE].rdwr[READ],&temp_profiling_message.data,sizeof(temp_profiling_message.data));
 
     //if read was succesful set current in-module messages
     if(intake_r>0)
@@ -267,66 +267,66 @@ void dataProcessing::pushBackToBuckets()
 {
     if(new_intake_message)
     {
-        float_buckets[AIR_TEMPERATURE_PIPE].push_back(received_intake_message.data.air_temperature);
-        integer_buckets[THROTTLE_POSITION_PIPE].push_back(received_intake_message.data.throttle_position);
+        float_buckets[AIR_TEMPERATURE].push_back(received_intake_message.data.air_temperature);
+        integer_buckets[THROTTLE_POSITION].push_back(received_intake_message.data.throttle_position);
         new_intake_message = false;
     }
 
     if(new_tpm_message)
     {
-        float_buckets[TYRE_PRESSURE_FRONT_PIPE].push_back(received_tpm_message.data.tyre_pressure_front);
-        float_buckets[TYRE_PRESSURE_REAR_PIPE].push_back(received_tpm_message.data.tyre_pressure_rear);
+        float_buckets[TYRE_PRESSURE_FRONT].push_back(received_tpm_message.data.tyre_pressure_front);
+        float_buckets[TYRE_PRESSURE_REAR].push_back(received_tpm_message.data.tyre_pressure_rear);
         new_tpm_message = false;
     }
 
     if(new_abs_message)
     {
-        integer_buckets[MOTORCYCLE_SPEED_PIPE].push_back(received_abs_message.data.motorcycle_speed); 
-        integer_buckets[REAR_WHEEL_SPEED_PIPE].push_back(received_abs_message.data.rear_wheel_speed);
-        integer_buckets[FRONT_WHEEL_SPEED_PIPE].push_back(received_abs_message.data.front_wheel_speed);
-        integer_buckets[BRAKE_REAR_ACTIVE_PIPE].push_back(received_abs_message.data.rear_brake_active); 
-        integer_buckets[BRAKE_FRONT_ACTIVE_PIPE].push_back(received_abs_message.data.front_brake_active);
+        integer_buckets[MOTORCYCLE_SPEED].push_back(received_abs_message.data.motorcycle_speed); 
+        integer_buckets[REAR_WHEEL_SPEED].push_back(received_abs_message.data.rear_wheel_speed);
+        integer_buckets[FRONT_WHEEL_SPEED].push_back(received_abs_message.data.front_wheel_speed);
+        integer_buckets[BRAKE_REAR_ACTIVE].push_back(received_abs_message.data.rear_brake_active); 
+        integer_buckets[BRAKE_FRONT_ACTIVE].push_back(received_abs_message.data.front_brake_active);
         new_abs_message = false;
     }
 
     if(new_config_message)
     {
-        integer_buckets[ABS_MODE_PIPE].push_back(received_config_message.data.abs_mode);            
-        integer_buckets[TC_MODE_PIPE].push_back(received_config_message.data.tc_mode);
-        integer_buckets[THROTTLE_RESPONSE_MODE_PIPE].push_back(received_config_message.data.throttle_response_mode);
+        integer_buckets[ABS_MODE].push_back(received_config_message.data.abs_mode);            
+        integer_buckets[TC_MODE].push_back(received_config_message.data.tc_mode);
+        integer_buckets[THROTTLE_RESPONSE_MODE].push_back(received_config_message.data.throttle_response_mode);
         new_config_message = false;
     }
 
     if(new_imu_message)
     {
-        float_buckets[LEAN_ANGLE_PIPE].push_back(received_imu_message.data.lean_angle);
+        float_buckets[LEAN_ANGLE].push_back(received_imu_message.data.lean_angle);
         new_imu_message = false;
     }
 
     if(new_engine_message)
     {
-        float_buckets[BATTERY_VOLTAGE_PIPE].push_back(received_engine_message.data.battery_voltage);     
-        float_buckets[OIL_PRESSURE_PIPE].push_back(received_engine_message.data.oil_pressure);
-        integer_buckets[GEAR_POSITION_PIPE].push_back(received_engine_message.data.gear_position);
-        float_buckets[WATER_TEMPERATURE_PIPE].push_back(received_engine_message.data.water_temperature);
-        integer_buckets[ENGINE_SPEED_PIPE].push_back(received_engine_message.data.engine_speed);
+        float_buckets[BATTERY_VOLTAGE].push_back(received_engine_message.data.battery_voltage);     
+        float_buckets[OIL_PRESSURE].push_back(received_engine_message.data.oil_pressure);
+        integer_buckets[GEAR_POSITION].push_back(received_engine_message.data.gear_position);
+        float_buckets[WATER_TEMPERATURE].push_back(received_engine_message.data.water_temperature);
+        integer_buckets[ENGINE_SPEED].push_back(received_engine_message.data.engine_speed);
         new_engine_message = false;
     }
 
     if(new_accel_message)
     {
-        float_buckets[ACCELERATION_X_PIPE].push_back(received_accel_message.data.acceleration_x);
-        float_buckets[ACCELERATION_Y_PIPE].push_back(received_accel_message.data.acceleration_y);
-        float_buckets[ACCELERATION_Z_PIPE].push_back(received_accel_message.data.acceleration_z);
+        float_buckets[ACCELERATION_X].push_back(received_accel_message.data.acceleration_x);
+        float_buckets[ACCELERATION_Y].push_back(received_accel_message.data.acceleration_y);
+        float_buckets[ACCELERATION_Z].push_back(received_accel_message.data.acceleration_z);
         new_accel_message = false;
     }
 
     if(new_profiling_message)
     {
-        float_buckets[CPU_USAGE_PIPE].push_back(received_profiling_message.data.cpu_usage);
-        integer_buckets[CPU_FREQUENCY_PIPE].push_back(received_profiling_message.data.cpu_freq);
-        integer_buckets[CPU_TEMPERATURE_PIPE].push_back(received_profiling_message.data.cpu_temp);
-        integer_buckets[MEMORY_USAGE_PIPE].push_back(received_profiling_message.data.memory_usage);
+        float_buckets[CPU_USAGE].push_back(received_profiling_message.data.cpu_usage);
+        integer_buckets[CPU_FREQUENCY].push_back(received_profiling_message.data.cpu_freq);
+        integer_buckets[CPU_TEMPERATURE].push_back(received_profiling_message.data.cpu_temp);
+        integer_buckets[MEMORY_USAGE].push_back(received_profiling_message.data.memory_usage);
     }
 }
 
@@ -504,7 +504,7 @@ void dataProcessing::startProcessing(std::shared_future<void> futureObj)
                     sendBooleanData(boolean_buffers[processing_inputs[i]], processing_inputs[i]);
             }
 
-            dataProcessing::sendTimeData(time_stamp_buffer,TIMESTAMP_PIPE);
+            dataProcessing::sendTimeData(time_stamp_buffer,TIMESTAMP);
         }
     }
 }

@@ -29,7 +29,7 @@ class OnBoardTest(unittest.TestCase):
         mock_comm_link = MagicMock()
         mock_comm_link.send = MagicMock()
         on_board = OnBoard(mock_comm_link)
-        on_board.start_streaming_data(['key1', 'key2', 'key3'])
+        on_board.start_streaming_sensor_data(['key1', 'key2', 'key3'])
         mock_build_message.assert_called_with(
             MessageCommand.STREAM_BIKE_SENSOR_DATA,
             ['start', 'key1', 'key2', 'key3']
@@ -46,7 +46,7 @@ class OnBoardTest(unittest.TestCase):
         mock_comm_link = MagicMock()
         mock_comm_link.send = MagicMock()
         on_board = OnBoard(mock_comm_link)
-        on_board.stop_streaming_data(['key1', 'key2', 'key3'])
+        on_board.stop_streaming_sensor_data(['key1', 'key2', 'key3'])
         mock_build_message.assert_called_with(
             MessageCommand.STREAM_BIKE_SENSOR_DATA,
             ['stop', 'key1', 'key2', 'key3']
@@ -82,16 +82,16 @@ class OnBoardTest(unittest.TestCase):
         # Verify all messages are handled correctly.
         expected_data = {
             'AIR_TEMPERATURE': [
-                (b'30', b'TIMESTAMP1'),
-                (b'20', b'TIMESTAMP2'),
-                (b'10', b'TIMESTAMP3'),
-                (b'0', b'TIMESTAMP6')
+                (b'TIMESTAMP1', b'30'),
+                (b'TIMESTAMP2', b'20'),
+                (b'TIMESTAMP3', b'10'),
+                (b'TIMESTAMP6', b'0')
             ],
             'TYRE_PRESSURE_REAR': [
-                (b'5', b'TIMESTAMP4')
+                (b'TIMESTAMP4', b'5')
             ],
             'BRAKE_FRONT_ACTIVE': [
-                (b'50', b'TIMESTAMP5')
+                (b'TIMESTAMP5', b'50')
             ],
         }
 

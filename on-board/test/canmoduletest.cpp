@@ -49,7 +49,7 @@ TEST_F(ModuleTest, TestListener) {
 
      //message which would come from cantools
     pipe(config_pipe.rdwr);
-    for(int i = 0; i<6; i++)
+    for(int i = 0; i< MESSAGE_NUMBER; i++)
     {
         Pipes new_pipe;
         pipe(new_pipe.rdwr);
@@ -60,7 +60,7 @@ TEST_F(ModuleTest, TestListener) {
 
     std::thread test_can_module_thread(process_set_helper,can_pipes_vector, config_pipe, futureObj);
     IntakeSensorsMessage test_received_message;
-    read(can_pipes_vector[INTAKE_MESSAGE_PIPE].rdwr[READ], &test_received_message.data, sizeof(test_received_message.data));
+    read(can_pipes_vector[INTAKE_MESSAGE].rdwr[READ], &test_received_message.data, sizeof(test_received_message.data));
 
     EXPECT_FLOAT_EQ(test_received_message.data.air_temperature,10.1);
     EXPECT_EQ(test_received_message.data.throttle_position,35);
