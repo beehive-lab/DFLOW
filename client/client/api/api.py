@@ -5,7 +5,7 @@ import flask
 from flask import jsonify, render_template
 from werkzeug.serving import make_server
 
-from client.communication.messages import SensorDataKey
+from client.communication.messages import SensorDataKey, ProfilingDataKey
 from client.communication.on_board import OnBoard
 
 app = flask.Flask(__name__)
@@ -65,6 +65,54 @@ def all_live_sensor_data():
 def sensor_data_keys():
     return jsonify(
         [str(key) for key in SensorDataKey]
+    )
+
+
+@app.route('/api/v1/live-profiling-data/<profiling_data_key>', methods=['GET'])
+def live_profiling_data(profiling_data_key):
+    latest_profiling_data = on_board.get_latest_profiling_data(
+        profiling_data_key
+    )
+    if latest_profiling_data:
+        data_timestamp = int(latest_profiling_data[0])
+        data_val = float(latest_profiling_data[1])
+    else:
+        data_timestamp = None
+        data_val = None
+
+    return jsonify(
+        {
+            'key': profiling_data_key,
+            'timestamp': data_timestamp,
+            'value': data_val
+        }
+    )
+
+
+@app.route('/api/v1/live-profiling-data/', methods=['GET'])
+def all_live_profiling_data():
+    all_latest_data = []
+    for profiling_data_key in ProfilingDataKey:
+        latest_profiling_data = on_board.get_latest_profiling_data(
+            profiling_data_key
+        )
+        if latest_profiling_data:
+            data_timestamp = int(latest_profiling_data[0])
+            data_val = float(latest_profiling_data[1])
+            all_latest_data.append(
+                {
+                    'key': str(profiling_data_key),
+                    'timestamp': data_timestamp,
+                    'value': data_val
+                }
+            )
+    return jsonify(all_latest_data)
+
+
+@app.route('/api/v1/profiling-data-keys', methods=['GET'])
+def profiling_data_keys():
+    return jsonify(
+        [str(key) for key in ProfilingDataKey]
     )
 
 

@@ -5,8 +5,9 @@ from unittest.mock import (
 )
 
 from client.api.api import start_api_server, api_root, sensor_data_keys, \
-    live_sensor_data, all_live_sensor_data
-from client.communication.messages import SensorDataKey
+    live_sensor_data, all_live_sensor_data, profiling_data_keys, \
+    live_profiling_data, all_live_profiling_data
+from client.communication.messages import SensorDataKey, ProfilingDataKey
 
 
 class ApiTest(unittest.TestCase):
@@ -136,5 +137,98 @@ class ApiTest(unittest.TestCase):
         )
 
         actual = all_live_sensor_data()
+
+        self.assertEqual(expected, actual)
+
+    @patch('client.api.api.jsonify')
+    def test_profiling_data_keys(self, mock_jsonify):
+        """
+        Test that all profiling data keys are returned correctly.
+        """
+        mock_jsonify.side_effect = json.dumps
+        expected = json.dumps([str(key) for key in ProfilingDataKey])
+        actual = profiling_data_keys()
+        self.assertEqual(expected, actual)
+
+    @patch('client.api.api.jsonify')
+    @patch('client.api.api.on_board')
+    def test_live_profiling_data_exists(self, mock_on_board, mock_jsonify):
+        """
+        Test that live profiling data for a particular key is returned correctly
+        if it exists.
+        """
+        mock_jsonify.side_effect = json.dumps
+
+        test_key = 'test_key'
+        test_timestamp = b'1489256431'
+        test_value = b'100'
+
+        mock_on_board.get_latest_profiling_data.return_value = (
+            test_timestamp,
+            test_value
+        )
+
+        expected = json.dumps(
+            {
+                'key': str(test_key),
+                'timestamp': int(test_timestamp),
+                'value': float(test_value)
+            }
+        )
+
+        actual = live_profiling_data(test_key)
+
+        self.assertEqual(expected, actual)
+
+    @patch('client.api.api.jsonify')
+    @patch('client.api.api.on_board')
+    def test_live_profiling_data_doesnt_exist(self, mock_on_board,
+                                              mock_jsonify):
+        """
+        Test that correct result is returned if profiling data for key does not
+        exist.
+        """
+        mock_jsonify.side_effect = json.dumps
+
+        test_key = 'test_key'
+        mock_on_board.get_latest_profiling_data.return_value = ()
+
+        expected = json.dumps(
+            {
+                'key': str(test_key),
+                'timestamp': None,
+                'value': None
+            }
+        )
+
+        actual = live_profiling_data(test_key)
+
+        self.assertEqual(expected, actual)
+
+    @patch('client.api.api.jsonify')
+    @patch('client.api.api.on_board')
+    def test_all_live_profiling_data(self, mock_on_board, mock_jsonify):
+        """
+        Test that correct result is returned when all live profiling data is
+        requested.
+        """
+        mock_jsonify.side_effect = json.dumps
+
+        test_timestamp = b'1489256431'
+        test_value = b'100'
+        dummy_data = (test_timestamp, test_value)
+        mock_on_board.get_latest_profiling_data.return_value = dummy_data
+
+        expected = json.dumps(
+            [
+                {
+                    'key': str(profiling_data_key),
+                    'timestamp': int(dummy_data[0]),
+                    'value': float(dummy_data[1])
+                } for profiling_data_key in ProfilingDataKey
+            ]
+        )
+
+        actual = all_live_profiling_data()
 
         self.assertEqual(expected, actual)

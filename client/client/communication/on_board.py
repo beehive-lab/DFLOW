@@ -5,7 +5,8 @@ from time import time
 from client.communication.messages import (
     SensorDataKey,
     MessageCommand,
-    build_command_message_with_args
+    build_command_message_with_args,
+    ProfilingDataKey
 )
 from client.interconnect.commlink import CommLink
 
@@ -22,6 +23,7 @@ class OnBoard:
     """
 
     _SENSOR_DATA_KEY = 'sensor_data'
+    _PROFILING_DATA_KEY = 'profiling_data'
 
     def __init__(self, comm_link: CommLink):
         # The communications link to the on-board.
@@ -36,6 +38,7 @@ class OnBoard:
         self.received_data: dict[str, dict[str, list[tuple[bytes, bytes]]]] = \
             dict()
         self.received_data[self._SENSOR_DATA_KEY] = dict()
+        self.received_data[self._PROFILING_DATA_KEY] = dict()
 
         # Start the message handler that polls for messages from the on-board.
         self._msg_handler = IncomingMessageHandler(self, comm_link)
@@ -54,7 +57,7 @@ class OnBoard:
 
     # ************** PROCESS CLIENT COMMANDS **************
 
-    def start_streaming_data(self, data_keys: [SensorDataKey]) -> None:
+    def start_streaming_sensor_data(self, data_keys: [SensorDataKey]) -> None:
         msg_command: MessageCommand = MessageCommand.STREAM_BIKE_SENSOR_DATA
         msg_args: [str] = ['start'] + [str(data_key) for data_key in data_keys]
 
@@ -65,8 +68,36 @@ class OnBoard:
 
         self._comm_link.send(message.encode())
 
-    def stop_streaming_data(self, data_keys: [SensorDataKey]) -> None:
+    def stop_streaming_sensor_data(self, data_keys: [SensorDataKey]) -> None:
         msg_command: MessageCommand = MessageCommand.STREAM_BIKE_SENSOR_DATA
+        msg_args: [str] = ['stop'] + [str(data_key) for data_key in data_keys]
+
+        message = build_command_message_with_args(
+            msg_command,
+            msg_args
+        )
+
+        self._comm_link.send(message.encode())
+
+    def start_streaming_profiling_data(
+        self,
+        data_keys: [SensorDataKey]
+    ) -> None:
+        msg_command: MessageCommand = MessageCommand.STREAM_PROFILING_DATA
+        msg_args: [str] = ['start'] + [str(data_key) for data_key in data_keys]
+
+        message: str = build_command_message_with_args(
+            msg_command,
+            msg_args
+        )
+
+        self._comm_link.send(message.encode())
+
+    def stop_streaming_profiling_data(
+        self,
+        data_keys: [SensorDataKey]
+    ) -> None:
+        msg_command: MessageCommand = MessageCommand.STREAM_PROFILING_DATA
         msg_args: [str] = ['stop'] + [str(data_key) for data_key in data_keys]
 
         message = build_command_message_with_args(
@@ -163,6 +194,14 @@ class OnBoard:
                     parts[i + 1],
                     parts[i + 2]
                 )
+        elif msg.startswith(b'stream-profiling-module'):
+            msg_type, *parts = msg.split(b':')
+            for i in range(0, len(parts), 3):
+                self._record_received_profiling_data(
+                    parts[i].decode(),
+                    parts[i + 1],
+                    parts[i + 2]
+                )
         else:
             pass  # Just throw away unknown messages.
 
@@ -178,6 +217,18 @@ class OnBoard:
             (timestamp, data_value)
         )
 
+    def _record_received_profiling_data(
+        self,
+        data_type: str,
+        data_value: bytes,
+        timestamp: bytes
+    ) -> None:
+        if data_type not in self.received_data[self._PROFILING_DATA_KEY]:
+            self.received_data[self._PROFILING_DATA_KEY][data_type] = []
+        self.received_data[self._PROFILING_DATA_KEY][data_type].append(
+            (timestamp, data_value)
+        )
+
     # ************** SERVICE REQUESTS FOR DATA **************
 
     def get_recorded_sensor_data(self, data_type: SensorDataKey) -> []:
@@ -190,6 +241,20 @@ class OnBoard:
         if str(data_type) in self.received_data[self._SENSOR_DATA_KEY]:
             return (
                 self.received_data[self._SENSOR_DATA_KEY][str(data_type)][-1]
+            )
+        else:
+            return ()
+
+    def get_recorded_profiling_data(self, data_type: ProfilingDataKey) -> []:
+        if str(data_type) in self.received_data[self._PROFILING_DATA_KEY]:
+            return self.received_data[self._PROFILING_DATA_KEY][str(data_type)]
+        else:
+            return []
+
+    def get_latest_profiling_data(self, data_type: ProfilingDataKey) -> ():
+        if str(data_type) in self.received_data[self._PROFILING_DATA_KEY]:
+            return (
+                self.received_data[self._PROFILING_DATA_KEY][str(data_type)][-1]
             )
         else:
             return ()

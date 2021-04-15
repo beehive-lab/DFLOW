@@ -29,7 +29,7 @@ class OnBoardTest(unittest.TestCase):
         mock_comm_link = MagicMock()
         mock_comm_link.send = MagicMock()
         on_board = OnBoard(mock_comm_link)
-        on_board.start_streaming_data(['key1', 'key2', 'key3'])
+        on_board.start_streaming_sensor_data(['key1', 'key2', 'key3'])
         mock_build_message.assert_called_with(
             MessageCommand.STREAM_BIKE_SENSOR_DATA,
             ['start', 'key1', 'key2', 'key3']
@@ -46,7 +46,7 @@ class OnBoardTest(unittest.TestCase):
         mock_comm_link = MagicMock()
         mock_comm_link.send = MagicMock()
         on_board = OnBoard(mock_comm_link)
-        on_board.stop_streaming_data(['key1', 'key2', 'key3'])
+        on_board.stop_streaming_sensor_data(['key1', 'key2', 'key3'])
         mock_build_message.assert_called_with(
             MessageCommand.STREAM_BIKE_SENSOR_DATA,
             ['stop', 'key1', 'key2', 'key3']
