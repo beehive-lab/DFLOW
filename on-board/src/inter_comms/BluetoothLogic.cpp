@@ -238,7 +238,7 @@ void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_
 }
 
 void BluetoothLogic::start_bandwidth_test(BluetoothComms *bluetooth_comms) {
-    int messages = 100000;
+    int messages = 1000;
 
     char message[BUFFER_SIZE + 1] = "bandwidth-test-data";
 
@@ -269,11 +269,9 @@ void BluetoothLogic::start_bandwidth_test(BluetoothComms *bluetooth_comms) {
     double throughput = (BUFFER_SIZE * messages) / (send_time.count() * 1000);
 
     string temp = "bandwidth-test-result:";
-    char *result_to_send = const_cast<char *>(temp.c_str());
-    char *throughput_char = new char[10];
-    strcpy(throughput_char, to_string(throughput).c_str());
-
-    strcat(result_to_send, throughput_char);
+    temp.append(to_string(throughput));
+    char *result_to_send = new char[temp.length() + 1];
+    strcpy(result_to_send, temp.c_str());
 
     bluetooth_comms->send(result_to_send);
 
