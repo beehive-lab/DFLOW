@@ -1,5 +1,4 @@
 import errno
-import select
 import socket
 import ssl
 
@@ -129,16 +128,3 @@ class NetworkLink(CommLink):
 
     def is_connected(self) -> bool:
         return self._connected
-
-    def ready_for_read(self) -> bool:
-        if not self.is_connected():
-            return False
-
-        read, *_ = select.select([self._sock], [], [], 1)
-        if read:
-            return True
-        else:
-            return False
-
-    def get_raw_socket(self):
-        return self._sock

@@ -2,7 +2,6 @@
 NOTE: Currently bluetooth connectivity is only available on linux.
 """
 import errno
-import select
 import socket
 import ssl
 from time import sleep
@@ -136,16 +135,3 @@ class BluetoothLink(CommLink):
 
     def is_connected(self) -> bool:
         return self._connected
-
-    def ready_for_read(self) -> bool:
-        if not self._connected:
-            return False
-
-        read, *_ = select.select([self._sock], [], [])
-        if read:
-            return True
-        else:
-            return False
-
-    def get_raw_socket(self):
-        return self._sock
