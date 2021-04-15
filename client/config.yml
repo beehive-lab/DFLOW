@@ -32,7 +32,7 @@ help:
     Stop streaming one or more types of profiling data from the on-board.
     Type 'help:profiling_data_types' to list options.
     NOTE: "stop_profiling_data_stream:all" stops streaming all profiling data types.
-  print_profiling_profiling_data: |-
+  print_recorded_profiling_data: |-
     Print all the data sent from the on-board for a particular profiling type.
     Type 'help:profiling_data_types' to list options.
   plot_profiling_data: |-
