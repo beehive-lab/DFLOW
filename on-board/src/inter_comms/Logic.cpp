@@ -20,9 +20,8 @@ void Logic::send_profiling_module(WifiComms wifiComms) {
 
         time_t time_of_batch = data_interface->getSignalBatch();
 
-        if (type_of_comms == 4) {
-            strcat(response, "stream-profiling-module");
-        }
+        strcat(response, "stream-profiling-data");
+
         if (currently_streaming[CPU_USAGE_PIPE]) {
             float value = data_interface->getFloatData(CPU_USAGE_PIPE);
             if (value != -1) {
@@ -103,9 +102,8 @@ void Logic::send_bike_metrics(WifiComms wifiComms) {
 
         time_t time_of_batch = data_interface->getSignalBatch();
 
-        if (type_of_comms == 0) {
-            strcat(response, "stream-bike-sensor-data");
-        }
+        strcat(response, "stream-bike-sensor-data");
+
         if (currently_streaming[AIR_TEMPERATURE_PIPE]) {
             float value = data_interface->getFloatData(AIR_TEMPERATURE_PIPE);
             if (value != -1) {
