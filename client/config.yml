@@ -24,6 +24,19 @@ help:
     Type 'help:sensor_data_types' to list options.
   plot_sensor_data: |-
     Plot sensor data on a graph over time. Output is saved to a file with the specified name.
+  start_profiling_data_stream: |-
+    Start streaming one or more types of profiling data from the on-board.
+    Type 'help:profiling_data_types' to list options.
+    NOTE: "start_profiling_data_stream:all" starts streaming all profiling data types.
+  stop_profiling_data_stream: |-
+    Stop streaming one or more types of profiling data from the on-board.
+    Type 'help:profiling_data_types' to list options.
+    NOTE: "stop_profiling_data_stream:all" stops streaming all profiling data types.
+  print_profiling_profiling_data: |-
+    Print all the data sent from the on-board for a particular profiling type.
+    Type 'help:profiling_data_types' to list options.
+  plot_profiling_data: |-
+    Plot profiling data on a graph over time. Output is saved to a file with the specified name.
   enable_secure_comms: |-
     Enable secure communication between the client and on-board. Will cause a reconnection.
   disable_secure_comms: |-
@@ -52,3 +65,8 @@ help:
     ACCELERATION_X
     ACCELERATION_Y
     ACCELERATION_Z
+  profiling_data_types: |-
+    CPU_USAGE
+    CPU_TEMPERATURE
+    CPU_FREQUENCY
+    MEMORY_USAGE
