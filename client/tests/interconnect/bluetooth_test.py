@@ -205,29 +205,44 @@ class BluetoothLinkTestCase(unittest.TestCase):
         Test that bluetooth link receives data correctly.
         """
 
-        # Create some data and set it as the return value for the recv
-        # method of the underlying socket.
-        expected_data = self._test_data
-        self._mock_ssl_socket.recv.return_value = expected_data
+        # Create some messages that we expect to receive.
+        expected_data_values = [
+            b'msg1',
+            b'msg2',
+            b'msg3',
+            b'msg4',
+            b'msg5',
+            b'msg6',
+        ]
+
+        # Set the socket recv method to return the data in an unpredictable
+        # manner such as may be seen when streaming bytes over the network.
+        self._mock_ssl_socket.recv.side_effect = [
+            b'msg1\nmsg2\nmsg3\n',
+            b'msg',
+            b'4',
+            b'\n',
+            b'msg5\nmsg',
+            b'6\n'
+        ]
 
         # Create the bluetooth link.
         bluetooth_link = BluetoothLink(
             self._test_mac_address,
-            self._test_channel_num,
+            self._test_mac_address,
             self._test_ca_cert,
             self._test_cert,
             self._test_key
         )
         bluetooth_link._connected = True
 
-        # Call the receive method on the bluetooth link and store the data
-        # returned.
-        actual_data = bluetooth_link.receive()
-
-        # Make sure the recv() method of the underlying socket was called
-        # and the data was returned as expected.
-        self._mock_ssl_socket.recv.assert_called()
-        self.assertEqual(expected_data, actual_data)
+        # Repeatedly call the receive() method on the bluetooth link and verify
+        # that the messages returned are correct.
+        for expected_data in expected_data_values:
+            actual_data = bluetooth_link.receive()
+            # Make sure the recv() method of the underlying socket was called
+            # and the data was returned as expected.
+            self.assertEqual(expected_data, actual_data)
 
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+import errno
 import select
 import socket
 import ssl
@@ -88,25 +89,42 @@ class NetworkLink(CommLink):
         self._sock.sendall(data)
 
     def receive(self, buffer_size: int = 1024) -> bytes:
+        # Check that the underlying socket is actually connected
+        # before attempting a read.
         if not self.is_connected():
             return b''
 
+        # If there is some data left over from a previous recv then
+        # start with that.
         data_read = self._leftover
 
         try:
+            # Loop until a we see a message separator indicating that we have
+            # a full message in data_read.
             msg_end = data_read.find(b'\n')
             while msg_end == -1:
                 data_read += self._sock.recv(buffer_size)
                 msg_end = data_read.find(b'\n')
-            if msg_end == len(data_read) - 1:
-                self._leftover = b''
-            else:
-                self._leftover = data_read[msg_end + 1:]
-        except:
+
+            # Any data following the message separator is saved for the
+            # next receive().
+            self._leftover = data_read[msg_end + 1:]
+
+        except OSError as err:
+
+            # Certain errors often occur when the socket is shutdown in the
+            # middle of a recv so we want to handle this gracefully.
+            # Otherwise we rethrow the error.
+            if err.errno != errno.EBADF and err.errno != errno.ENOTCONN:
+                raise
+
+            # Mark the connection as no longer connected and return an
+            # empty byte string.
             self._connected = False
             self._leftover = b''
             return b''
 
+        # Return all the data up to the first message separator.
         return data_read[:msg_end]
 
     def is_connected(self) -> bool:
