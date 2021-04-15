@@ -254,7 +254,9 @@ class OnBoard:
     def get_latest_profiling_data(self, data_type: ProfilingDataKey) -> ():
         if str(data_type) in self.received_data[self._PROFILING_DATA_KEY]:
             return (
-                self.received_data[self._PROFILING_DATA_KEY][str(data_type)][-1]
+                self.received_data[self._PROFILING_DATA_KEY][str(data_type)][
+                    -1
+                ]
             )
         else:
             return ()
