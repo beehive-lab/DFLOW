@@ -617,6 +617,15 @@ void Logic::start_bandwidth_test(WifiComms *wifi_comms) {
 
     double throughput = (BUFFER_SIZE * messages) / (send_time.count() * 1000);
 
+    string temp = "bandwidth-test-result:";
+    char *result_to_send = const_cast<char *>(temp.c_str());
+    char *throughput_char = nullptr;
+    strcpy(throughput_char, to_string(throughput).c_str());
+
+    strcat(result_to_send, throughput_char);
+
+    wifi_comms->send(result_to_send);
+
     cout << "Throughput is " << throughput << " Kb/s"<<endl;
 }
 
