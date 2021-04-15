@@ -15,7 +15,7 @@ class CommLink(ABC):
         pass
 
     @abstractmethod
-    def reconnect(self) -> None:
+    def reconnect(self, secure=None) -> None:
         pass
 
     @abstractmethod
@@ -24,4 +24,8 @@ class CommLink(ABC):
 
     @abstractmethod
     def receive(self, buffer_size: int = 1024) -> bytes:
+        pass
+
+    @abstractmethod
+    def is_connected(self) -> bool:
         pass

@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# This script generates:
+# - A root CA key & self signed root CA certificate.
+# - A key and corresponding x.509 certificate signed by the root CA for the on-board module.
+# - A key and corresponding x.509 certificate signed by the root CA for the client module.
+# NOTE: THESE SHOULD ONLY BE USED FOR TESTING.
+
+CERTS_DIR=test_certs
+ROOT_CA_DIR=$CERTS_DIR/rootCA
+ON_BOARD_DIR=$CERTS_DIR/on-board
+CLIENT_DIR=$CERTS_DIR/client
+
+# Clear out the current certificates if any exist.
+rm -rf $CERTS_DIR
+
+# Build the directory structure to store the certificates.
+mkdir -p $ROOT_CA_DIR $ON_BOARD_DIR $CLIENT_DIR
+
+# Create root CA key.
+openssl genrsa -out $ROOT_CA_DIR/rootCA.key 4096
+
+# Create the root CA certificate which is self signed (i.e signed with the root CA key).
+openssl req -x509 -new -nodes \
+  -sha256 -days 365 \
+  -key $ROOT_CA_DIR/rootCA.key \
+  -subj "/C=GB/O=DFLOW/CN=rootCA" \
+  -out $ROOT_CA_DIR/rootCA.crt
+
+# Create key for the on-board module.
+openssl genrsa -out $ON_BOARD_DIR/on-board.key 2048
+
+# Generate a certificate signing request (CSR) for the on-board module using the generated key.
+openssl req -new -sha256 \
+  -key $ON_BOARD_DIR/on-board.key \
+  -subj "/C=GB/O=DFLOW/CN=on-board" \
+  -out $ON_BOARD_DIR/on-board.csr
+
+# Generate the certificate for the on-board module and delete the csr.
+openssl x509 -req \
+  -in $ON_BOARD_DIR/on-board.csr \
+  -CA $ROOT_CA_DIR/rootCA.crt \
+  -CAkey $ROOT_CA_DIR/rootCA.key \
+  -CAcreateserial -days 365 -sha256 \
+  -out $ON_BOARD_DIR/on-board.crt
+rm $ON_BOARD_DIR/on-board.csr
+
+# Create key for the client module.
+openssl genrsa -out $CLIENT_DIR/client.key 2048
+
+# Generate a certificate signing request (CSR) for the client module using the generated key.
+openssl req -new -sha256 \
+  -key $CLIENT_DIR/client.key \
+  -subj "/C=GB/O=DFLOW/CN=client" \
+  -out $CLIENT_DIR/client.csr
+
+# Generate the certificate for the client module and delete the csr.
+openssl x509 -req \
+  -in $CLIENT_DIR/client.csr \
+  -CA $ROOT_CA_DIR/rootCA.crt \
+  -CAkey $ROOT_CA_DIR/rootCA.key \
+  -CAcreateserial -days 365 -sha256 \
+  -out $CLIENT_DIR/client.crt
+rm $CLIENT_DIR/client.csr

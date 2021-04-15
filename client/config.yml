@@ -1,0 +1,72 @@
+security:
+  cert_file_path: ~/.dflow/certs/client/client.crt
+  priv_key_file_path: ~/.dflow/certs/client/client.key
+  ca_cert_file_path: ~/.dflow/certs/rootCA/rootCA.crt
+
+api:
+  host: localhost
+  port: 5000
+
+help:
+  default: Type 'help:<command_name>' where <command_name> is the name of the command to show help info for.
+  exit: Disconnect from the on-board and exit.
+  menu: Print a list of the available commands.
+  start_sensor_data_stream: |-
+    Start streaming one or more types of sensor data from the on-board.
+    Type 'help:sensor_data_types' to list options.
+    NOTE: "start_sensor_data_stream:all" starts streaming all sensor data types.
+  stop_sensor_data_stream: |-
+    Stop streaming one or more types of sensor data from the on-board.
+    Type 'help:sensor_data_types' to list options.
+    NOTE: "stop_sensor_data_stream:all" stops streaming all sensor data types.
+  print_recorded_sensor_data: |-
+    Print all the data sent from the on-board for a particular sensor type.
+    Type 'help:sensor_data_types' to list options.
+  plot_sensor_data: |-
+    Plot sensor data on a graph over time. Output is saved to a file with the specified name.
+  start_profiling_data_stream: |-
+    Start streaming one or more types of profiling data from the on-board.
+    Type 'help:profiling_data_types' to list options.
+    NOTE: "start_profiling_data_stream:all" starts streaming all profiling data types.
+  stop_profiling_data_stream: |-
+    Stop streaming one or more types of profiling data from the on-board.
+    Type 'help:profiling_data_types' to list options.
+    NOTE: "stop_profiling_data_stream:all" stops streaming all profiling data types.
+  print_recorded_profiling_data: |-
+    Print all the data sent from the on-board for a particular profiling type.
+    Type 'help:profiling_data_types' to list options.
+  plot_profiling_data: |-
+    Plot profiling data on a graph over time. Output is saved to a file with the specified name.
+  enable_secure_comms: |-
+    Enable secure communication between the client and on-board. Will cause a reconnection.
+  disable_secure_comms: |-
+    Disable secure communication between the client and on-board. Will cause a reconnection.
+  test_throughput: |-
+    Test the throughput between client and on-board.
+  sensor_data_types: |-
+    AIR_TEMPERATURE
+    THROTTLE_POSITION
+    TYRE_PRESSURE_FRONT
+    TYRE_PRESSURE_REAR
+    MOTORCYCLE_SPEED
+    REAR_WHEEL_SPEED
+    FRONT_WHEEL_SPEED
+    BRAKE_REAR_ACTIVE
+    BRAKE_FRONT_ACTIVE
+    ABS_MODE
+    TC_MODE
+    THROTTLE_RESPONSE_MODE
+    LEAN_ANGLE
+    BATTERY_VOLTAGE
+    OIL_PRESSURE
+    GEAR_POSITION
+    WATER_TEMPERATURE
+    ENGINE_SPEED
+    ACCELERATION_X
+    ACCELERATION_Y
+    ACCELERATION_Z
+  profiling_data_types: |-
+    CPU_USAGE
+    CPU_TEMPERATURE
+    CPU_FREQUENCY
+    MEMORY_USAGE

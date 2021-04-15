@@ -1,93 +1,85 @@
-#include "canmodule.hpp"
-#include "dataretriever.hpp"
+//Author: Radu-Tudor Andra
+#include "can_interface.hpp"
+#include "can_module.hpp"
+#include "intake_sensors_message.hpp"
+#include "configurable_modes_message.hpp"
 #include <string>
+#include <map>
+#include <pipes.hpp>
+#include <vector>
 #include <iostream>
+#include <future>
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include <unistd.h>
 
 namespace {
 
-class CANExampleMessageTest : public ::testing::Test {
- protected:
-  void SetUp() override {
-    //message which would come from cantools
-     cantools_line[0] = std::string("  vcan0  000001F0   [8]  40 01 40 00 00 00 00 00 ::");
-     cantools_line[1] = std::string("ExampleMessage(");
-     cantools_line[2] = std::string("Enable: 'Disabled' -,");
-     cantools_line[3] = std::string("AverageRadius: 3.2 m,");
-     cantools_line[4] = std::string("Temperature: 250.1 degK");
-     cantools_line[5] = std::string(")");
-  }
-
-  // void TearDown() override {}
-
-  std::string cantools_line[6];
+class MockCAN_Python_Interface : public CAN_Interface{
+ public:
+  MOCK_METHOD(void, initializeInterface, (std::string str1, std::string str2), (override));
+  MOCK_METHOD((std::map<std::string,std::string>), getMessageMap, (), (override));
+  MOCK_METHOD(void, sendMessage, ((std::map<std::string,int>) msg_map), (override));
 };
 
-//test setter functions for example_message values
-TEST_F(CANExampleMessageTest, Setters) {
-  CAN_example_message example_message = CAN_example_message();
+class ModuleTest : public ::testing::Test {
 
-  for(int i = 0; i <= 5; i++)
-  {
-    example_message.addMessageLine(cantools_line[i]);
-  }
-
-
-  EXPECT_EQ(false,example_message.switch_value);
-  EXPECT_FLOAT_EQ(3.2,example_message.average_radius);
-  EXPECT_FLOAT_EQ(250.1, example_message.temperature);
-
-  ASSERT_TRUE(example_message.messageReady());
-
-  example_message.reset();
-  ASSERT_FALSE(example_message.messageReady());
-}
-
-//check encode and decode functions of example_messages
-TEST_F(CANExampleMessageTest, PipeEncodeDecode) {
-  CAN_example_message example_encode_message = CAN_example_message();
-  CAN_example_message example_decoded_message = CAN_example_message();
-
-  example_encode_message.switch_value = true;
-  example_encode_message.average_radius = 3.2;
-  example_encode_message.temperature = 250.1;
-
-  std::string encoded_message = std::string(example_encode_message.encodeForPipe());
-
-  ASSERT_TRUE(encoded_message.compare(std::string("1,3.2,250.1")) == 0);
-
-
-  example_decoded_message.decodeFromPipe(encoded_message.c_str());
-
-  EXPECT_TRUE(example_decoded_message.switch_value);
-  EXPECT_FLOAT_EQ(3.2,example_decoded_message.average_radius);
-  EXPECT_FLOAT_EQ(250.1, example_decoded_message.temperature);
-}
-
-//check the dataRetriever functionality
-class DataRetrieverTest : public ::testing::Test {
- protected:
-  void SetUp() override {
-      data_retriever.testing = true;
-  }
-
-  // void TearDown() override {}
-  CAN_example_message received_message;
-  dataRetriever data_retriever = {};
 };
 
-TEST_F(DataRetrieverTest, Assign) {
-  int pip[2];
+void process_set_helper(std::vector<Pipes>can_pipes_vector, Pipes config_pipe, std::shared_future<void> futureObj)
+{
+    std::map<std::string,std::string> test_map;
+    test_map.insert(std::pair<std::string,std::string>(std::string("MessageType"),std::string("IntakeSensors")));
+    test_map.insert(std::pair<std::string,std::string>(std::string("AirTemperature"),std::string("10.1")));
+    test_map.insert(std::pair<std::string,std::string>(std::string("ThrottlePosition"),std::string("35")));
 
-  data_retriever.listen(pip);
+    MockCAN_Python_Interface can_interface;
+    EXPECT_CALL(can_interface, initializeInterface(std::string("./DFLOW"),std::string("test"))).Times(1);
+    EXPECT_CALL(can_interface, getMessageMap()).WillRepeatedly(testing::Return(test_map));
+    CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"),std::string("test"),&can_interface);
 
-  received_message = data_retriever.example_message;
-
-  ASSERT_FALSE(received_message.switch_value);
-  ASSERT_FLOAT_EQ(received_message.average_radius,3.2);
-  ASSERT_FLOAT_EQ(received_message.temperature,250.1);
-
+    can_module.setListener(can_pipes_vector, config_pipe, futureObj);
+    
 }
 
-}  // namespace
+//test listener
+TEST_F(ModuleTest, TestListener) {
+    std::vector<Pipes> can_pipes_vector;
+    Pipes config_pipe;
+
+     //message which would come from cantools
+    pipe(config_pipe.rdwr);
+    for(int i = 0; i< MESSAGE_NUMBER; i++)
+    {
+        Pipes new_pipe;
+        pipe(new_pipe.rdwr);
+        can_pipes_vector.push_back(new_pipe);
+    }
+    std::promise<void> exitSignal;
+    std::shared_future<void> futureObj = exitSignal.get_future().share();
+
+    std::thread test_can_module_thread(process_set_helper,can_pipes_vector, config_pipe, futureObj);
+    IntakeSensorsMessage test_received_message;
+    read(can_pipes_vector[INTAKE_MESSAGE].rdwr[READ], &test_received_message.data, sizeof(test_received_message.data));
+
+    EXPECT_FLOAT_EQ(test_received_message.data.air_temperature,10.1);
+    EXPECT_EQ(test_received_message.data.throttle_position,35);
+    exitSignal.set_value();
+    test_can_module_thread.join();
+}
+
+TEST_F(ModuleTest,TestSender)
+{
+  MockCAN_Python_Interface can_interface;
+  ConfigurableModesMessage test_message;
+  test_message.data.abs_mode = 1;
+  test_message.data.tc_mode = 2;
+  test_message.data.throttle_response_mode = 3;
+  EXPECT_CALL(can_interface,sendMessage(test_message.get_message_map())).Times(1);
+  CAN_Module can_module = CAN_Module(std::string("./DFLOW"),std::string("test"),std::string("test"),&can_interface);
+
+  //can_module.setInterface(&can_interface);
+  can_module.sendConfigMessage(test_message);
+}
+
+}
