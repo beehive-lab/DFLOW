@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void Logic::send_profiling_module(WifiComms wifiComms) {
+void Logic::send_profiling_data(WifiComms wifiComms) {
 
     while (true) {
         bool sending_data = false;
@@ -452,6 +452,8 @@ void Logic::send_bike_metrics(WifiComms wifiComms) {
 
 void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE]) {
 
+    bool logging_helper = wifiComms->logging, store_locally_helper = store_locally;
+
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
         int bytes_received = wifiComms->receive(receive_buffer);
@@ -571,14 +573,56 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                 if (strcmp(token, "bandwidth-test-request-confirm") == 0) {
                     char to_send[23] = "bandwidth-test-confirm";
                     wifiComms->send(to_send);
-                    wifiComms->logging = true;
-                    this->store_locally = true;
+                    start_bandwidth_test(wifiComms);
+                    wifiComms->logging = logging_helper;
+                    this->store_locally = store_locally_helper;
                 }
             }
 
             token = strtok(nullptr, ":");
         }
     }
+}
+
+void Logic::start_bandwidth_test(WifiComms *wifi_comms) {
+    int messages = 100000;
+
+    char message[BUFFER_SIZE + 1] = "bandwidth-test-data";
+
+    fill(begin(message) + 19, end(message), '#');
+
+    message[BUFFER_SIZE] = '\0';
+
+    char receive_buffer[BUFFER_SIZE];
+
+    char end_confirmation[] = "bandwidth-test-request-confirm";
+
+    auto start = chrono::system_clock::now();
+
+    for (int i = 0; i < messages; i++) {
+        wifi_comms->send(message);
+    }
+
+    wifi_comms->send(end_confirmation);
+
+    wifi_comms->receive(receive_buffer);
+
+    auto end = chrono::system_clock::now();
+
+    chrono::duration<double> send_time = end - start;
+
+    assert(strcmp(receive_buffer, "bandwidth-test-confirm") == 0);
+
+    double throughput = (BUFFER_SIZE * messages) / (send_time.count() * 1000);
+
+    string temp = "bandwidth-test-result:";
+    temp.append(to_string(throughput));
+    char *result_to_send = new char[temp.length() + 1];
+    strcpy(result_to_send, temp.c_str());
+
+    wifi_comms->send(result_to_send);
+
+    cout << "Throughput is " << throughput << " Kb/s"<<endl;
 }
 
 void Logic::Wifi_logic(bool logging, bool encryption, int port) {
@@ -594,7 +638,7 @@ void Logic::Wifi_logic(bool logging, bool encryption, int port) {
 
         thread sensor_thread(&Logic::send_bike_metrics, this, wifi_comms);
 
-        thread profiling_thread(&Logic::send_profiling_module, this, wifi_comms);
+        thread profiling_thread(&Logic::send_profiling_data, this, wifi_comms);
 
         Logic::receive_loop(&wifi_comms, receive_buffer);
 
@@ -644,9 +688,6 @@ Logic::Logic(OnBoardDataInterface* data_interface, bool store_locally, bool encr
     this->file.open("Data", ios::ate);
     if (!file) {
         cerr << "Local storage file not created";
-    }
-    else {
-        cout << "Local storage file created";
     }
     this->key = key;
 }

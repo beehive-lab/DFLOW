@@ -11,6 +11,7 @@ class MessageCommand(Enum):
     BANDWIDTH_TEST_START = 'start-bandwidth-test'
     BANDWIDTH_TEST_REQUEST_CONFIRM = 'bandwidth-test-request-confirm'
     BANDWIDTH_TEST_DATA = 'bandwidth-test-data'
+    BANDWIDTH_TEST_CONFIRM = 'bandwidth-test-confirm'
 
     def __str__(self):
         return self.value

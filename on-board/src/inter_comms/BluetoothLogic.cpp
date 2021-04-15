@@ -10,7 +10,7 @@
 
 using namespace std;
 
-BluetoothLogic::BluetoothLogic(OnBoardDataInterface* data_interface, bool store_locally, bool encrypt_locally, uint8_t *key){
+BluetoothLogic::BluetoothLogic(OnBoardDataInterface* data_interface, bool store_locally, bool encrypt_locally, uint8_t *key) {
     BluetoothLogic::data_interface = data_interface;
     this->store_locally = store_locally;
     this->encrypt_locally = encrypt_locally;
@@ -18,14 +18,11 @@ BluetoothLogic::BluetoothLogic(OnBoardDataInterface* data_interface, bool store_
     if (!file) {
         cerr << "Local storage file not created";
     }
-    else {
-        cout << "Local storage file created";
-    }
     this->key = key;
 }
 
 
-void BluetoothLogic::send_profiling_data(BluetoothComms bluetoothComms) {
+void BluetoothLogic::send_profiling_data(BluetoothComms bluetooth_comms) {
 
     while (true) {
         bool sending_data = false;
@@ -98,7 +95,7 @@ void BluetoothLogic::send_profiling_data(BluetoothComms bluetoothComms) {
         }
 
         if (sending_data) {
-            bluetoothComms.send(response);
+            bluetooth_comms.send(response);
         }
 
         this_thread::sleep_for(chrono::milliseconds(1000));
@@ -106,6 +103,9 @@ void BluetoothLogic::send_profiling_data(BluetoothComms bluetoothComms) {
 }
 
 void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_buffer[BUFFER_SIZE]) {
+
+
+    bool logging_helper = bluetooth_comms->logging, store_locally_helper = store_locally;
 
     while (true) {
         memset(receive_buffer, 0, BUFFER_SIZE);
@@ -125,9 +125,12 @@ void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_
             if (strcmp(token, "exit-application") == 0) {
                 stopping = true;
                 exit_application = true;
-                file.close();
             } else if (strcmp(token, "stream-profiling-data") == 0) {
                 type_of_comms = 4;
+            } else if (strcmp(token, "start-bandwidth-test") == 0) {
+                bluetooth_comms->logging = false;
+                this->store_locally = false;
+                type_of_comms = 3;
             } else if (strcmp(token, "encryption") == 0) {
                 type_of_comms = 2;
             } else if (strcmp(token, "configure-pipe") == 0) {
@@ -218,6 +221,15 @@ void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_
                 } else if (strcmp(token, "off") == 0) {
                     bluetooth_comms->set_encryption(false);
                 }
+            } else if (type_of_comms == 3) {
+                // Bandwidth test. Ignore message unless it is the last one
+                if (strcmp(token, "bandwidth-test-request-confirm") == 0) {
+                    char to_send[23] = "bandwidth-test-confirm";
+                    bluetooth_comms->send(to_send);
+                    start_bandwidth_test(bluetooth_comms);
+                    bluetooth_comms->logging = logging_helper;
+                    this->store_locally = store_locally_helper;
+                }
             }
 
             token = strtok(nullptr, ":");
@@ -225,6 +237,46 @@ void BluetoothLogic::receive_loop(BluetoothComms *bluetooth_comms, char receive_
     }
 }
 
+void BluetoothLogic::start_bandwidth_test(BluetoothComms *bluetooth_comms) {
+    int messages = 1000;
+
+    char message[BUFFER_SIZE + 1] = "bandwidth-test-data";
+
+    fill(begin(message) + 19, end(message), '#');
+
+    message[BUFFER_SIZE] = '\0';
+
+    char receive_buffer[BUFFER_SIZE];
+
+    char end_confirmation[] = "bandwidth-test-request-confirm";
+
+    auto start = chrono::system_clock::now();
+
+    for (int i = 0; i < messages; i++) {
+        bluetooth_comms->send(message);
+    }
+
+    bluetooth_comms->send(end_confirmation);
+
+    bluetooth_comms->receive(receive_buffer);
+
+    auto end = chrono::system_clock::now();
+
+    chrono::duration<double> send_time = end - start;
+
+    assert(strcmp(receive_buffer, "bandwidth-test-confirm") == 0);
+
+    double throughput = (BUFFER_SIZE * messages) / (send_time.count() * 1000);
+
+    string temp = "bandwidth-test-result:";
+    temp.append(to_string(throughput));
+    char *result_to_send = new char[temp.length() + 1];
+    strcpy(result_to_send, temp.c_str());
+
+    bluetooth_comms->send(result_to_send);
+
+    cout << "Throughput is " << throughput << " Kb/s"<<endl;
+}
 
 void BluetoothLogic::send_bike_metrics(BluetoothComms bluetooth_comms) {
 

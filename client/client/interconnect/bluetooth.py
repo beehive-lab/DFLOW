@@ -1,9 +1,10 @@
 """
 NOTE: Currently bluetooth connectivity is only available on linux.
 """
-import select
+import errno
 import socket
 import ssl
+from time import sleep
 
 from .commlink import CommLink
 
@@ -32,6 +33,7 @@ class BluetoothLink(CommLink):
         self._verify_host_name: bool = verify_host_name
         self._secure: bool = secure
         self._sock: socket.socket = self._create_bluetooth_socket()
+        self._leftover = b''
 
     def _create_bluetooth_socket(self):
         return (
@@ -76,6 +78,8 @@ class BluetoothLink(CommLink):
         if secure is not None:
             self._secure = secure
         self.disconnect()
+        # Give the OS some time to deal with disconnecting bluetooth socket.
+        sleep(2)
         self._sock = self._create_bluetooth_socket()
         self.connect()
 
@@ -91,22 +95,43 @@ class BluetoothLink(CommLink):
         self._sock.sendall(data)
 
     def receive(self, buffer_size: int = 1024) -> bytes:
-        if not self._connected:
+        # Check that the underlying socket is actually connected
+        # before attempting a read.
+        if not self.is_connected():
             return b''
-        return self._sock.recv(buffer_size)
+
+        # If there is some data left over from a previous recv then
+        # start with that.
+        data_read = self._leftover
+
+        try:
+            # Loop until a we see a message separator indicating that we have
+            # a full message in data_read.
+            msg_end = data_read.find(b'\n')
+            while msg_end == -1:
+                data_read += self._sock.recv(buffer_size)
+                msg_end = data_read.find(b'\n')
+
+            # Any data following the message separator is saved for the
+            # next receive().
+            self._leftover = data_read[msg_end + 1:]
+
+        except OSError as err:
+
+            # Certain errors often occur when the socket is shutdown in the
+            # middle of a recv so we want to handle this gracefully.
+            # Otherwise we rethrow the error.
+            if err.errno != errno.EBADF and err.errno != errno.ENOTCONN:
+                raise
+
+            # Mark the connection as no longer connected and return an
+            # empty byte string.
+            self._connected = False
+            self._leftover = b''
+            return b''
+
+        # Return all the data up to the first message separator.
+        return data_read[:msg_end]
 
     def is_connected(self) -> bool:
         return self._connected
-
-    def ready_for_read(self) -> bool:
-        if not self._connected:
-            return False
-
-        read, *_ = select.select([self._sock], [], [])
-        if read:
-            return True
-        else:
-            return False
-
-    def get_raw_socket(self):
-        return self._sock

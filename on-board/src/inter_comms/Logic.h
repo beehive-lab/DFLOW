@@ -23,7 +23,7 @@ private:
 
     void send_bike_metrics(WifiComms wifiComms);
 
-    void send_profiling_module(WifiComms wifiComms);
+    void send_profiling_data(WifiComms wifiComms);
 
     OnBoardDataInterface* data_interface;
 
@@ -44,6 +44,8 @@ private:
     uint8_t *key;
 
     std::ofstream file;
+
+    static void start_bandwidth_test(WifiComms *wifi_comms);
 };
 
 

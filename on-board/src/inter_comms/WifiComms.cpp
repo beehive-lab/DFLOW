@@ -43,7 +43,12 @@ int WifiComms::send(char *data) {
         if (logging) {
             cout << "Sending securely: " << data << endl;
         }
-        no_of_bytes = ::SSL_write(ssl, data, strlen(data));
+
+        char *data_with_n = new char[strlen(data) + 1];
+        strcpy(data_with_n, data);
+        strcat(data_with_n, "\n");
+
+        no_of_bytes = ::SSL_write(ssl, data_with_n, strlen(data_with_n));
 
         if (no_of_bytes <= 0) {
             cout << "Error sending the message" << endl;
@@ -58,7 +63,12 @@ int WifiComms::send(char *data) {
         if (logging) {
             cout << "Sending insecurely: " << data << endl;
         }
-        no_of_bytes = ::send(client_socket_fd, data, strlen(data), 0);
+
+        char *data_with_n = new char[strlen(data) + 1];
+        strcpy(data_with_n, data);
+        strcat(data_with_n, "\n");
+
+        no_of_bytes = ::send(client_socket_fd, data_with_n, strlen(data_with_n), 0);
 
         if (no_of_bytes == -1) {
             cout << "Error sending the message" << endl;
@@ -127,7 +137,7 @@ int WifiComms::disconnect() {
     try {
 
         if (logging) {
-            cout<<"Disconnecting..."<<endl;
+            cout << "Disconnecting..." << endl;
             cout << "Closing the client socket" << endl;
         }
 
@@ -257,7 +267,7 @@ int WifiComms::accept_connection() {
             if (encryption) {
                 cout << "Accepting a new secure connection" << endl;
             } else {
-                cout<< "Accepting a new insecure connection" << endl;
+                cout << "Accepting a new insecure connection" << endl;
             }
         }
 
@@ -286,7 +296,7 @@ int WifiComms::accept_connection() {
     }
 }
 
-int WifiComms::load_certificates(SSL_CTX * context, char * certificate_file, char * key_file, char * ca_file) {
+int WifiComms::load_certificates(SSL_CTX *context, char *certificate_file, char *key_file, char *ca_file) {
     try {
         if (SSL_CTX_use_certificate_file(context, certificate_file, SSL_FILETYPE_PEM) <= 0) {
             ERR_print_errors_fp(stderr);

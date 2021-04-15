@@ -1,4 +1,3 @@
-import socket
 from abc import ABC, abstractmethod
 
 
@@ -29,12 +28,4 @@ class CommLink(ABC):
 
     @abstractmethod
     def is_connected(self) -> bool:
-        pass
-
-    @abstractmethod
-    def ready_for_read(self) -> bool:
-        pass
-
-    @abstractmethod
-    def get_raw_socket(self) -> socket.socket:
         pass
