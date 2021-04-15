@@ -194,7 +194,7 @@ class OnBoard:
                     parts[i + 1],
                     parts[i + 2]
                 )
-        elif msg.startswith(b'stream-profiling-module'):
+        elif msg.startswith(b'stream-profiling-data'):
             msg_type, *parts = msg.split(b':')
             for i in range(0, len(parts), 3):
                 self._record_received_profiling_data(
