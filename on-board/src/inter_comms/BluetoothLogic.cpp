@@ -270,7 +270,7 @@ void BluetoothLogic::start_bandwidth_test(BluetoothComms *bluetooth_comms) {
 
     string temp = "bandwidth-test-result:";
     char *result_to_send = const_cast<char *>(temp.c_str());
-    char *throughput_char = nullptr;
+    char *throughput_char = new char[10];
     strcpy(throughput_char, to_string(throughput).c_str());
 
     strcat(result_to_send, throughput_char);
