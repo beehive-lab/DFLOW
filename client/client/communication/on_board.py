@@ -7,6 +7,7 @@ from client.communication.messages import (
     build_command_message_with_args
 )
 from client.interconnect.commlink import CommLink
+from client.interconnect.network import NetworkLink
 
 
 class OnBoard:
@@ -91,7 +92,7 @@ class OnBoard:
 
     def perform_throughput_test(self):
         print('Starting throughput test...')
-        print('testing throughput to client...')
+        print('measuring throughput from client to on-board...')
 
         # Reset all the variables for bandwidth testing.
         self._wait_for_bandwidth_test_confirmation.clear()
@@ -104,14 +105,18 @@ class OnBoard:
             str(MessageCommand.BANDWIDTH_TEST_START).encode()
         )
 
-        # Get buffer size and data chunks.
-        buffer_size = 1024
-        data_chunks_to_send: int = 100000
+        # Set size and number of messages to be sent.
+        chunk_size = 1024
+        data_chunks_to_send: int
+        if isinstance(self._comm_link, NetworkLink):
+            data_chunks_to_send = 100000
+        else:
+            data_chunks_to_send = 1000
 
         # Build test message to completely fill buffer.
         test_data_prefix = str(MessageCommand.BANDWIDTH_TEST_DATA)
         test_data = (
-            test_data_prefix + "\x00" * (buffer_size - len(test_data_prefix))
+            test_data_prefix + "\x00" * (chunk_size - len(test_data_prefix))
         )
         test_data = test_data.encode()
 
@@ -128,11 +133,12 @@ class OnBoard:
         time2 = time()
 
         bandwidth_to_on_board = (
-            float(data_chunks_to_send * buffer_size) / ((time2 - time1) * 1000)
+            float(data_chunks_to_send * chunk_size) / ((time2 - time1) * 1000)
         )
 
         # The on-board will now do the same test so we wait until it
         # requests confirmation.
+        print('measuring throughput from on-board to client...')
         self._wait_to_finish_receiving_bandwidth_test_data.wait()
 
         # Confirm data was received.
@@ -140,8 +146,19 @@ class OnBoard:
             str(MessageCommand.BANDWIDTH_TEST_CONFIRM).encode()
         )
 
+        # After confirmation wait for on-board to share result.
+        self._wait_for_result_of_bandwidth_test.wait()
+        bandwidth_from_on_board = self._result_of_bandwidth_test
+
         print('Completed throughput test...')
-        print('Throughput was {:.3f} KB/s'.format(bandwidth_to_on_board))
+        print(
+            'Throughput:\n'
+            '   client->on-board: {:.3f} KB/s\n'
+            '   on-board->client: {:.3f} KB/s'.format(
+                bandwidth_to_on_board,
+                bandwidth_from_on_board
+            )
+        )
 
         # Reset all the variables for bandwidth testing.
         self._wait_for_bandwidth_test_confirmation.clear()
@@ -156,6 +173,9 @@ class OnBoard:
             self._wait_for_bandwidth_test_confirmation.set()
         elif msg.startswith(b'bandwidth-test-request-confirm'):
             self._wait_to_finish_receiving_bandwidth_test_data.set()
+        elif msg.startswith(b'bandwidth-test-result'):
+            self._result_of_bandwidth_test = float(msg.split(b':')[1])
+            self._wait_for_result_of_bandwidth_test.set()
         elif msg.startswith(b'stream-bike-sensor-data'):
             msg_type, *parts = msg.split(b':')
             for i in range(0, len(parts), 3):
