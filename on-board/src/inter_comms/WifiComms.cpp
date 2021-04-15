@@ -46,9 +46,9 @@ int WifiComms::send(char *data) {
 
         char *data_with_n = new char[strlen(data) + 1];
         strcpy(data_with_n, data);
-        strcat(data, "\n");
+        strcat(data_with_n, "\n");
 
-        no_of_bytes = ::SSL_write(ssl, data, strlen(data_with_n));
+        no_of_bytes = ::SSL_write(ssl, data_with_n, strlen(data_with_n));
 
         if (no_of_bytes <= 0) {
             cout << "Error sending the message" << endl;
@@ -66,9 +66,9 @@ int WifiComms::send(char *data) {
 
         char *data_with_n = new char[strlen(data) + 1];
         strcpy(data_with_n, data);
-        strcat(data, "\n");
+        strcat(data_with_n, "\n");
 
-        no_of_bytes = ::send(client_socket_fd, data, strlen(data_with_n), 0);
+        no_of_bytes = ::send(client_socket_fd, data_with_n, strlen(data_with_n), 0);
 
         if (no_of_bytes == -1) {
             cout << "Error sending the message" << endl;
