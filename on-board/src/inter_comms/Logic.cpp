@@ -575,7 +575,6 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                 if (strcmp(token, "bandwidth-test-request-confirm") == 0) {
                     char to_send[23] = "bandwidth-test-confirm";
                     wifiComms->send(to_send);
-                    this_thread::sleep_for(chrono::milliseconds(1000));
                     start_bandwidth_test(wifiComms);
                     wifiComms->logging = logging_helper;
                     this->store_locally = store_locally_helper;

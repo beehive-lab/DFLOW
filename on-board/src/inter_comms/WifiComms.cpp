@@ -35,19 +35,20 @@ void WifiComms::set_encryption(bool encryption_set) {
     this->encryption = encryption_set;
 }
 
-int WifiComms::send(char *data_1) {
+int WifiComms::send(char *data) {
 
     int no_of_bytes;
-
-    char *data = new char[strlen(data_1) + 1];
-    strcpy(data, data_1);
-    strcat(data, "\n");
 
     if (encryption) {
         if (logging) {
             cout << "Sending securely: " << data << endl;
         }
-        no_of_bytes = ::SSL_write(ssl, data, strlen(data));
+
+        char *data_with_n = new char[strlen(data) + 1];
+        strcpy(data_with_n, data);
+        strcat(data, "\n");
+
+        no_of_bytes = ::SSL_write(ssl, data, strlen(data_with_n));
 
         if (no_of_bytes <= 0) {
             cout << "Error sending the message" << endl;
@@ -62,7 +63,12 @@ int WifiComms::send(char *data_1) {
         if (logging) {
             cout << "Sending insecurely: " << data << endl;
         }
-        no_of_bytes = ::send(client_socket_fd, data, strlen(data), 0);
+
+        char *data_with_n = new char[strlen(data) + 1];
+        strcpy(data_with_n, data);
+        strcat(data, "\n");
+
+        no_of_bytes = ::send(client_socket_fd, data, strlen(data_with_n), 0);
 
         if (no_of_bytes == -1) {
             cout << "Error sending the message" << endl;
