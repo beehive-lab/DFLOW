@@ -1,3 +1,4 @@
+#include "algorithm"
 #include "Logic.h"
 #include "ctime"
 #include <cstring>
@@ -472,6 +473,8 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
             if (strcmp(token, "exit-application") == 0) {
                 stopping = true;
                 exit_application = true;
+            } else if (strcmp(token, "sort-benchmark") == 0) {
+                type_of_comms = 5;
             } else if (strcmp(token, "stream-profiling-data") == 0) {
                 type_of_comms = 4;
             } else if (strcmp(token, "start-bandwidth-test") == 0) {
@@ -577,6 +580,8 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                     wifiComms->logging = logging_helper;
                     this->store_locally = store_locally_helper;
                 }
+            } else if (type_of_comms == 5) {
+
             }
 
             token = strtok(nullptr, ":");
