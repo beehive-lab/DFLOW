@@ -581,11 +581,11 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                     this->store_locally = store_locally_helper;
                 }
             } else if (type_of_comms == 5) {
-                int number_of_elements = stoi(token);
-                int max_element = 1000000;
-                int array[number_of_elements];
+                unsigned long long number_of_elements = stoi(token);
+                unsigned long long max_element = 1000000;
+                int *array = new int[number_of_elements];
 
-                for (int i = 0; i < number_of_elements; i++) {
+                for (unsigned long long i = 0; i < number_of_elements; i++) {
                     array[i] = rand() % max_element;
                 }
 
