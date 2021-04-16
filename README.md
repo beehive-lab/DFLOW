@@ -31,6 +31,7 @@ Libraries required
 * libssl-dev
 * libboost-all-dev
 * libbluetooth-dev
+* python 3.8+
 * cantools
 * frugally-deep
 
@@ -48,3 +49,7 @@ Running the on-board system
 5. For integration of inter-communication functionality with `DFLOW_OnBoard` Test certificates must be generated using `generate_test_certs` and the project path must be set up in `on-board/src/config.cpp`.
 6. The full on-board functionality can now be run with `./DFLOW_OnBoard` from inside the on-boards' build folder.
 
+
+Running the client
+-----------------------
+To setup and run the client simply cd into the `client` directory and run the `run` script.
