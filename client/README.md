@@ -8,9 +8,11 @@ A client to communicate with the on-board software.
 
 Python 3 is required (tested on python 3.8).
 
-## Linux Setup
+The project is developed to run on unix based systems.
 
-The run script in root of the client script installs all dependencies and runs the client.
+## Setup & Run
+
+The run script in root of the client script directory installs all dependencies and runs the client.
 
 `./run`
 
