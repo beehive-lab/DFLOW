@@ -12,9 +12,8 @@ The project is developed to run on unix based systems.
 
 ## Setup & Run
 
-The run script in the root of the client script directory installs all dependencies and runs the client.
 
-`./run`
+Run the `run.sh` script in the root of the client directory to install all python dependencies and run the client.
 
 <!-- Markdown link & img dfn's -->
 

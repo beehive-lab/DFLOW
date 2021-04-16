@@ -7,6 +7,7 @@ if [ ! -d "$DIR"/venv ]; then
     source "$DIR"/venv/bin/activate &&
     pip install wheel &&
     pip install -r "$DIR"/requirements.txt &&
+    clear &&
     python3 "$DIR"/main.py
 else
   source "$DIR"/venv/bin/activate &&

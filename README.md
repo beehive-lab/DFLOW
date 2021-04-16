@@ -64,4 +64,4 @@ Running the on-board system
 
 Running the client
 -----------------------
-To setup and run the client simply `cd` into the `client` directory and run the `run` script.
+To setup and run the client simply `cd` into the `client` directory and run the `run.sh` script.
