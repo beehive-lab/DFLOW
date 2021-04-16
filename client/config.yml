@@ -43,6 +43,8 @@ help:
     Disable secure communication between the client and on-board. Will cause a reconnection.
   test_throughput: |-
     Test the throughput between client and on-board.
+  perform_sort_benchmark: |-
+    Requests for the on-board to perform a sorting benchmark on the given number of data items.
   sensor_data_types: |-
     AIR_TEMPERATURE
     THROTTLE_POSITION
