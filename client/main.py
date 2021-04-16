@@ -165,7 +165,8 @@ class Client:
             ':<data_key_n>\n'
             '   - enable_secure_comms\n'
             '   - disable_secure_comms\n'
-            '   - test_throughput'
+            '   - test_throughput\n'
+            '   - perform_sort_benchmark:<number_of_items>'
         )
 
     def process_command(
@@ -247,6 +248,14 @@ class Client:
             print('Disabled')
         elif command == 'test_throughput':
             on_board.perform_throughput_test()
+        elif command == 'perform_sort_benchmark':
+            if not args or not args[0].isnumeric():
+                print(
+                    'Error no valid arguments supplied try '
+                    '\'help perform_sort_benchmark\' for help'
+                )
+                return
+            on_board.perform_sort_benchmark(int(args[0]))
         else:
             print(
                 '\'{}\' is not a valid command. Type \'menu\' for a list of '
