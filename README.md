@@ -65,3 +65,7 @@ Running the on-board system
 Running the client
 -----------------------
 To setup and run the client simply `cd` into the `client` directory and run the `run.sh` script.
+
+Wiki Page with further Information
+-----------------------------------
+https://github.com/beehive-lab/DFLOW/wiki
