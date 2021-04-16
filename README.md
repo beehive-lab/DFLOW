@@ -29,7 +29,7 @@ Client:
  - Plot graphs of recorded profiling and sensor data over time
  - Stream graphs of live profiling and sensor data in dashboard
  - Toggle encryption settings
- - Test throughput between cient & on-board
+ - Test throughput between client & on-board
  - Send requests to on-board to do performance benchmarks
 
 The library is designed to work with Linux but can be adapted to other OSs.
