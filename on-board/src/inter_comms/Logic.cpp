@@ -1,3 +1,4 @@
+#include "algorithm"
 #include "Logic.h"
 #include "ctime"
 #include <cstring>
@@ -472,6 +473,8 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
             if (strcmp(token, "exit-application") == 0) {
                 stopping = true;
                 exit_application = true;
+            } else if (strcmp(token, "sort-benchmark") == 0) {
+                type_of_comms = 5;
             } else if (strcmp(token, "stream-profiling-data") == 0) {
                 type_of_comms = 4;
             } else if (strcmp(token, "start-bandwidth-test") == 0) {
@@ -577,6 +580,27 @@ void Logic::receive_loop(WifiComms *wifiComms, char receive_buffer[BUFFER_SIZE])
                     wifiComms->logging = logging_helper;
                     this->store_locally = store_locally_helper;
                 }
+            } else if (type_of_comms == 5) {
+                unsigned long long number_of_elements = stoi(token);
+                unsigned long long max_element = 1000000;
+                int *array = new int[number_of_elements];
+
+                for (unsigned long long i = 0; i < number_of_elements; i++) {
+                    array[i] = rand() % max_element;
+                }
+
+                auto start = chrono::system_clock::now();
+                sort(array, array + number_of_elements);
+                auto end = chrono::system_clock::now();
+
+                chrono::duration<double> time_taken = end - start;
+
+                string temporary = "sort-benchmark-result:";
+                temporary.append(to_string(time_taken.count()));
+                char *to_send = new char[temporary.length() + 1];
+                strcpy(to_send, temporary.c_str());
+
+                wifiComms->send(to_send);
             }
 
             token = strtok(nullptr, ":");

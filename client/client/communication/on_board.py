@@ -30,6 +30,10 @@ class OnBoard:
         self._wait_for_result_of_bandwidth_test: Event = Event()
         self._result_of_bandwidth_test: float = None
 
+        # Variables used for performing sort benchmark.
+        self._wait_for_sort_benchmark_result: Event = Event()
+        self._result_of_sorting_benchmarking: float = None
+
         # Data received from the on-board.
         self.received_data: dict[str, dict[str, list[tuple[bytes, bytes]]]] = \
             dict()
@@ -57,12 +61,12 @@ class OnBoard:
         msg_command: MessageCommand = MessageCommand.STREAM_BIKE_SENSOR_DATA
         msg_args: [str] = ['start'] + [str(data_key) for data_key in data_keys]
 
-        message: str = build_command_message_with_args(
+        msg: str = build_command_message_with_args(
             msg_command,
             msg_args
         )
 
-        self._comm_link.send(message.encode())
+        self._comm_link.send(msg.encode())
 
     def stop_streaming_sensor_data(self, data_keys: [SensorDataKey]) -> None:
         msg_command: MessageCommand = MessageCommand.STREAM_BIKE_SENSOR_DATA
@@ -108,7 +112,6 @@ class OnBoard:
             MessageCommand.ENCRYPTION, ['on']
         )
         self._comm_link.send(message.encode())
-
         self.reconnect(True)
 
     def disable_secure_comms(self):
@@ -197,6 +200,37 @@ class OnBoard:
         self._wait_for_result_of_bandwidth_test.clear()
         self._result_of_bandwidth_test = None
 
+    def perform_sort_benchmark(self, number_of_items_to_sort: int):
+        # Reset all the variables for sort benchmarking.
+        self._wait_for_sort_benchmark_result.clear()
+        self._result_of_sorting_benchmarking = None
+
+        # Send sort benchmark message.
+        msg: str = build_command_message_with_args(
+            MessageCommand.SORT_BENCHMARK,
+            [number_of_items_to_sort]
+        )
+        self._comm_link.send(msg.encode())
+
+        print('Waiting for on-board to complete sorting benchmark...')
+
+        # Wait for sort benchmark result.
+        self._wait_for_sort_benchmark_result.wait()
+        sort_benchmark_result = self._result_of_sorting_benchmarking
+
+        print(
+            'Sort benchmark complete:\n'
+            '   - # of items sorted: {}\n'
+            '   - total sorting time: {:.6f}s'.format(
+                number_of_items_to_sort,
+                sort_benchmark_result
+            )
+        )
+
+        # Reset all the variables for sort benchmarking.
+        self._wait_for_sort_benchmark_result.clear()
+        self._result_of_sorting_benchmarking = None
+
     # ************** PROCESS INCOMING MESSAGES FROM ONBOARD **************
 
     def handle_incoming_message(self, msg: bytes) -> None:
@@ -207,6 +241,9 @@ class OnBoard:
         elif msg.startswith(b'bandwidth-test-result'):
             self._result_of_bandwidth_test = float(msg.split(b':')[1])
             self._wait_for_result_of_bandwidth_test.set()
+        elif msg.startswith(b'sort-benchmark-result'):
+            self._result_of_sorting_benchmarking = float(msg.split(b':')[1])
+            self._wait_for_sort_benchmark_result.set()
         elif msg.startswith(b'stream-bike-sensor-data'):
             msg_type, *parts = msg.split(b':')
             for i in range(0, len(parts), 3):

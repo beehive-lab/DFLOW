@@ -12,6 +12,7 @@ class MessageCommand(Enum):
     BANDWIDTH_TEST_REQUEST_CONFIRM = 'bandwidth-test-request-confirm'
     BANDWIDTH_TEST_DATA = 'bandwidth-test-data'
     BANDWIDTH_TEST_CONFIRM = 'bandwidth-test-confirm'
+    SORT_BENCHMARK = 'sort-benchmark'
 
     def __str__(self):
         return self.value
@@ -62,7 +63,7 @@ class ProfilingDataKey(Enum):
 
 def build_command_message_with_args(
     command: MessageCommand,
-    args: [str]
+    args: []
 ) -> str:
     """
     Builds a message to send to the on-board.
