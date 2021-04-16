@@ -12,7 +12,7 @@ The project is developed to run on unix based systems.
 
 ## Setup & Run
 
-The run script in root of the client script directory installs all dependencies and runs the client.
+The run script in the root of the client script directory installs all dependencies and runs the client.
 
 `./run`
 
