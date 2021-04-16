@@ -9,17 +9,28 @@ Participants: Maximilian Gama, Osher Landes, Radu-Tudor Andra
 This framework provides the means of accessing a CAN-based system(Motorcycle signals have been used in this case) and utilizing it's resources for IoT applications. The project can be used either as an example, a platform which allows for prototyping and assesment, or a starting point for a more complex project.
 
 ------------------
-Components:
+### Components:
  - On-Board system: retrieves data from the CAN bus(file data interface is also possible) and performs signal synchronisation and data processing operations so it can be easily and efficiently accesed and either perform local function or send over to the client through secure Wifi or Bluetooth.
  - Client system: retrieves and sends data from and to the on-board securely, providing tools for data analysis.
 
 
 ------------------
-Functionalities provided:
+### Functionalities provided:
+
+On-Board:
  - Controller Area Network(CAN) module: allows CAN message encoding and decoding through Python embedding and use of cantools;
  - Data Processing module: performs synchronization of different message rates through bucketing up to the desired rate, provides data separation into multiple streams as well as individual buffering and allows for processing operations on the buffers prior to sending to reduce communication loads; 
  - User Defined Functions(UDF) module: provides an interface for easy access to the on-board signals, allows signal selection and injection of frugaly-deep converted Keras DNNs for prediction supporting run-time interchangeability;
  - Profiling module: performs metric checks such as CPU and memory usage, CPU frequency and temperature
+
+Client:
+ - Stream sensor data from the on-board 
+ - Stream profiling data from the on-board
+ - Plot graphs of recorded profiling and sensor data over time
+ - Stream graphs of live profiling and sensor data in dashboard
+ - Toggle encryption settings
+ - Test throughput between cient & on-board
+ - Send requests to on-board to do performance benchmarks
 
 The library is designed to work with Linux but can be adapted to other OSs.
 
