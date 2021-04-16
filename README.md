@@ -24,6 +24,7 @@ On-Board:
  - Profiling module: performs metric checks such as CPU and memory usage, CPU frequency and temperature
 
 Client:
+ - Connect to on-board via bluetooth and regular network
  - Stream sensor data from the on-board 
  - Stream profiling data from the on-board
  - Plot graphs of recorded profiling and sensor data over time
